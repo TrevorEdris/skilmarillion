@@ -1,0 +1,13 @@
+{
+  "name": "skilmarillion",
+  "owner": {
+    "name": "TrevorEdris"
+  },
+  "plugins": [
+    {
+      "name": "dream",
+      "source": "./dream",
+      "description": "Spec-driven planning: triage, spec, architecture, TDD plan."
+    }
+  ]
+}
