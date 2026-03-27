@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # update-dream-state.sh — Silent dream state persistence for /dream:sdd
-# State files: .dream-state-{slug}.local.md (relative to CWD)
+# State files: .dream-state-{slug}.local.yaml (relative to CWD)
 set -euo pipefail
 
 COMMAND="${1:-}"
@@ -18,7 +18,7 @@ usage() {
 }
 
 state_file() {
-  echo ".dream-state-${1}.local.md"
+  echo ".dream-state-${1}.local.yaml"
 }
 
 # Parse key=value args into named vars
@@ -52,40 +52,18 @@ parse_flags() {
 read_field() {
   local file="$1"
   local key="$2"
-  # Read from YAML frontmatter block
-  awk -v key="$key" '
-    /^---$/ { fm++; next }
-    fm == 1 && $0 ~ "^"key":" {
-      sub(/^[^:]+: ?/, ""); print; exit
-    }
-    fm == 2 { exit }
-  ' "$file"
+  awk -v key="$key" '$0 ~ "^"key":" { sub(/^[^:]+: ?/, ""); print; exit }' "$file"
 }
 
 write_state() {
   local file="$1"
   cat > "$file" <<EOF
----
 feature: ${FEATURE}
 size: ${SIZE}
 risk: ${RISK}
 routing_decision: ${ROUTING}
 current_phase: ${CURRENT_PHASE}
 spec_path: ${SPEC_PATH}
----
-
-# Dream State: ${FEATURE}
-
-## Triage
-- **Size:** ${SIZE}
-- **Risk:** ${RISK}
-- **Routing:** ${ROUTING}
-
-## Current Phase
-${CURRENT_PHASE}
-
-## Spec
-${SPEC_PATH:-(none)}
 EOF
 }
 
@@ -162,14 +140,14 @@ case "$COMMAND" in
 
   list)
     shopt -s nullglob
-    FILES=(.dream-state-*.local.md)
+    FILES=(.dream-state-*.local.yaml)
     if [[ ${#FILES[@]} -eq 0 ]]; then
       echo "No dream state files found."
       exit 0
     fi
     for f in "${FILES[@]}"; do
       slug="${f#.dream-state-}"
-      slug="${slug%.local.md}"
+      slug="${slug%.local.yaml}"
       phase=$(read_field "$f" "current_phase")
       age=$(file_age_days "$f")
       echo "${slug} | phase: ${phase} | age: ${age}d"
@@ -180,7 +158,7 @@ case "$COMMAND" in
     parse_flags "$@"
     if [[ "$ALL" == true ]]; then
       shopt -s nullglob
-      FILES=(.dream-state-*.local.md)
+      FILES=(.dream-state-*.local.yaml)
       for f in "${FILES[@]}"; do
         rm -f "$f"
       done

@@ -108,7 +108,7 @@ Display the triage result to the user:
 > - Risk: {risk}
 > - Routing: {routing_decision}
 > - Rationale: {rationale}
-> - State file: `.dream-state-{slug}.local.md`
+> - State file: `.dream-state-{slug}.local.yaml`
 
 ### B2 — Route by Size
 
