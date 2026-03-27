@@ -2,14 +2,20 @@
 
 ## Current Status
 
-**Phase:** 0 — Not Started
-**Last Updated:** 2026-03-26
+**Phase:** 0 — In Progress
+**Last Updated:** 2026-03-27
 
 ### Completed
-*(none yet)*
+- [x] DREAM-001: Plugin Scaffold (P0-A) — merged PR #1
 
 ### In Progress
-- [ ] Phase 0: `dream` — Spec-Driven Planning
+- [ ] DREAM-002: Task Triage Engine (P0-B)
+
+### Not Started
+- [ ] Phase 1: `draft` — Architecture & Design
+- [ ] Phase 2: `do` — Implementation
+- [ ] Phase 3: `discern` — Review & Quality
+- [ ] Phase 4: Homepage — GitHub Pages
 
 ---
 
@@ -49,12 +55,16 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **Model tier:** Sonnet — classifying "FEATURE vs SMALL" from a plain-language description requires understanding user intent, not just pattern matching; a misclassification silently skips spec generation, so accuracy matters
 - **Checklist:**
   - [ ] Define classification rubric: TRIVIAL (single line / config), SMALL (1-3 files, no new behavior), FEATURE (new vertical behavior, AC required), EPIC (multiple features, must be decomposed)
-  - [ ] Implement triage prompt that outputs structured JSON: `{ size, risk, routing_decision }` — typed output enables downstream agents to consume without re-parsing
+  - [ ] Implement triage prompt that outputs structured JSON: `{ size, risk, routing_decision, slug }` — typed output enables downstream agents to consume without re-parsing
   - [ ] TRIVIAL path: confirm intent, apply change, done — no spec file produced
   - [ ] SMALL path: lightweight spec (ACs only, no arch section)
   - [ ] FEATURE/EPIC path: full workflow (P0-C)
   - [ ] Write triage unit tests: 5 representative inputs across all four sizes
   - [ ] Verify no user configuration required to trigger routing
+  - [ ] State files use feature-slug-based filenames (`.dream-state-{slug}.local.md`) so concurrent sessions from the same directory do not clobber each other
+  - [ ] Auto-clear state file on task completion (`done — shipped`)
+  - [ ] Startup scan silently prunes completed (`done — shipped`) state files; surfaces files older than 30 days as abandoned with a cleanup prompt
+  - [ ] `update-dream-state.sh` supports `list` (enumerate all state files with age and phase), `clear --slug {slug}`, and `clear --all`
 
 ### P0-C: SDD Command (Core Planning Workflow)
 
@@ -369,6 +379,64 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 
 ---
 
+## Phase 4: Homepage — GitHub Pages
+
+**Entry Criteria:** Phases 0–3 complete. All four plugins ship and produce real artifacts. At least one real spec and one real review report exist to use as excerpt material.
+**Exit Criteria:** The site is live at the project's GitHub Pages URL, communicates the problem and solution without requiring the visitor to read the README, shows the four-plugin workflow visually, includes at least one real artifact excerpt, renders correctly on mobile and desktop, and achieves Lighthouse ≥ 90 on Performance, Accessibility, and Best Practices.
+
+### P4-A: Site Scaffold
+
+- **What:** Bootstrap the GitHub Pages site — directory structure, HTML/CSS files, and the repository configuration to enable GitHub Pages. No JS framework required; static HTML and CSS only unless a justified exception is made.
+- **Depends on:** Nothing (can scaffold structure ahead of content, but content requires Phases 0–3)
+- **Risk:** GitHub Pages branch or `/docs` directory configuration is a one-time manual step in repo settings. Document it explicitly so it isn't a surprise at launch.
+- **Checklist:**
+  - [ ] Create `docs/site/` (or `gh-pages` branch) with `index.html` and `style.css`
+  - [ ] Enable GitHub Pages in repo settings, pointing to the correct branch/directory
+  - [ ] Verify the site loads at the Pages URL with no 404 or build errors
+  - [ ] Add a `<meta>` description, `og:title`, and `og:description` for link previews
+  - [ ] Confirm mobile viewport meta tag is present
+
+### P4-B: Core Narrative — Problem, Solution, Workflow
+
+- **What:** The homepage's primary content: a clear statement of the problem (fragmented, inconsistent AI dev workflows), the solution (four coherent plugins), and a visual representation of the dream → draft → do → discern lifecycle with a one-line description and artifact output for each plugin.
+- **Depends on:** P4-A
+- **Risk:** The narrative risks being too abstract ("better AI workflows") without concrete specificity. Ground each plugin description in what artifact it produces — specs, ADRs, review reports — not just what it does.
+- **Checklist:**
+  - [ ] Write problem statement section: 2-3 sentences, no jargon, grounded in the user's frustration (not in architecture)
+  - [ ] Write solution section: introduce the four plugins by name with a one-line description each
+  - [ ] Build workflow visualization: dream → draft → do → discern as a visual sequence (CSS only, no JS library)
+  - [ ] For each plugin node in the workflow, show: command invoked, artifact produced, example path
+  - [ ] Add a primary CTA button linking to the GitHub repo
+
+### P4-C: Artifact Excerpt Showcase
+
+- **What:** At least one real artifact excerpt (e.g., 15–20 lines from an actual `/dream:sdd` spec or `/discern:review` report) displayed on the page so visitors can evaluate output quality concretely without installing anything.
+- **Depends on:** P4-B, and at least one real spec or review report from Phases 0–3
+- **Risk:** Excerpts may become stale as plugin output evolves. Treat the showcase content as manually maintained; note in the repo that it should be refreshed when artifact format changes significantly.
+- **Checklist:**
+  - [ ] Select one real spec excerpt and/or one real review report excerpt from actual plugin output
+  - [ ] Display as a styled code/pre block with syntax highlighting (CSS-only highlight is fine)
+  - [ ] Truncate tastefully — show enough to demonstrate structure and quality, not a wall of text
+  - [ ] Add a caption identifying the source command and plugin
+  - [ ] Verify the excerpt renders correctly at mobile viewport width
+
+### P4-D: Polish — Performance, Accessibility, Mobile
+
+- **What:** Final quality pass ensuring the site meets NFR-005: Lighthouse ≥ 90 on Performance, Accessibility, and Best Practices; WCAG 2.1 AA for all interactive elements; correct rendering at mobile and desktop viewports.
+- **Depends on:** P4-A, P4-B, P4-C
+- **Risk:** A project that ships an accessibility audit plugin (`discern:a11y`) with an inaccessible homepage is a credibility failure. This phase is not optional polish — it is a hard exit criterion.
+- **Checklist:**
+  - [ ] Run Lighthouse against the live Pages URL; confirm ≥ 90 on Performance, Accessibility, Best Practices
+  - [ ] Fix any WCAG 2.1 AA failures (contrast, focus indicators, alt text, heading order)
+  - [ ] Verify CTA button and any interactive elements are keyboard-navigable
+  - [ ] Test at 375px (mobile) and 1280px (desktop) — no horizontal scroll, no clipped content
+  - [ ] Confirm page load time < 2s on a standard connection (no unoptimized images or blocking scripts)
+  - [ ] Run `/discern:a11y` against the site's HTML as a final gate before marking phase complete
+
+**Deliverable:** *A publicly hosted GitHub Pages site is live, communicating the "why" of skilmarillion with strong visual design, showing the full four-plugin workflow with real artifact excerpts, and linking visitors directly to the repo for installation.*
+
+---
+
 ## Cross-Cutting Concerns
 
 - **Claude Code only** (NFR-004): All commands use `/plugin:command` syntax. No Cursor, Copilot, or Windsurf compatibility layer is required or planned.
@@ -378,6 +446,7 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **Source material is fotw** (Scope): All skills are rewritten from fotw source — not copied. Reference `~/src/github.com/TrevorEdris/fellowship-of-the-workflows`. Rewriting is a quality gate, not optional.
 - **Distribution via GitHub** (Scope): No install script, GUI, or marketplace listing. Users clone/copy the repo. Each plugin's README covers installation.
 - **Model tier defaults:** Each agent role carries a documented model tier annotation (Haiku / Sonnet / Opus). Haiku for deterministic, tool-free, or structured-output roles (commit formatting, review deduplication). Sonnet for roles requiring judgment or codebase context (triage, spec validation, coding, clean). Opus for accuracy-critical review roles where a missed finding has real consequences (code quality review, security, accessibility). Never assign a heavier model to a role that doesn't need it. These annotations are defaults — users may override per-role via `models.<role>` config.
+- **Homepage quality gate** (NFR-005): The GitHub Pages site must achieve Lighthouse ≥ 90 on Performance, Accessibility, and Best Practices. A project that ships an accessibility audit plugin with an inaccessible homepage is a credibility failure. Run `/discern:a11y` against the site HTML before marking Phase 4 complete.
 - **Tool access constraints:** Reviewer and synthesizer agents are read-only (READ, GLOB, GREP, BASH only — no WRITE, EDIT). Synthesis/aggregation agents are tool-free. Only agents that produce code or artifacts (coder, spec writer, schema designer) have write access. Document tool access in each agent's definition.
 - **Structured handoffs between agents:** Design artifacts from `draft` and specs from `dream` are injected as typed structured context into `do` agents — not re-read from disk per iteration. This avoids redundant file reads and keeps per-iteration token cost low.
 - **Failure escalation over blind retries:** Any agent that fails after a bounded number of attempts must escalate (invoke a diagnostic step or accept-with-debt) rather than retry the same strategy. Blind retry loops are a token anti-pattern and a quality failure.
@@ -391,6 +460,7 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 | fotw (fellowship-of-the-workflows) | `~/src/github.com/TrevorEdris/fellowship-of-the-workflows` | Available |
 | incubyte/claude-plugins (reference architecture) | `~/src/github.com/incubyte/claude-plugins` | Available |
 | Claude Code plugin spec (`plugin.json` format) | Claude Code CLI | Stable (no breaking changes anticipated) |
+| GitHub Pages | Repository settings (branch or `/docs` directory) | Requires one-time manual enable in repo settings |
 
 ---
 
@@ -398,8 +468,8 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 
 | ID | Name | Status | Phase | Roadmap Ref |
 |----|------|--------|-------|-------------|
-| DREAM-001 | Plugin Scaffold | PENDING | 0 | P0-A |
-| DREAM-002 | Task Triage Engine | PENDING | 0 | P0-B |
+| DREAM-001 | Plugin Scaffold | COMPLETE | 0 | P0-A |
+| DREAM-002 | Task Triage Engine | IN PROGRESS | 0 | P0-B |
 | DREAM-003 | SDD Command | PENDING | 0 | P0-C |
 | DREAM-004 | PRD Command | PENDING | 0 | P0-D |
 | DREAM-005 | Validate Command | PENDING | 0 | P0-E |
@@ -422,3 +492,7 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 | DISCERN-003 | Clean Command | PENDING | 3 | P3-C |
 | DISCERN-004 | Security Command | PENDING | 3 | P3-D |
 | DISCERN-005 | A11y Command | PENDING | 3 | P3-E |
+| SITE-001 | Site Scaffold | PENDING | 4 | P4-A |
+| SITE-002 | Core Narrative & Workflow | PENDING | 4 | P4-B |
+| SITE-003 | Artifact Excerpt Showcase | PENDING | 4 | P4-C |
+| SITE-004 | Polish & Quality Gate | PENDING | 4 | P4-D |

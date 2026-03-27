@@ -1,6 +1,6 @@
 # PRD: Skilmarillion
 
-**Version:** 1.0
+**Version:** 1.1
 **Date:** 2026-03-26
 **Status:** Draft — Awaiting Approval
 
@@ -159,6 +159,24 @@ Skilmarillion addresses this gap: a curated, published collection of four Claude
 
 ---
 
+### FR-008: GitHub Pages Homepage
+
+**Description:** A publicly hosted GitHub Pages site that showcases the "why" of skilmarillion — what problem it solves, who it's for, and what the dream → draft → do → discern workflow looks like end-to-end. The site has strong visual design (comparable in quality and impact to impeccable.style) and serves as the primary discovery surface for new users. It links directly to the GitHub repo for installation.
+
+**Priority:** Should
+
+**Acceptance Criteria:**
+- [ ] The site is live at the project's GitHub Pages URL and loads without errors
+- [ ] The homepage communicates the core problem (fragmented, inconsistent AI dev workflows) and the solution without requiring the visitor to read the README
+- [ ] Each of the four plugins (`dream`, `draft`, `do`, `discern`) is visually represented with a one-line description of what it does and what artifact it produces
+- [ ] The dream → draft → do → discern workflow is presented as a clear visual narrative (e.g., a flow, timeline, or step sequence)
+- [ ] At least one real artifact excerpt is shown (e.g., a truncated spec or review report) so visitors can evaluate output quality concretely
+- [ ] A primary call-to-action links to the GitHub repo (installation instructions)
+- [ ] The site renders correctly on mobile and desktop viewports
+- [ ] Page load time is under 2 seconds on a standard connection (no bloated JS frameworks unless justified)
+
+---
+
 ## Non-Functional Requirements
 
 ### NFR-001: Ease of Use for New Users
@@ -185,6 +203,14 @@ Skilmarillion addresses this gap: a curated, published collection of four Claude
 
 ---
 
+### NFR-005: Homepage Web Performance & Accessibility
+
+**Description:** The GitHub Pages homepage must meet baseline web performance and accessibility standards so it does not undermine the credibility of a project whose `discern` plugin runs accessibility audits.
+
+**Measurable Target:** Lighthouse score ≥ 90 on Performance, Accessibility, and Best Practices. WCAG 2.1 AA compliance for all interactive elements.
+
+---
+
 ### NFR-004: Claude Code Compatibility
 
 **Description:** All plugins target Claude Code only. No multi-tool translation layer is required.
@@ -201,6 +227,7 @@ Skilmarillion addresses this gap: a curated, published collection of four Claude
 - Spec, PRD, and plan validation command in `dream`
 - Skills sourced and rewritten from fotw's VERY HIGH and HIGH quality material
 - Published to the Claude Code community via GitHub
+- GitHub Pages homepage showcasing the full workflow with strong visual design (FR-008)
 
 ### Out of Scope
 - CI/CD pipeline plugin — too implementation-specific; deferred
@@ -209,7 +236,8 @@ Skilmarillion addresses this gap: a curated, published collection of four Claude
 - Learning / onboarding plugin — no strong fotw backing; revisit after core four ship
 - Vendor-specific plugins (PagerDuty, Grafana, Better Stack) — narrow domain; defer
 - Multi-tool support (Cursor, Copilot, Windsurf) — skilmarillion targets Claude Code only
-- A GUI, marketplace listing, or install script — distribution is via GitHub clone/copy; tooling deferred
+- A marketplace listing or automated install script — distribution is via GitHub clone/copy; tooling deferred
+- A full documentation site (multi-page) — the homepage is single-page; per-plugin READMEs cover reference docs
 
 ---
 
@@ -255,6 +283,16 @@ Skilmarillion addresses this gap: a curated, published collection of four Claude
 
 ---
 
+### Milestone 5: Homepage — GitHub Pages
+
+**Includes:** FR-008, NFR-005
+
+**Deliverable:** A publicly hosted GitHub Pages site is live, communicating the "why" of skilmarillion with strong visual design, showing the full four-plugin workflow, and linking visitors directly to the repo for installation.
+
+**Depends on:** Milestones 1–4 (the homepage showcases all four plugins; content and example artifacts require them to exist)
+
+---
+
 ## Success Metrics
 
 | Metric | Target | How to Measure |
@@ -264,6 +302,7 @@ Skilmarillion addresses this gap: a curated, published collection of four Claude
 | Plugin independence | Each plugin usable standalone | Install each plugin in isolation; verify all commands succeed |
 | Workflow coverage | All four plugins cover dream → draft → do → discern end-to-end | Complete a feature from `/dream:sdd` to `/discern:review` with no gaps |
 | Community adoption | Stars, forks, or reported usage from non-author users | GitHub metrics, 90 days post-publish |
+| Homepage engagement | Visitors navigate from homepage to GitHub repo | GitHub traffic referrers, 90 days post-publish |
 
 ---
 
@@ -272,6 +311,7 @@ Skilmarillion addresses this gap: a curated, published collection of four Claude
 - **fotw (fellowship-of-the-workflows):** Source material for skills. Skills must be rewritten, not copied. Available now at `~/src/github.com/TrevorEdris/fellowship-of-the-workflows`.
 - **incubyte/claude-plugins:** Reference architecture for plugin structure (`commands/`, `agents/`, `skills/`, `CLAUDE.md`, `plugin.json`). Available now at `~/src/github.com/incubyte/claude-plugins`.
 - **Claude Code plugin spec:** The `.claude-plugin/plugin.json` manifest format must remain stable. No known breaking changes anticipated.
+- **GitHub Pages:** The repository must have GitHub Pages enabled (branch or `/docs` directory). No third-party hosting or build pipeline required — static HTML/CSS is sufficient.
 
 ---
 
