@@ -249,6 +249,7 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
   - [ ] Diagnostic step produces one of: modified approach (retry), sub-slice decomposition (split), or ACCEPT_WITH_DEBT (close slice with a documented gap — do not loop indefinitely)
   - [ ] ACCEPT_WITH_DEBT output: structured gap record `{ slice, missing_behavior, severity, justification }` appended to spec file; downstream slices receive gap notes so they can work around missing behavior
   - [ ] Handle TRIVIAL and SMALL specs (no slice structure) with a simplified one-step cycle
+  - [ ] After each slice GREEN: if Playwright MCP available and dev server running, invoke browser AC verification for that slice (see P2-G); non-blocking if unavailable
   - [ ] Manual verification: run `/do:tdd` against a P0-C-generated spec; confirm slice-by-slice execution with no manual intervention between slices
 
 ### P2-C: Debug Command
@@ -273,6 +274,23 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
   - [ ] Each refactor step: transform → run full test suite → confirm green before next step
   - [ ] Never add behavior during refactor phase (enforce via post-step diff check)
   - [ ] Manual verification: apply to a file with known smells; confirm no behavior change and green suite throughout
+
+### P2-G: Playwright MCP Bundle (Optional)
+
+- **What:** Bundle Playwright MCP in `do` via a `.mcp.json` at the plugin root. When the user has `do` installed, Playwright MCP starts automatically — no manual `claude mcp add` step. The TDD command uses it to verify ACs in a running browser after each slice's GREEN, when a dev server is available.
+- **Depends on:** P2-A (plugin scaffold), P2-B (TDD command — browser verification hooks into the slice loop)
+- **Risk:** Chromium may not be installed on the user's machine. The command must detect absence and fall back to test-only verification without erroring. Playwright install instructions belong in the README.
+- **Note:** Use `.mcp.json` at plugin root — NOT inline `mcpServers` in `plugin.json` (open bug: [anthropics/claude-code#16143](https://github.com/anthropics/claude-code/issues/16143)). Browser verification is opt-in and non-blocking.
+- **Model tier:** Haiku for dev-server detection (deterministic) + structured pass/fail output; browser interaction delegates to Playwright tools directly
+- **Checklist:**
+  - [ ] Create `do/.mcp.json` with Playwright MCP server config using `${CLAUDE_PLUGIN_ROOT}` paths
+  - [ ] Detect dev server: check CLAUDE.md first, then chat context, then package.json/Makefile scripts — ask user to confirm before starting
+  - [ ] After each slice GREEN: if Playwright MCP available and dev server confirmed, invoke browser verification for that slice's ACs
+  - [ ] Browser verification output: PASS (AC text) or FAILED (AC text, expected vs. observed, screenshot path on failure)
+  - [ ] Graceful degradation: if Playwright MCP unavailable or dev server unreachable, log `Browser verification skipped — no dev server` and continue slice loop without blocking
+  - [ ] Browser verification result appended to slice summary in SESSION.md
+  - [ ] Verify: install `do` with no prior MCP config; confirm Playwright MCP appears in `/mcp` output automatically
+  - [ ] Verify: run TDD command with no dev server; confirm slice loop completes without error
 
 ### P2-E: Commit Command
 
@@ -299,14 +317,14 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
   - [ ] Include spec path in PR description for traceability back to `dream` artifact
   - [ ] Verify: run in a repo with and without a PR template; confirm correct format in both cases
 
-**Deliverable:** *Users can bring a `dream` spec and optional `draft` design artifacts to `/do:tdd`, implement each slice with full TDD quality gates, and open a PR with a conventional commit and a correct PR description — without leaving the plugin.*
+**Deliverable:** *Users can bring a `dream` spec and optional `draft` design artifacts to `/do:tdd`, implement each slice with full TDD quality gates (optionally extended with live browser AC verification when a dev server is running), and open a PR with a conventional commit and a correct PR description — without leaving the plugin.*
 
 ---
 
 ## Phase 3: `discern` — Review & Quality
 
 **Entry Criteria:** Phase 2 complete (`do` produces PRs that `discern` evaluates). `discern` is most useful with real PRs to review.
-**Exit Criteria:** A user can run `/discern:review` on any PR or file set and receive a parallel, deduplicated, prioritized review report. `discern` produces no code changes — findings only.
+**Exit Criteria:** A user can run `/discern:review` on any PR or file set and receive a parallel, deduplicated, prioritized review report. The a11y command performs live browser WCAG verification when a dev server is available, falling back to static analysis otherwise. `discern` produces no code changes — findings only.
 
 ### P3-A: Plugin Scaffold
 
@@ -316,6 +334,22 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
   - [ ] Create `discern/.claude-plugin/plugin.json` manifest
   - [ ] Scaffold directories; write `CLAUDE.md` and `README.md`
   - [ ] Verify `claude plugin add` loads `discern` in isolation
+
+### P3-F: Playwright MCP Bundle (Required)
+
+- **What:** Bundle Playwright MCP in `discern` via a `.mcp.json` at the plugin root. Installing `discern` makes Playwright MCP available automatically. This enables the a11y command to perform live browser WCAG verification (navigate to running app, interact with elements, check real DOM state) rather than static code analysis alone.
+- **Depends on:** P3-A (plugin scaffold)
+- **Risk:** Same as P2-G — Chromium may be absent; graceful degradation to static analysis is required. `discern` depends on this more heavily than `do` (it is required, not optional) so the degradation message must be clear and actionable.
+- **Note:** Use `.mcp.json` at plugin root — NOT inline `mcpServers` in `plugin.json` (open bug: [anthropics/claude-code#16143](https://github.com/anthropics/claude-code/issues/16143)).
+- **Model tier:** Playwright tool invocations are deterministic; the a11y judgment agent (P3-E, Opus) interprets browser output — model tier lives there, not here
+- **Checklist:**
+  - [ ] Create `discern/.mcp.json` with Playwright MCP server config using `${CLAUDE_PLUGIN_ROOT}` paths
+  - [ ] Verify plugin install makes Playwright MCP appear in `/mcp` output automatically, without user running `claude mcp add`
+  - [ ] Dev server detection: check CLAUDE.md, prior context, then package.json scripts; ask user to confirm URL before proceeding
+  - [ ] On dev server confirmed: navigate to URL, produce accessibility tree snapshot, pass to a11y agent (P3-E)
+  - [ ] On dev server unavailable or Playwright MCP not connected: fall back to static analysis; note in report: "Live browser verification unavailable — static analysis only. To enable: start dev server and re-run."
+  - [ ] Browser session is read-only: no clicks that mutate state (form submits, deletes) — navigation and inspection only
+  - [ ] Verify: install `discern` with no prior MCP config; confirm Playwright MCP in `/mcp`; run `/discern:a11y` against a running app; confirm browser-based findings appear
 
 ### P3-B: Review Command
 
@@ -363,20 +397,24 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 
 ### P3-E: A11y Command
 
-- **What:** An accessibility audit that produces findings mapped to WCAG 2.1/2.2 criteria with severity ratings (critical/serious/moderate/minor) and reproduction steps.
-- **Depends on:** P3-A
+- **What:** An accessibility audit that produces findings mapped to WCAG 2.1/2.2 criteria with severity ratings (critical/serious/moderate/minor) and reproduction steps. When Playwright MCP is available (see P3-F) and a dev server is running, performs live browser WCAG verification against real DOM state; otherwise falls back to static code analysis.
+- **Depends on:** P3-A, P3-F (Playwright MCP bundle — required for browser mode)
 - **Note:** Frontend-only. For backend or CLI code, the command should exit cleanly with "No UI components detected."
-- **Model tier:** Opus — missing a WCAG criterion has real accessibility impact for real users; POUR principle coverage and criterion mapping requires authoritative judgment; read-only tool access only (READ, GLOB, GREP, BASH)
+- **Model tier:** Opus — missing a WCAG criterion has real accessibility impact for real users; POUR principle coverage and criterion mapping requires authoritative judgment; read-only tool access only (READ, GLOB, GREP, BASH, Playwright MCP tools)
 - **Checklist:**
   - [ ] Port and rewrite `accessibility-audit` from fotw source
   - [ ] Cover all four POUR principles (Perceivable, Operable, Understandable, Robust)
   - [ ] Map each finding to a WCAG 2.1/2.2 success criterion (e.g., 1.4.3 Contrast)
   - [ ] Assign severity: critical (blocks use), serious (major barrier), moderate (inconvenience), minor (best practice)
   - [ ] Include reproduction steps for each finding
+  - [ ] **Browser mode (when Playwright MCP available + dev server confirmed):** Navigate to the running app, take accessibility tree snapshot, check color contrast via computed styles, verify keyboard focus order, check ARIA attributes against live DOM — findings grounded in real rendered state, not source code
+  - [ ] **Static mode (fallback):** Analyze source code and component definitions for WCAG violations; note in report that findings are based on static analysis and may miss runtime-rendered issues
+  - [ ] Report header must declare mode used: `Verification mode: live browser` or `Verification mode: static analysis (no dev server)`
   - [ ] Gracefully handle non-UI code: detect no DOM/component output and exit cleanly
-  - [ ] Verify: run on a component with known contrast failure; confirm WCAG criterion cited and severity rated correctly
+  - [ ] Verify (browser mode): run on a running app with known contrast failure; confirm WCAG criterion cited, severity rated, and finding grounded in live DOM state
+  - [ ] Verify (static mode): run with no dev server; confirm fallback note present and no error thrown
 
-**Deliverable:** *Users can run `/discern:review` on any PR or file set and receive a parallel, deduplicated, prioritized report covering code quality, AI noise, security, and accessibility — with no code changes made by the plugin.*
+**Deliverable:** *Users can run `/discern:review` on any PR or file set and receive a parallel, deduplicated, prioritized report covering code quality, AI noise, security, and accessibility — with no code changes made by the plugin. The a11y command performs live browser WCAG verification against a running app when available, with clear static-analysis fallback.*
 
 ---
 
@@ -448,6 +486,7 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **Distribution via GitHub** (Scope): No install script, GUI, or marketplace listing. Users clone/copy the repo. Each plugin's README covers installation.
 - **Model tier defaults:** Each agent role carries a documented model tier annotation (Haiku / Sonnet / Opus). Haiku for deterministic, tool-free, or structured-output roles (commit formatting, review deduplication). Sonnet for roles requiring judgment or codebase context (triage, spec validation, coding, clean). Opus for accuracy-critical review roles where a missed finding has real consequences (code quality review, security, accessibility). Never assign a heavier model to a role that doesn't need it. These annotations are defaults — users may override per-role via `models.<role>` config.
 - **Homepage quality gate** (NFR-005): The GitHub Pages site must achieve Lighthouse ≥ 90 on Performance, Accessibility, and Best Practices. A project that ships an accessibility audit plugin with an inaccessible homepage is a credibility failure. Run `/discern:a11y` against the site HTML before marking Phase 4 complete.
+- **Bundled MCP servers** (FR-009): Plugins that require MCP tooling declare it in `.mcp.json` at the plugin root — never inline in `plugin.json` (open bug: [anthropics/claude-code#16143](https://github.com/anthropics/claude-code/issues/16143)). Use `${CLAUDE_PLUGIN_ROOT}` for all paths. Commands that depend on MCP tools must degrade gracefully when the tool is unavailable. Document the `npx playwright install chromium` step in each affected plugin's README.
 - **Tool access constraints:** Reviewer and synthesizer agents are read-only (READ, GLOB, GREP, BASH only — no WRITE, EDIT). Synthesis/aggregation agents are tool-free. Only agents that produce code or artifacts (coder, spec writer, schema designer) have write access. Document tool access in each agent's definition.
 - **Structured handoffs between agents:** Design artifacts from `draft` and specs from `dream` are injected as typed structured context into `do` agents — not re-read from disk per iteration. This avoids redundant file reads and keeps per-iteration token cost low.
 - **Failure escalation over blind retries:** Any agent that fails after a bounded number of attempts must escalate (invoke a diagnostic step or accept-with-debt) rather than retry the same strategy. Blind retry loops are a token anti-pattern and a quality failure.
@@ -488,11 +527,13 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 | DO-004 | Refactor Command | PENDING | 2 | P2-D |
 | DO-005 | Commit Command | PENDING | 2 | P2-E |
 | DO-006 | PR Command | PENDING | 2 | P2-F |
+| DO-007 | Playwright MCP Bundle (Optional) | PENDING | 2 | P2-G |
 | DISCERN-001 | Plugin Scaffold | PENDING | 3 | P3-A |
 | DISCERN-002 | Review Command | PENDING | 3 | P3-B |
 | DISCERN-003 | Clean Command | PENDING | 3 | P3-C |
 | DISCERN-004 | Security Command | PENDING | 3 | P3-D |
 | DISCERN-005 | A11y Command | PENDING | 3 | P3-E |
+| DISCERN-006 | Playwright MCP Bundle (Required) | PENDING | 3 | P3-F |
 | SITE-001 | Site Scaffold | PENDING | 4 | P4-A |
 | SITE-002 | Core Narrative & Workflow | PENDING | 4 | P4-B |
 | SITE-003 | Artifact Excerpt Showcase | PENDING | 4 | P4-C |
