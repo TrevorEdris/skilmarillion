@@ -26,8 +26,25 @@ Part of the [Skilmarillion](https://github.com/TrevorEdris/skilmarillion) workfl
 |---------|---------|
 | `/dream:sdd [task]` | Full spec-driven workflow. Routes by size (TRIVIAL → quick confirm; FEATURE → full workflow). |
 | `/dream:prd [feature]` | Client-shareable PRD from a plain-language description. Saves to `docs/prds/`. |
-| `/dream:validate [path]` | Score a spec, PRD, or plan (0–100; PASS at ≥70). |
+| `/dream:validate [path]` | Score a spec, PRD, or plan (0–100; PASS at ≥70). Auto-detects doc type. Supports `--draft` for relaxed threshold (50). |
 | `/dream:migrate [legacy] [target]` | Prioritized migration plan as independent specs. *(P0-H)* |
+
+### Standalone validation script
+
+The validate command wraps `dream/scripts/validate.py`, which can also be run directly:
+
+```bash
+# Auto-detect doc type
+python dream/scripts/validate.py docs/specs/my-feature-spec.md --verbose
+
+# Explicit type + JSON output
+python dream/scripts/validate.py docs/prds/my-prd.md --type prd --json
+
+# Draft mode (relaxed threshold: 50)
+python dream/scripts/validate.py docs/specs/wip-spec.md --draft
+```
+
+Requires Python 3.10+ (stdlib only, no external dependencies).
 
 ## Artifact Paths
 
