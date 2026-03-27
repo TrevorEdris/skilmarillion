@@ -67,7 +67,7 @@ Directories are created if they do not exist.
 
 ## State Persistence
 
-Track workflow progress in `.dream-state.local.md`. This file is written via Bash (not Write/Edit tools) to avoid permission prompts. On startup, check for in-progress work and offer to resume.
+Track workflow progress in `.dream-state-{slug}.local.yaml`. This file is written via Bash (not Write/Edit tools) to avoid permission prompts. On startup, check for in-progress work and offer to resume.
 
 ## Personality
 
