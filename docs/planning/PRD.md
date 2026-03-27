@@ -94,6 +94,8 @@ Skilmarillion addresses this gap: a curated, published collection of four Claude
 
 **Acceptance Criteria:**
 - [ ] Invoking the TDD command with a spec path executes each slice in order, gating advancement on passing tests
+- [ ] When Playwright MCP is available and a dev server is running, the TDD command optionally verifies each slice's ACs in a live browser after GREEN — producing a pass/fail result per AC with screenshots on failure
+- [ ] Browser verification in the TDD command is opt-in and non-blocking — if Playwright MCP is unavailable or no dev server is detected, the command proceeds with test-only verification without prompting
 - [ ] The debug command produces a root cause statement before proposing any fix
 - [ ] The refactor command runs phase-gated (each step passes tests before the next begins)
 - [ ] The commit command produces a conventional commit message from staged changes, detecting breaking changes automatically
@@ -103,7 +105,7 @@ Skilmarillion addresses this gap: a curated, published collection of four Claude
 
 ### FR-004: Review & Quality Plugin (`discern`)
 
-**Description:** Users can invoke a full parallel code review, a desloppify pass, a security review, and an accessibility audit after a PR exists. Review findings are deduplicated, sorted by impact-to-effort ratio, and lead with what is working well before surfacing issues. The plugin evaluates; it does not modify code.
+**Description:** Users can invoke a full parallel code review, a desloppify pass, a security review, and an accessibility audit after a PR exists. Review findings are deduplicated, sorted by impact-to-effort ratio, and lead with what is working well before surfacing issues. The plugin evaluates; it does not modify code. The `discern` plugin bundles Playwright MCP via `.mcp.json`, enabling live browser-based verification for the a11y command and optional browser-assisted review without requiring users to manually configure MCP servers.
 
 **Priority:** Must
 
@@ -112,6 +114,8 @@ Skilmarillion addresses this gap: a curated, published collection of four Claude
 - [ ] The clean command identifies and removes AI-generated noise (narrator comments, obvious comments, hollow prose) without altering logic
 - [ ] The security command produces only findings with >80% confidence of real exploitation potential — no theoretical concerns
 - [ ] The a11y command produces findings mapped to WCAG 2.1/2.2 criteria with severity ratings
+- [ ] When Playwright MCP is available (bundled via the plugin's `.mcp.json`), the a11y command performs live browser rendering — navigating to the running app, interacting with elements, and verifying WCAG criteria against real DOM state — rather than static code analysis alone
+- [ ] The a11y command degrades gracefully when no dev server is running or Playwright MCP fails to connect — falls back to static analysis and notes the limitation in the report
 - [ ] `discern` produces no code changes — findings only
 - [ ] Review reports are saved to the active session directory (`$SKILMARILLION_SESSIONS_DIR/YYYY-MM-DD_<slug>/review-<target>.md`)
 
@@ -156,6 +160,22 @@ Skilmarillion addresses this gap: a curated, published collection of four Claude
 - [ ] ADRs are always saved to `docs/adrs/[NNN]-[title].md`
 - [ ] Review reports are saved to the active session directory as `review-<target>.md`
 - [ ] Session documents follow the path convention defined in FR-006
+
+---
+
+### FR-009: Bundled MCP Servers via Plugin `.mcp.json`
+
+**Description:** Plugins that require MCP tool access (e.g., Playwright for browser automation) bundle their MCP server configuration in a `.mcp.json` file at the plugin root. When a user installs the plugin, the MCP server starts automatically at session startup — no manual `claude mcp add` step required. This eliminates the single biggest adoption friction for browser-dependent features.
+
+**Priority:** Must
+
+**Acceptance Criteria:**
+- [ ] The `discern` plugin includes a `.mcp.json` that configures Playwright MCP with `${CLAUDE_PLUGIN_ROOT}` paths for any bundled server files
+- [ ] Installing `discern` via `claude plugin add` makes Playwright MCP tools available without additional user configuration
+- [ ] The `do` plugin includes an optional `.mcp.json` for Playwright MCP (used by browser-based AC verification in the TDD command when a dev server is running)
+- [ ] Plugin MCP servers appear in `/mcp` output with plugin attribution
+- [ ] If the bundled MCP server fails to start (e.g., missing system dependency like Chromium), the plugin commands that depend on it degrade gracefully with a clear diagnostic message and fallback behavior
+- [ ] Plugin `.mcp.json` uses `${CLAUDE_PLUGIN_ROOT}` (not hardcoded paths) so the configuration is portable across machines
 
 ---
 
@@ -223,6 +243,7 @@ Skilmarillion addresses this gap: a curated, published collection of four Claude
 
 ### In Scope
 - Four plugins: `dream` (planning), `draft` (architecture), `do` (implementation), `discern` (review)
+- Bundled Playwright MCP via plugin `.mcp.json` for browser-based verification in `discern` (required) and `do` (optional) (FR-009)
 - Session documentation hooks (configurable path via env var)
 - Spec, PRD, and plan validation command in `dream`
 - Skills sourced and rewritten from fotw's VERY HIGH and HIGH quality material
@@ -255,7 +276,7 @@ Skilmarillion addresses this gap: a curated, published collection of four Claude
 
 ### Milestone 2: `do` — Implementation
 
-**Includes:** FR-003, FR-005, FR-007 (no artifact paths — do produces code, not docs)
+**Includes:** FR-003, FR-005, FR-007, FR-009 (optional Playwright MCP for browser AC verification)
 
 **Deliverable:** Users can run `/do:tdd` against a dream-generated spec and execute the full slice-by-slice TDD cycle with quality gates, then commit and open a PR without leaving the plugin.
 
@@ -275,9 +296,9 @@ Skilmarillion addresses this gap: a curated, published collection of four Claude
 
 ### Milestone 4: `discern` — Review & Quality
 
-**Includes:** FR-004
+**Includes:** FR-004, FR-009 (bundled Playwright MCP for live browser a11y and review)
 
-**Deliverable:** Users can run `/discern:review` on any PR or file set and receive a parallel, deduplicated, prioritised review report covering code quality, security, and accessibility.
+**Deliverable:** Users can run `/discern:review` on any PR or file set and receive a parallel, deduplicated, prioritised review report covering code quality, security, and accessibility. The a11y command performs live browser WCAG verification when a dev server is running.
 
 **Depends on:** Milestone 2 (`do` produces the PRs that `discern` evaluates; useful to have both working together)
 
@@ -310,7 +331,8 @@ Skilmarillion addresses this gap: a curated, published collection of four Claude
 
 - **fotw (fellowship-of-the-workflows):** Source material for skills. Skills must be rewritten, not copied. Available now at `~/src/github.com/TrevorEdris/fellowship-of-the-workflows`.
 - **incubyte/claude-plugins:** Reference architecture for plugin structure (`commands/`, `agents/`, `skills/`, `CLAUDE.md`, `plugin.json`). Available now at `~/src/github.com/incubyte/claude-plugins`.
-- **Claude Code plugin spec:** The `.claude-plugin/plugin.json` manifest format must remain stable. No known breaking changes anticipated.
+- **Claude Code plugin spec:** The `.claude-plugin/plugin.json` manifest format and `.mcp.json` plugin MCP bundling must remain stable. No known breaking changes anticipated. Note: inline `mcpServers` in `plugin.json` has a known parsing bug ([anthropics/claude-code#16143](https://github.com/anthropics/claude-code/issues/16143)); use `.mcp.json` at plugin root instead.
+- **Playwright MCP:** Browser automation server bundled via `.mcp.json` in `discern` (required) and `do` (optional). Playwright must be installable via `npx playwright install chromium` or equivalent. If Chromium is not installed, commands degrade gracefully to static analysis.
 - **GitHub Pages:** The repository must have GitHub Pages enabled (branch or `/docs` directory). No third-party hosting or build pipeline required — static HTML/CSS is sufficient.
 
 ---
@@ -321,3 +343,5 @@ Skilmarillion addresses this gap: a curated, published collection of four Claude
 |---|---|---|
 | ~~Should `dream` include a `migrate` command?~~ | ~~TrevorEdris~~ | Resolved: yes, included in FR-001 as a Should |
 | ~~Distribution mechanism~~ | ~~TrevorEdris~~ | Resolved: native Claude Code plugin system (`claude plugin marketplace add ...`) |
+| ~~Should users be able to BYOT (Bring Your Own Template) for the PRD format?~~ | ~~TrevorEdris~~ | Resolved: No for v1. PRD is a pipeline input to `prd-to-roadmap` and `dream:validate`; both require known structure. BYOT undermines NFR-002 (repeatability) and breaks validators/parsers. Defer to future milestone if demand emerges. |
+| ~~Should `discern` and `do` bundle Playwright MCP via plugin `.mcp.json`?~~ | ~~TrevorEdris~~ | Resolved: Yes. Added as FR-009. `.mcp.json` at plugin root (not inline `plugin.json` due to anthropics/claude-code#16143). `discern` bundles it as required; `do` as optional. Graceful degradation when Chromium unavailable. |

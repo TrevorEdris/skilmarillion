@@ -7,9 +7,10 @@
 
 ### Completed
 - [x] DREAM-001: Plugin Scaffold (P0-A) — merged PR #1
+- [x] DREAM-002: Task Triage Engine (P0-B) — merged PR #2
 
 ### In Progress
-- [ ] DREAM-002: Task Triage Engine (P0-B)
+- [ ] DREAM-003: SDD Core Planning Workflow (P0-C)
 
 ### Not Started
 - [ ] Phase 1: `draft` — Architecture & Design
