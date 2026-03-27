@@ -8,6 +8,7 @@ allowed-tools:
   - Glob
   - Grep
   - "Bash(${CLAUDE_PLUGIN_ROOT}/scripts/update-dream-state.sh:*)"
+  - "Bash(python ${CLAUDE_PLUGIN_ROOT}/scripts/validate.py:*)"
   - AskUserQuestion
   - Task
   - ToolSearch
@@ -97,7 +98,12 @@ Inspect the argument passed to `/dream:sdd`:
    ```
    Append the returned markdown to the spec using Edit.
 6. If both sections were already present and complete: display the spec summary and confirm with the user.
-7. Validation gate (P0-E stub): display "Spec validation gate not yet available (pending P0-E). Review the spec above before confirming."
+7. **Validation gate:** Run the validation script on the spec:
+   ```bash
+   python ${CLAUDE_PLUGIN_ROOT}/scripts/validate.py <spec-path> --type spec --verbose --json
+   ```
+   - If score >= 70: display PASS with summary and proceed to step 8.
+   - If score < 70: display findings, re-draft the failing sections using the findings as feedback, then re-run validation. Repeat until score >= 70.
 8. Ask user: "This spec is ready for `/do:tdd`. Does it look correct? (yes / request changes)"
    - If "request changes": return to step 4 and re-run the relevant agents with the user's feedback as additional context.
    - If "yes": update state `set --slug {slug} --current-phase "spec-confirmed"`.
@@ -183,7 +189,12 @@ If no: ask what the user would like to do instead.
      --spec-path "docs/specs/{slug}-spec.md"
    ```
 8. Display spec to user.
-9. Validation gate stub: "Spec validation gate not yet available (pending P0-E). Review the spec above."
+9. **Validation gate:** Run the validation script on the saved spec:
+   ```bash
+   python ${CLAUDE_PLUGIN_ROOT}/scripts/validate.py docs/specs/{slug}-spec.md --type spec --verbose --json
+   ```
+   - If score >= 70: display PASS with summary and proceed to step 10.
+   - If score < 70: display findings, re-run `spec-builder` with findings as feedback, save the updated spec, then re-validate. Repeat until score >= 70.
 10. Ask user: "This spec is ready. Looks good? (yes / request changes)"
     - If "request changes": re-run `spec-builder` with user's feedback as additional context. Repeat from step 3.
     - If "yes": update state `set --slug {slug} --current-phase "spec-confirmed"`.
@@ -250,7 +261,12 @@ If no: ask what the user would like to do instead.
       --spec-path "docs/specs/{slug}-spec.md"
     ```
 11. Display spec to user.
-12. Validation gate stub: "Spec validation gate not yet available (pending P0-E). Review the spec above."
+12. **Validation gate:** Run the validation script on the assembled spec:
+    ```bash
+    python ${CLAUDE_PLUGIN_ROOT}/scripts/validate.py docs/specs/{slug}-spec.md --type spec --verbose --json
+    ```
+    - If score >= 70: display PASS with summary and proceed to step 13.
+    - If score < 70: display findings, re-run `spec-builder` with findings as feedback, then re-assemble and re-validate. Repeat until score >= 70.
 13. Ask user: "This spec is ready for `/do:tdd`. Does it look correct? (yes / request changes)"
     - If "request changes": re-run `spec-builder` with user's feedback as additional context, then repeat steps 4–12.
     - If "yes": update state `set --slug {slug} --current-phase "spec-confirmed"`.
