@@ -26,7 +26,7 @@ def env_file(tmp_path):
 
 @pytest.fixture
 def stdin_payload():
-    return {"user_prompt": "PROJ-123 add user authentication flow"}
+    return {"prompt": "PROJ-123 add user authentication flow"}
 
 
 class TestFastPath:
@@ -125,7 +125,7 @@ class TestRenaming:
         """Extracts ticket ID and uses it as prefix."""
         pending = next(month_dir.iterdir())
         sessions_dir = month_dir.parent
-        payload = {"user_prompt": "BOP-42 fix the login bug"}
+        payload = {"prompt": "BOP-42 fix the login bug"}
 
         handle_slug_rename(
             payload,
@@ -141,7 +141,7 @@ class TestRenaming:
         """Generates slug without ticket prefix when none found."""
         pending = next(month_dir.iterdir())
         sessions_dir = month_dir.parent
-        payload = {"user_prompt": "refactor the error handling"}
+        payload = {"prompt": "refactor the error handling"}
 
         handle_slug_rename(
             payload,
@@ -177,7 +177,7 @@ class TestEdgeCases:
         """Handles special characters in prompt."""
         pending = next(month_dir.iterdir())
         sessions_dir = month_dir.parent
-        payload = {"user_prompt": "fix the @#$% bug with <html> & stuff!!!"}
+        payload = {"prompt": "fix the @#$% bug with <html> & stuff!!!"}
 
         handle_slug_rename(
             payload,
@@ -198,7 +198,7 @@ class TestEdgeCases:
         """Truncates slugs longer than 50 chars."""
         pending = next(month_dir.iterdir())
         sessions_dir = month_dir.parent
-        payload = {"user_prompt": "implement a very long feature name that goes on and on and on about many things"}
+        payload = {"prompt": "implement a very long feature name that goes on and on and on about many things"}
 
         handle_slug_rename(
             payload,

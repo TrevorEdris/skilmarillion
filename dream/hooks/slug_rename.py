@@ -85,7 +85,7 @@ def handle_slug_rename(
         return {}
 
     # Extract prompt and build new name
-    user_prompt = payload.get("user_prompt", "")
+    user_prompt = payload.get("prompt", "") or payload.get("user_prompt", "")
     if not user_prompt:
         return {}
 
