@@ -125,6 +125,8 @@ The agent returns bare JSON: `{ size, risk, routing_decision, rationale, slug }`
 
 Parse the JSON. If parsing fails or the output contains prose, ask the user to re-describe the task and retry once.
 
+Before initializing state, resolve the project root per `artifact-paths` skill — determine which git repo this task targets. Cache the result as `{project_root}`.
+
 Initialize state:
 
 ```bash
@@ -134,7 +136,8 @@ ${CLAUDE_PLUGIN_ROOT}/scripts/update-dream-state.sh init \
   --size "{size}" \
   --risk "{risk}" \
   --routing "{routing_decision}" \
-  --current-phase "triaged"
+  --current-phase "triaged" \
+  --project-root "{project_root}"
 ```
 
 Display the triage result to the user:
@@ -175,27 +178,32 @@ If no: ask what the user would like to do instead.
    Input: { "task": "{task description}", "triage_result": {triage JSON}, "mode": "small" }
    ```
 3. Receive spec markdown from agent.
-4. Derive spec filename: `docs/specs/{slug}-spec.md`.
-5. Create `docs/specs/` directory if it does not exist:
+4. **Resolve artifact path** per `artifact-paths` skill:
+   - Resolve project root (git root of target project — not necessarily CWD).
+   - Resolve feature directory (`{project_root}/docs/{feature}/`).
+   - Auto-increment spec number from existing `SPEC-*.md` files in `{project_root}/docs/{feature}/specs/`.
+   - Derive spec path: `{project_root}/docs/{feature}/specs/SPEC-{NNN}-{slug}.md`.
+5. **Confirm path with user** per `artifact-paths` slug confirmation protocol. User may accept, override slug, or override feature directory.
+6. Create target directory if it does not exist:
    ```bash
-   mkdir -p docs/specs
+   mkdir -p {project_root}/docs/{feature}/specs
    ```
-6. Save spec using Write tool to `docs/specs/{slug}-spec.md`.
-7. Update state:
+7. Save spec using Write tool to the confirmed path.
+8. Update state:
    ```bash
    ${CLAUDE_PLUGIN_ROOT}/scripts/update-dream-state.sh set \
      --slug "{slug}" \
      --current-phase "spec-drafted" \
-     --spec-path "docs/specs/{slug}-spec.md"
+     --spec-path "{confirmed_path}"
    ```
-8. Display spec to user.
-9. **Validation gate:** Run the validation script on the saved spec:
-   ```bash
-   python ${CLAUDE_PLUGIN_ROOT}/scripts/validate.py docs/specs/{slug}-spec.md --type spec --verbose --json
-   ```
-   - If score >= 70: display PASS with summary and proceed to step 10.
-   - If score < 70: display findings, re-run `spec-builder` with findings as feedback, save the updated spec, then re-validate. Repeat until score >= 70.
-10. Ask user: "This spec is ready. Looks good? (yes / request changes)"
+9. Display spec to user.
+10. **Validation gate:** Run the validation script on the saved spec:
+    ```bash
+    python ${CLAUDE_PLUGIN_ROOT}/scripts/validate.py {confirmed_path} --type spec --verbose --json
+    ```
+    - If score >= 70: display PASS with summary and proceed to step 11.
+    - If score < 70: display findings, re-run `spec-builder` with findings as feedback, save the updated spec, then re-validate. Repeat until score >= 70.
+11. Ask user: "This spec is ready. Looks good? (yes / request changes)"
     - If "request changes": re-run `spec-builder` with user's feedback as additional context. Repeat from step 3.
     - If "yes": update state `set --slug {slug} --current-phase "spec-confirmed"`.
 
@@ -247,28 +255,33 @@ If no: ask what the user would like to do instead.
    ```
    Receive TDD plan section as `tdd_section`.
 6. **Assemble spec:** Replace `_To be filled by architecture-advisor_` placeholder in `spec_draft` with `arch_section`. Replace `_To be filled by tdd-planner_` placeholder with `tdd_section`.
-7. Derive spec filename: `docs/specs/{slug}-spec.md`.
-8. Create `docs/specs/` directory if it does not exist:
+7. **Resolve artifact path** per `artifact-paths` skill:
+   - Resolve project root (git root of target project — not necessarily CWD).
+   - Resolve feature directory (`{project_root}/docs/{feature}/`).
+   - Auto-increment spec number from existing `SPEC-*.md` files in `{project_root}/docs/{feature}/specs/`.
+   - Derive spec path: `{project_root}/docs/{feature}/specs/SPEC-{NNN}-{slug}.md`.
+8. **Confirm path with user** per `artifact-paths` slug confirmation protocol. User may accept, override slug, or override feature directory.
+9. Create target directory if it does not exist:
    ```bash
-   mkdir -p docs/specs
+   mkdir -p {project_root}/docs/{feature}/specs
    ```
-9. Save assembled spec using Write tool to `docs/specs/{slug}-spec.md`.
-10. Update state:
+10. Save assembled spec using Write tool to the confirmed path.
+11. Update state:
     ```bash
     ${CLAUDE_PLUGIN_ROOT}/scripts/update-dream-state.sh set \
       --slug "{slug}" \
       --current-phase "spec-drafted" \
-      --spec-path "docs/specs/{slug}-spec.md"
+      --spec-path "{confirmed_path}"
     ```
-11. Display spec to user.
-12. **Validation gate:** Run the validation script on the assembled spec:
+12. Display spec to user.
+13. **Validation gate:** Run the validation script on the assembled spec:
     ```bash
-    python ${CLAUDE_PLUGIN_ROOT}/scripts/validate.py docs/specs/{slug}-spec.md --type spec --verbose --json
+    python ${CLAUDE_PLUGIN_ROOT}/scripts/validate.py {confirmed_path} --type spec --verbose --json
     ```
-    - If score >= 70: display PASS with summary and proceed to step 13.
+    - If score >= 70: display PASS with summary and proceed to step 14.
     - If score < 70: display findings, re-run `spec-builder` with findings as feedback, then re-assemble and re-validate. Repeat until score >= 70.
-13. Ask user: "This spec is ready for `/do:tdd`. Does it look correct? (yes / request changes)"
-    - If "request changes": re-run `spec-builder` with user's feedback as additional context, then repeat steps 4–12.
+14. Ask user: "This spec is ready for `/do:tdd`. Does it look correct? (yes / request changes)"
+    - If "request changes": re-run `spec-builder` with user's feedback as additional context, then repeat steps 4–13.
     - If "yes": update state `set --slug {slug} --current-phase "spec-confirmed"`.
 
 #### EPIC
@@ -285,22 +298,26 @@ If no: ask what the user would like to do instead.
    Input: { "task": "{task description}", "triage_result": {triage JSON}, "mode": "epic" }
    ```
    Receive phase map markdown as `phase_map`.
-3. Derive phase map filename: `docs/specs/epic-{slug}-phases.md`.
-4. Create `docs/specs/` directory if it does not exist:
+3. **Resolve artifact path** per `artifact-paths` skill:
+   - Resolve project root (git root of target project — not necessarily CWD).
+   - Resolve feature directory (`{project_root}/docs/{feature}/`). For EPICs, the feature slug is the epic slug.
+   - Derive roadmap path: `{project_root}/docs/{feature}/ROADMAP.md`.
+4. **Confirm path with user** per `artifact-paths` slug confirmation protocol. User may accept or override the feature directory.
+5. Create target directory if it does not exist:
    ```bash
-   mkdir -p docs/specs
+   mkdir -p {project_root}/docs/{feature}
    ```
-5. Save phase map using Write tool to `docs/specs/epic-{slug}-phases.md`.
-6. Update state:
+6. Save phase map using Write tool to the confirmed roadmap path.
+7. Update state:
    ```bash
    ${CLAUDE_PLUGIN_ROOT}/scripts/update-dream-state.sh set \
      --slug "{slug}" \
      --current-phase "epic-decomposed" \
-     --spec-path "docs/specs/epic-{slug}-phases.md"
+     --spec-path "{confirmed_roadmap_path}"
    ```
-7. Display phase map to user.
-8. Ask user: "Phase map saved to `docs/specs/epic-{slug}-phases.md`. Run `/dream:sdd [phase description]` to spec each phase. Ready to start with Phase 1?"
-   - If yes: proceed to the FEATURE flow above using Phase 1's description as the task. The current EPIC slug state is preserved; Phase 1 will create its own state file.
+8. Display phase map to user.
+9. Ask user: "Roadmap saved to `{confirmed_roadmap_path}`. Run `/dream:sdd [phase description]` to spec each phase as `docs/{feature}/specs/SPEC-NNN-{phase-slug}.md`. Ready to start with Phase 1?"
+   - If yes: proceed to the FEATURE flow above using Phase 1's description as the task. The current EPIC slug state is preserved; Phase 1 will create its own state file with the same feature directory.
    - If no: end session. State remains at `epic-decomposed`.
 
 ---
