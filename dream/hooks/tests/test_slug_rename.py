@@ -73,7 +73,7 @@ class TestSlowPath:
             env_file_path=str(env_file),
         )
 
-        assert result == {}
+        assert "systemMessage" in result
         remaining = list(month_dir.iterdir())
         assert len(remaining) == 1
         assert "_pending_" not in remaining[0].name

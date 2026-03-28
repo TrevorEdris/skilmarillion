@@ -104,7 +104,9 @@ def handle_slug_rename(
         except OSError:
             pass
 
-    return {}
+    return {
+        "systemMessage": f"[dream] Session renamed: {new_path}",
+    }
 
 
 def main() -> None:
