@@ -12,12 +12,12 @@
 - [x] DREAM-004: Validate Command (P0-E) — merged PR #5
 - [x] DREAM-005: PRD Command (P0-D) — merged PR #TBD
 - [x] DREAM-006: Session Documentation Hooks (P0-F) — merged PR #TBD
+- [x] DREAM-007: Deterministic Artifact Paths (P0-G) — merged PR #TBD
 
 ### In Progress
 (none)
 
 ### Not Started
-- [ ] DREAM-007: Deterministic Artifact Paths (P0-G)
 - [ ] DREAM-008: Migrate Command (P0-H) — Should priority
 - [ ] Phase 1: `draft` — Architecture & Design
 - [ ] Phase 2: `do` — Implementation
@@ -134,11 +134,15 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **What:** Every `dream` command saves its output to a documented, predictable path so users and teammates can find any artifact without asking where it was saved.
 - **Depends on:** P0-C, P0-D
 - **Checklist:**
-  - [ ] Specs → `docs/specs/[feature-name]-spec.md`
-  - [ ] PRDs → `docs/prds/[feature-name]-prd.md`
-  - [ ] Confirm paths are created if directories don't exist (mkdir -p equivalent)
-  - [ ] Document all paths in `dream` README
-  - [ ] Verify: run two commands back-to-back; confirm no path collisions, no prompting for save location
+  - [x] Specs → `docs/{feature}/specs/SPEC-{NNN}-{slug}.md` (feature-grouped, auto-incrementing)
+  - [x] PRDs → `docs/{feature}/PRD.md` (colocated with roadmap)
+  - [x] Roadmaps → `docs/{feature}/ROADMAP.md` (colocated with PRD)
+  - [x] Plans → `docs/{feature}/plans/PLAN-{NNN}-{slug}.md` (convention reserved for `/do`)
+  - [x] Shared `artifact-paths` skill centralizes path resolution, slug algorithm, and project root detection
+  - [x] Paths resolved relative to target project git root (not CWD)
+  - [x] Confirm paths are created if directories don't exist (mkdir -p equivalent)
+  - [x] Document all paths in `dream` README and CLAUDE.md
+  - [x] Slug confirmed with user before save; user may override
 
 ### P0-H: Migrate Command
 
