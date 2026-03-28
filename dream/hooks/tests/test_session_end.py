@@ -63,9 +63,32 @@ class TestUpdatesSessionMd:
         assert "ended:" in content
 
 
+class TestScanFallback:
+    def test_finds_session_via_project_dir(self, tmp_path, stdin_payload):
+        """Finds the most recent session dir when session_dir env var is missing."""
+        project_dir = tmp_path / "project"
+        sessions = project_dir / ".ai" / "sessions"
+        month = sessions / datetime.now().strftime("%Y-%m")
+        sdir = month / "28-1430_PROJ-123_Some-Feature"
+        sdir.mkdir(parents=True)
+        (sdir / "SESSION.md").write_text(
+            "---\ndate: 2026-03-28\nstatus: active\n---\n\n# Session\n"
+        )
+
+        result = handle_session_end(
+            stdin_payload,
+            session_dir=None,
+            project_dir=str(project_dir),
+        )
+
+        assert result == {}
+        content = (sdir / "SESSION.md").read_text()
+        assert "status: completed" in content
+
+
 class TestGracefulDegradation:
-    def test_noop_if_no_session_dir(self, stdin_payload):
-        """Exits 0 with no side effects when no session dir found."""
+    def test_noop_if_no_session_dir_no_fallback(self, stdin_payload):
+        """Exits 0 with no side effects when no session dir and no fallback."""
         result = handle_session_end(
             stdin_payload,
             session_dir=None,

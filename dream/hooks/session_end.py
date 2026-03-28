@@ -94,6 +94,20 @@ def _append_index(sessions_root: Path, session_dir: Path) -> None:
     index_path.write_text(content)
 
 
+def _find_most_recent_session(sessions_root: Path) -> Path | None:
+    """Find the most recent session dir by scanning month subdirs."""
+    now = datetime.now()
+    month_dir = sessions_root / now.strftime("%Y-%m")
+    if not month_dir.is_dir():
+        return None
+    candidates = sorted(
+        (d for d in month_dir.iterdir() if d.is_dir()),
+        key=lambda d: d.name,
+        reverse=True,
+    )
+    return candidates[0] if candidates else None
+
+
 def handle_session_end(
     payload: dict,
     *,
@@ -102,10 +116,22 @@ def handle_session_end(
     project_dir: str | None = None,
 ) -> dict:
     """Handle a SessionEnd event. Returns JSON-serializable dict for stdout."""
-    if not session_dir:
+    sdir: Path | None = Path(session_dir) if session_dir else None
+
+    # If session_dir not provided, scan for the most recent one
+    if sdir is None or not sdir.is_dir():
+        root = None
+        if sessions_root:
+            root = Path(sessions_root)
+        elif project_dir:
+            root = Path(project_dir) / ".ai" / "sessions"
+        if root:
+            sdir = _find_most_recent_session(root)
+
+    if sdir is None or not sdir.is_dir():
         return {}
 
-    sdir = Path(session_dir)
+    sdir = sdir  # narrowed to Path
     if not sdir.is_dir():
         return {}
 
