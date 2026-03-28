@@ -32,8 +32,5 @@
         ]
       }
     ]
-  },
-  "env": {
-    "SKILMARILLION_SESSIONS_DIR": ""
   }
 }

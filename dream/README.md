@@ -55,7 +55,14 @@ Requires Python 3.10+ (stdlib only, no external dependencies).
 
 ## Session Documentation Hooks
 
-Hooks auto-register when the plugin is enabled — no manual `settings.json` editing required.
+Hooks auto-register when the plugin is installed via the marketplace. If using `--plugin-dir` for local development, copy the hook config into your project's `.claude/settings.local.json`:
+
+```bash
+# Extract just the hooks block from hooks.json, replacing ${CLAUDE_PLUGIN_ROOT}
+# with the absolute path to the dream plugin's hooks/ directory
+```
+
+Or merge `dream/hooks/hooks.json` into `.claude/settings.local.json` manually, replacing `${CLAUDE_PLUGIN_ROOT}` with the absolute path to `dream/`.
 
 ### What happens automatically
 
