@@ -11,7 +11,7 @@ Part of the [Skilmarillion](https://github.com/TrevorEdris/skilmarillion) workfl
 `dream` is the first plugin in the Skilmarillion workflow. It has no dependencies — use it with or without `draft`, `do`, or `discern` installed.
 
 **Input:** A task description (plain language), or nothing — `/dream:sdd` will ask.
-**Output:** `docs/specs/[feature]-spec.md` with testable ACs, vertical slices, architecture recommendation, and TDD plan.
+**Output:** `docs/{feature}/specs/SPEC-{NNN}-{slug}.md` with testable ACs, vertical slices, architecture recommendation, and TDD plan.
 
 ## Installation
 
@@ -25,7 +25,7 @@ Part of the [Skilmarillion](https://github.com/TrevorEdris/skilmarillion) workfl
 | Command | Purpose |
 |---------|---------|
 | `/dream:sdd [task]` | Full spec-driven workflow. Routes by size (TRIVIAL → quick confirm; FEATURE → full workflow). |
-| `/dream:prd [feature]` | Client-shareable PRD from a plain-language description. Saves to `docs/prds/`. |
+| `/dream:prd [feature]` | Client-shareable PRD from a plain-language description. Saves to `docs/{feature}/PRD.md`. |
 | `/dream:validate [path]` | Score a spec, PRD, or plan (0–100; PASS at ≥70). Auto-detects doc type. Supports `--draft` for relaxed threshold (50). |
 | `/dream:migrate [legacy] [target]` | Prioritized migration plan as independent specs. *(P0-H)* |
 
@@ -35,23 +35,36 @@ The validate command wraps `dream/scripts/validate.py`, which can also be run di
 
 ```bash
 # Auto-detect doc type
-python dream/scripts/validate.py docs/specs/my-feature-spec.md --verbose
+python dream/scripts/validate.py docs/my-feature/specs/SPEC-001-auth-flow.md --verbose
 
 # Explicit type + JSON output
-python dream/scripts/validate.py docs/prds/my-prd.md --type prd --json
+python dream/scripts/validate.py docs/my-feature/PRD.md --type prd --json
 
 # Draft mode (relaxed threshold: 50)
-python dream/scripts/validate.py docs/specs/wip-spec.md --draft
+python dream/scripts/validate.py docs/my-feature/specs/SPEC-001-wip.md --draft
 ```
 
 Requires Python 3.10+ (stdlib only, no external dependencies).
 
 ## Artifact Paths
 
-| Artifact | Path |
-|----------|------|
-| Spec | `docs/specs/[feature-name]-spec.md` |
-| PRD | `docs/prds/[feature-name]-prd.md` |
+All paths are relative to the target project's git root (resolved automatically — see `artifact-paths` skill). Slugs are confirmed with the user before save.
+
+```
+{project_root}/docs/{feature}/
+  PRD.md                           # /dream:prd output
+  ROADMAP.md                       # Epic decomposition or manual roadmap
+  specs/
+    SPEC-001-{slug}.md             # /dream:sdd output (auto-incrementing)
+  plans/
+    PLAN-001-{slug}.md             # Future /do output (convention reserved)
+```
+
+| Command | Artifact | Path |
+|---------|----------|------|
+| `/dream:prd` | PRD | `docs/{feature}/PRD.md` |
+| `/dream:sdd` (FEATURE/SMALL) | Spec | `docs/{feature}/specs/SPEC-{NNN}-{slug}.md` |
+| `/dream:sdd` (EPIC) | Roadmap | `docs/{feature}/ROADMAP.md` |
 
 ## Session Documentation Hooks
 
@@ -94,7 +107,7 @@ A global `INDEX.md` at the sessions root tracks all sessions:
 ## Workflow Integration
 
 ```
-dream/  →  docs/specs/[feature]-spec.md
+dream/  →  docs/{feature}/specs/SPEC-NNN-{slug}.md
    ↓
 do/     →  committed branch + open PR
    ↓

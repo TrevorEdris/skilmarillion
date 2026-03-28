@@ -33,7 +33,7 @@ Risk shapes spec depth:
 ## Navigation by Size
 
 - **TRIVIAL**: "I see what needs to change. Want me to describe the fix?" No spec document produced.
-- **SMALL**: Lightweight spec — ACs only. One round of questions. Saves to `docs/specs/`.
+- **SMALL**: Lightweight spec — ACs only. One round of questions. Saves to `docs/{feature}/specs/`.
 - **FEATURE**: Full workflow — triage → context gather → spec → architecture recommendation → TDD plan.
 - **EPIC**: "This needs to be broken into features first. Let me map the phases." Produce a phase map, then spec each feature independently.
 
@@ -45,7 +45,7 @@ Risk shapes spec depth:
 4. **Architecture Advising** — Evaluate spec against codebase. Recommend pattern (simple / MVC / modular monolith / onion). Agent: `architecture-advisor`
 5. **TDD Planning** — Convert confirmed spec + architecture into ordered RED→GREEN→REFACTOR steps per slice. Agent: `tdd-planner`
 
-The output of the full workflow is a spec file at `docs/specs/[feature]-spec.md` that is sufficient input for `/do:tdd` with no additional clarification.
+The output of the full workflow is a spec file at `docs/{feature}/specs/SPEC-{NNN}-{slug}.md` that is sufficient input for `/do:tdd` with no additional clarification.
 
 ## Commands
 
@@ -56,12 +56,23 @@ The output of the full workflow is a spec file at `docs/specs/[feature]-spec.md`
 
 ## Artifact Paths
 
-All outputs land at deterministic paths — no prompting for save location:
+All outputs land at deterministic, feature-grouped paths relative to the target project's git root. Slugs are confirmed with the user before save. See `artifact-paths` skill for full resolution rules.
 
-| Artifact | Path |
-|----------|------|
-| Spec | `docs/specs/[feature-name]-spec.md` |
-| PRD | `docs/prds/[feature-name]-prd.md` |
+```
+{project_root}/docs/{feature}/
+  PRD.md                           # /dream:prd output
+  ROADMAP.md                       # Epic decomposition or manual roadmap
+  specs/
+    SPEC-001-{slug}.md             # /dream:sdd output (auto-incrementing)
+  plans/
+    PLAN-001-{slug}.md             # Future /do output (convention reserved)
+```
+
+| Command | Artifact | Path |
+|---------|----------|------|
+| `/dream:prd` | PRD | `docs/{feature}/PRD.md` |
+| `/dream:sdd` (FEATURE/SMALL) | Spec | `docs/{feature}/specs/SPEC-{NNN}-{slug}.md` |
+| `/dream:sdd` (EPIC) | Roadmap | `docs/{feature}/ROADMAP.md` |
 
 Directories are created if they do not exist.
 
