@@ -45,7 +45,7 @@ class TestCreatesSessionDir:
             env_file_path=str(env_file),
         )
 
-        assert result == {}
+        assert "systemMessage" in result
         # Month subdir should exist
         month_dirs = list(tmp_sessions.iterdir())
         assert len(month_dirs) == 1
@@ -124,7 +124,7 @@ class TestEnvVarRouting:
             env_file_path=str(env_file),
         )
 
-        assert result == {}
+        assert "systemMessage" in result
         assert custom_dir.exists()
         month_dirs = list(custom_dir.iterdir())
         assert len(month_dirs) == 1
@@ -142,7 +142,7 @@ class TestEnvVarRouting:
             env_file_path=str(env_file),
         )
 
-        assert result == {}
+        assert "systemMessage" in result
         expected = project_dir / ".ai" / "sessions"
         assert expected.exists()
 
@@ -190,7 +190,7 @@ class TestGracefulDegradation:
             env_file_path=None,
         )
 
-        assert result == {}
+        assert "systemMessage" in result
         # Session dir should still be created
         month_dirs = list(tmp_sessions.iterdir())
         assert len(month_dirs) == 1

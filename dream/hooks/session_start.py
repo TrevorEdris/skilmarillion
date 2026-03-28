@@ -85,7 +85,9 @@ def handle_session_start(
         except OSError:
             pass
 
-    return {}
+    return {
+        "systemMessage": f"[dream] Session directory: {session_dir}",
+    }
 
 
 def main() -> None:
