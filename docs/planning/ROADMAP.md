@@ -8,11 +8,17 @@
 ### Completed
 - [x] DREAM-001: Plugin Scaffold (P0-A) — merged PR #1
 - [x] DREAM-002: Task Triage Engine (P0-B) — merged PR #2
+- [x] DREAM-003: SDD Core Planning Workflow (P0-C) — merged PR #3
+- [x] DREAM-004: Validate Command (P0-E) — merged PR #5
+- [x] DREAM-005: PRD Command (P0-D) — merged PR #TBD
 
 ### In Progress
-- [ ] DREAM-003: SDD Core Planning Workflow (P0-C)
+(none)
 
 ### Not Started
+- [ ] DREAM-006: Session Documentation Hooks (P0-F)
+- [ ] DREAM-007: Deterministic Artifact Paths (P0-G)
+- [ ] DREAM-008: Migrate Command (P0-H) — Should priority
 - [ ] Phase 1: `draft` — Architecture & Design
 - [ ] Phase 2: `do` — Implementation
 - [ ] Phase 3: `discern` — Review & Quality
