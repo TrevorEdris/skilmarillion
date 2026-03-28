@@ -26,6 +26,7 @@ Part of the [Skilmarillion](https://github.com/TrevorEdris/skilmarillion) workfl
 |---------|---------|
 | `/dream:sdd [task]` | Full spec-driven workflow. Routes by size (TRIVIAL → quick confirm; FEATURE → full workflow). |
 | `/dream:prd [feature]` | Client-shareable PRD from a plain-language description. Saves to `docs/{feature}/PRD.md`. |
+| `/dream:roadmap [prd-path]` | Decompose an approved PRD into ordered milestones. Saves to `docs/{feature}/ROADMAP.md`. *(P0-I)* |
 | `/dream:validate [path]` | Score a spec, PRD, or plan (0–100; PASS at ≥70). Auto-detects doc type. Supports `--draft` for relaxed threshold (50). |
 | `/dream:migrate [legacy] [target]` | Prioritized migration plan as independent specs. *(P0-H)* |
 
