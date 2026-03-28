@@ -78,6 +78,28 @@ class TestSlowPath:
         assert len(remaining) == 1
         assert "_pending_" not in remaining[0].name
 
+    def test_falls_back_to_project_dir(self, tmp_path, env_file, stdin_payload):
+        """Falls back to $CLAUDE_PROJECT_DIR/.ai/sessions when sessions_dir is None."""
+        project_dir = tmp_path / "project"
+        sessions = project_dir / ".ai" / "sessions"
+        month = sessions / datetime.now().strftime("%Y-%m")
+        pending = month / "28-1430_pending_abc12345"
+        pending.mkdir(parents=True)
+        (pending / "SESSION.md").write_text("---\nstatus: active\n---\n")
+
+        result = handle_slug_rename(
+            stdin_payload,
+            session_dir=None,
+            sessions_dir=None,
+            project_dir=str(project_dir),
+            env_file_path=str(env_file),
+        )
+
+        assert "systemMessage" in result
+        remaining = list(month.iterdir())
+        assert len(remaining) == 1
+        assert "_pending_" not in remaining[0].name
+
 
 class TestRenaming:
     def test_renames_with_slug_from_prompt(self, month_dir, env_file, stdin_payload):

@@ -149,13 +149,34 @@ class TestIndexMd:
         data_lines = [l for l in content.strip().split("\n") if l.startswith("| 2026")]
         assert len(data_lines) == 1
 
-    def test_handles_missing_sessions_root(self, session_dir, stdin_payload):
-        """Appends INDEX.md gracefully when sessions_root is None."""
-        result = handle_session_end(
+    def test_derives_root_from_session_dir(self, session_dir, sessions_root, stdin_payload):
+        """Derives sessions root from session dir path when sessions_root is None."""
+        handle_session_end(
             stdin_payload,
             session_dir=str(session_dir),
             sessions_root=None,
         )
-        # SESSION.md should still be updated even without INDEX
-        content = (session_dir / "SESSION.md").read_text()
-        assert "status: completed" in content
+        # Should derive root as session_dir.parent.parent and create INDEX.md there
+        index_md = sessions_root / "INDEX.md"
+        assert index_md.exists()
+
+    def test_falls_back_to_project_dir(self, tmp_path, stdin_payload):
+        """Falls back to $CLAUDE_PROJECT_DIR/.ai/sessions for INDEX.md."""
+        project_dir = tmp_path / "project"
+        sessions = project_dir / ".ai" / "sessions"
+        month = sessions / "2026-03"
+        sdir = month / "28-1430_PROJ-123_Some-Feature"
+        sdir.mkdir(parents=True)
+        (sdir / "SESSION.md").write_text(
+            "---\ndate: 2026-03-28\nstatus: active\n---\n\n# Session\n"
+        )
+
+        handle_session_end(
+            stdin_payload,
+            session_dir=str(sdir),
+            sessions_root=None,
+            project_dir=str(project_dir),
+        )
+
+        index_md = sessions / "INDEX.md"
+        assert index_md.exists()

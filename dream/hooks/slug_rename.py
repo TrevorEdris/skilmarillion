@@ -43,11 +43,23 @@ def _find_pending_dir(month_dir: Path) -> Path | None:
     return None
 
 
+def _resolve_sessions_dir(
+    sessions_dir: str | None, project_dir: str | None
+) -> Path | None:
+    """Resolve the sessions root directory."""
+    if sessions_dir:
+        return Path(sessions_dir)
+    if project_dir:
+        return Path(project_dir) / ".ai" / "sessions"
+    return None
+
+
 def handle_slug_rename(
     payload: dict,
     *,
     session_dir: str | None = None,
     sessions_dir: str | None = None,
+    project_dir: str | None = None,
     env_file_path: str | None = None,
 ) -> dict:
     """Handle a UserPromptSubmit event. Returns JSON-serializable dict for stdout."""
@@ -62,10 +74,12 @@ def handle_slug_rename(
         candidate = Path(session_dir)
         if candidate.is_dir():
             pending = candidate
-    elif sessions_dir:
-        now = datetime.now()
-        month_dir = Path(sessions_dir) / now.strftime("%Y-%m")
-        pending = _find_pending_dir(month_dir)
+    else:
+        root = _resolve_sessions_dir(sessions_dir, project_dir)
+        if root:
+            now = datetime.now()
+            month_dir = root / now.strftime("%Y-%m")
+            pending = _find_pending_dir(month_dir)
 
     if pending is None:
         return {}
@@ -123,6 +137,7 @@ def main() -> None:
         payload,
         session_dir=os.environ.get("SKILMARILLION_SESSION_DIR") or None,
         sessions_dir=os.environ.get("SKILMARILLION_SESSIONS_DIR") or None,
+        project_dir=os.environ.get("CLAUDE_PROJECT_DIR") or None,
         env_file_path=os.environ.get("CLAUDE_ENV_FILE") or None,
     )
     print(json.dumps(result))
