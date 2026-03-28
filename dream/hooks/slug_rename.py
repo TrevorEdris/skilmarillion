@@ -1,35 +1,81 @@
 #!/usr/bin/env python3
 """UserPromptSubmit hook — renames pending session dir with a slug from the user's prompt.
 
+Primary: uses claude CLI + Haiku to generate a concise 3-4 word slug.
+Fallback: deterministic extraction if CLI is unavailable.
+
 Fast path: if $SKILMARILLION_SESSION_DIR doesn't contain '_pending_', exits immediately.
 Slow path: scans the current month's subdir for pending dirs.
 """
 
 import json
 import re
+import shutil
+import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
 
 TICKET_RE = re.compile(r"([A-Z][A-Za-z]+-\d+)")
-STOP_WORDS = {"a", "an", "the", "and", "or", "but", "in", "on", "at", "to", "for",
-              "of", "with", "by", "from", "is", "it", "be", "as", "do", "im", "its",
-              "i", "we", "you", "my", "our", "this", "that", "here", "well", "lets",
-              "want", "going", "just", "really", "very", "also", "about", "some"}
+
+SLUG_PROMPT = (
+    "Generate a concise 3-4 word title for a coding session based on the user's "
+    "first message. Output ONLY the title in Title-Case separated by hyphens. "
+    "No explanation, no quotes, no punctuation. Examples: Build-Auth-Flow, "
+    "Fix-Login-Bug, Refactor-Error-Handling, Add-Dashboard-UI\n\n"
+    "User message: {prompt}"
+)
+
+# Deterministic fallback
+STOP_WORDS = {
+    "a", "an", "the", "and", "or", "but", "in", "on", "at", "to", "for",
+    "of", "with", "by", "from", "is", "it", "be", "as", "do", "im", "its",
+    "i", "we", "you", "my", "our", "this", "that", "here", "well", "lets",
+    "want", "going", "just", "really", "very", "also", "about", "some",
+}
 MAX_SLUG_WORDS = 4
 
 
-def _make_slug(text: str) -> str:
-    """Extract 3-4 meaningful words from the prompt as a Title-Case slug."""
-    # Strip ticket IDs (handled separately)
+def _generate_slug_haiku(prompt: str) -> str | None:
+    """Call claude CLI with Haiku to generate a slug. Returns None on failure."""
+    claude_bin = shutil.which("claude")
+    if not claude_bin:
+        return None
+
+    try:
+        result = subprocess.run(
+            [claude_bin, "-p", SLUG_PROMPT.format(prompt=prompt), "--model", "haiku"],
+            capture_output=True,
+            text=True,
+            timeout=15,
+        )
+        if result.returncode != 0:
+            return None
+
+        slug = result.stdout.strip()
+        # Sanitize: keep only alphanumeric and hyphens
+        slug = re.sub(r"[^a-zA-Z0-9\-]", "", slug)
+        return slug if slug else None
+    except (subprocess.TimeoutExpired, OSError):
+        return None
+
+
+def _make_slug_deterministic(text: str) -> str:
+    """Fallback: extract 3-4 meaningful words as a Title-Case slug."""
     cleaned = TICKET_RE.sub("", text).strip()
-    # Keep only alphanumeric and spaces
     cleaned = re.sub(r"[^a-zA-Z0-9\s]", "", cleaned)
-    # Filter stop words, take first MAX_SLUG_WORDS meaningful words
     words = [w for w in cleaned.split() if w.lower() not in STOP_WORDS]
     words = words[:MAX_SLUG_WORDS]
     slug = "-".join(w.capitalize() for w in words if w)
     return slug if slug else "Session"
+
+
+def _make_slug(text: str) -> str:
+    """Generate a slug: try Haiku first, fall back to deterministic."""
+    slug = _generate_slug_haiku(text)
+    if slug:
+        return slug
+    return _make_slug_deterministic(text)
 
 
 def _extract_ticket(text: str) -> str | None:
@@ -99,7 +145,6 @@ def handle_slug_rename(
 
     # Build new dir name: preserve the DD-HHMM prefix
     old_name = pending.name
-    # Extract prefix up to _pending_ (e.g. "28-1430")
     prefix = old_name.split("_pending_")[0]
 
     if ticket:

@@ -2,10 +2,23 @@
 
 from datetime import datetime
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
-from dream.hooks.slug_rename import handle_slug_rename
+from dream.hooks.slug_rename import (
+    _generate_slug_haiku,
+    _make_slug,
+    _make_slug_deterministic,
+    handle_slug_rename,
+)
+
+
+@pytest.fixture(autouse=True)
+def mock_haiku():
+    """Disable Haiku CLI calls in all tests by default."""
+    with patch("dream.hooks.slug_rename._generate_slug_haiku", return_value=None):
+        yield
 
 
 @pytest.fixture
@@ -27,6 +40,67 @@ def env_file(tmp_path):
 @pytest.fixture
 def stdin_payload():
     return {"prompt": "PROJ-123 add user authentication flow"}
+
+
+class TestSlugGeneration:
+    def test_haiku_slug_used_when_available(self, month_dir, env_file):
+        """Uses Haiku-generated slug when CLI is available."""
+        pending = next(month_dir.iterdir())
+        sessions_dir = month_dir.parent
+
+        with patch(
+            "dream.hooks.slug_rename._generate_slug_haiku",
+            return_value="Build-Auth-Flow",
+        ):
+            handle_slug_rename(
+                {"prompt": "PROJ-123 add user authentication flow"},
+                session_dir=str(pending),
+                sessions_dir=str(sessions_dir),
+                env_file_path=str(env_file),
+            )
+
+        new_name = next(month_dir.iterdir()).name
+        assert "Build-Auth-Flow" in new_name
+
+    def test_falls_back_to_deterministic_on_haiku_failure(self, month_dir, env_file):
+        """Falls back to deterministic slug when Haiku fails."""
+        pending = next(month_dir.iterdir())
+        sessions_dir = month_dir.parent
+
+        # mock_haiku autouse already returns None (simulating failure)
+        handle_slug_rename(
+            {"prompt": "refactor the error handling"},
+            session_dir=str(pending),
+            sessions_dir=str(sessions_dir),
+            env_file_path=str(env_file),
+        )
+
+        new_name = next(month_dir.iterdir()).name
+        assert "_pending_" not in new_name
+        assert "Refactor" in new_name
+
+    def test_deterministic_slug_limits_words(self):
+        """Deterministic fallback limits to 4 meaningful words."""
+        slug = _make_slug_deterministic(
+            "implement a very long feature name that goes on and on"
+        )
+        word_count = len(slug.split("-"))
+        assert word_count <= 4
+
+    def test_deterministic_slug_strips_stop_words(self):
+        """Deterministic fallback strips stop words."""
+        slug = _make_slug_deterministic("I want to build a really nice dashboard")
+        assert "Want" not in slug
+        assert "Really" not in slug
+
+    def test_haiku_output_sanitized(self):
+        """Haiku output with quotes or extra chars is sanitized."""
+        with patch(
+            "dream.hooks.slug_rename._generate_slug_haiku",
+            return_value="Build-Auth-Flow",
+        ):
+            slug = _make_slug("add auth")
+            assert slug == "Build-Auth-Flow"
 
 
 class TestFastPath:
@@ -188,31 +262,10 @@ class TestEdgeCases:
 
         new_name = next(month_dir.iterdir()).name
         assert "_pending_" not in new_name
-        # No special chars in the slug portion
         slug_part = new_name.split("_", 1)[1] if "_" in new_name else new_name
         assert "@" not in slug_part
         assert "#" not in slug_part
         assert "<" not in slug_part
-
-    def test_limits_slug_to_four_words(self, month_dir, env_file):
-        """Limits slug to 4 meaningful words, stripping stop words."""
-        pending = next(month_dir.iterdir())
-        sessions_dir = month_dir.parent
-        payload = {"prompt": "implement a very long feature name that goes on and on and on about many things"}
-
-        handle_slug_rename(
-            payload,
-            session_dir=str(pending),
-            sessions_dir=str(sessions_dir),
-            env_file_path=str(env_file),
-        )
-
-        new_name = next(month_dir.iterdir()).name
-        # Extract slug portion after the date prefix
-        parts = new_name.split("_", 1)
-        slug = parts[1] if len(parts) > 1 else new_name
-        word_count = len(slug.split("-"))
-        assert word_count <= 4
 
     def test_updates_env_file(self, month_dir, env_file, stdin_payload):
         """Updates CLAUDE_ENV_FILE with new path after rename."""
