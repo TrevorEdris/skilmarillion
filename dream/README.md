@@ -53,43 +53,43 @@ Requires Python 3.10+ (stdlib only, no external dependencies).
 | Spec | `docs/specs/[feature-name]-spec.md` |
 | PRD | `docs/prds/[feature-name]-prd.md` |
 
-## Session Documentation Hooks (Optional)
+## Session Documentation Hooks
 
-To enable automatic session tracking, add these hooks to your project's `.claude/settings.json`:
+Hooks auto-register when the plugin is installed via the marketplace. If using `--plugin-dir` for local development, copy the hook config into your project's `.claude/settings.local.json`:
 
-```json
-{
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": ".*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "type": "command",
-        "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/session-end.sh"
-      }
-    ]
-  },
-  "env": {
-    "SKILMARILLION_SESSIONS_DIR": ".ai/sessions"
-  }
-}
+```bash
+# Extract just the hooks block from hooks.json, replacing ${CLAUDE_PLUGIN_ROOT}
+# with the absolute path to the dream plugin's hooks/ directory
 ```
 
-Set `SKILMARILLION_SESSIONS_DIR` to redirect session docs — e.g., to an Obsidian vault:
-```json
-"SKILMARILLION_SESSIONS_DIR": "/path/to/your/vault/sessions"
+Or merge `dream/hooks/hooks.json` into `.claude/settings.local.json` manually, replacing `${CLAUDE_PLUGIN_ROOT}` with the absolute path to `dream/`.
+
+### What happens automatically
+
+1. **Session start** (`SessionStart` hook) — creates `{sessions_root}/YYYY-MM/DD-HHMM_pending_{id}/SESSION.md`
+2. **First prompt** (`UserPromptSubmit` hook) — renames the pending dir with a slug from your message (e.g., `28-1430_PROJ-123_Add-User-Auth/`). Extracts ticket IDs automatically.
+3. **Session end** (`SessionEnd` hook) — marks `SESSION.md` as completed and appends a row to `{sessions_root}/INDEX.md`
+
+Sessions are organized into monthly subdirectories (`YYYY-MM/`) to keep the sessions root clean.
+
+### Configuration
+
+Set `SKILMARILLION_SESSIONS_DIR` to override the default sessions root (`$CLAUDE_PROJECT_DIR/.ai/sessions`):
+
+```bash
+# In your shell or .env
+export SKILMARILLION_SESSIONS_DIR="/path/to/your/vault/sessions"
 ```
 
-> **Note:** Hook scripts (`hooks/session-start.sh`, `hooks/session-end.sh`) are implemented in P0-F.
+### INDEX.md format
+
+A global `INDEX.md` at the sessions root tracks all sessions:
+
+```
+| Date | Ticket | Title | Discovery | Plan | Session |
+|------|--------|-------|-----------|------|---------|
+| 2026-03-28 | PROJ-123 | Add User Auth | Y | Y | Y |
+```
 
 ## Workflow Integration
 
