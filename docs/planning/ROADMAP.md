@@ -3,7 +3,7 @@
 ## Current Status
 
 **Phase:** 0 — In Progress
-**Last Updated:** 2026-03-27
+**Last Updated:** 2026-03-28
 
 ### Completed
 - [x] DREAM-001: Plugin Scaffold (P0-A) — merged PR #1
@@ -11,12 +11,12 @@
 - [x] DREAM-003: SDD Core Planning Workflow (P0-C) — merged PR #3
 - [x] DREAM-004: Validate Command (P0-E) — merged PR #5
 - [x] DREAM-005: PRD Command (P0-D) — merged PR #TBD
+- [x] DREAM-006: Session Documentation Hooks (P0-F) — merged PR #TBD
 
 ### In Progress
 (none)
 
 ### Not Started
-- [ ] DREAM-006: Session Documentation Hooks (P0-F)
 - [ ] DREAM-007: Deterministic Artifact Paths (P0-G)
 - [ ] DREAM-008: Migrate Command (P0-H) — Should priority
 - [ ] Phase 1: `draft` — Architecture & Design
@@ -115,16 +115,19 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 
 ### P0-F: Session Documentation Hooks
 
-- **What:** Hook configuration that automatically creates a dated session directory and `SESSION.md` at the start of each Claude Code session, and appends a one-line summary entry to `INDEX.md` at session end. Session path is configurable via `$SKILMARILLION_SESSIONS_DIR`, defaulting to `.ai/sessions`.
+- **What:** Auto-registering hooks that create a dated session directory and `SESSION.md` on session start, rename the directory with an LLM-generated slug on the first user prompt, and append a deterministic INDEX.md entry on session end. Sessions organized into `YYYY-MM/` monthly subdirs. Path configurable via `$SKILMARILLION_SESSIONS_DIR`, defaulting to `$CLAUDE_PROJECT_DIR/.ai/sessions`.
 - **Depends on:** P0-A
-- **Risk:** Hooks require manual user configuration in `settings.json`. Clear documentation is the mitigation.
+- **Risk:** Hooks auto-register via `hooks/hooks.json` — no manual `settings.json` editing needed.
 - **Checklist:**
-  - [ ] Write `hooks/session-start.sh`: creates `${SKILMARILLION_SESSIONS_DIR:-.ai/sessions}/YYYY-MM-DD_<slug>/SESSION.md`
-  - [ ] Write `hooks/session-end.sh`: appends one-line entry to `INDEX.md` in the sessions root
-  - [ ] Document exact `settings.json` hook configuration in `dream`'s README
-  - [ ] Verify `SKILMARILLION_SESSIONS_DIR` override redirects session docs correctly (e.g., to an Obsidian vault path)
-  - [ ] Test: start a session; confirm `SESSION.md` created at correct path without user action
-  - [ ] Test: end a session; confirm `INDEX.md` updated with one-line entry
+  - [x] Write `hooks/session_start.py`: creates `{sessions_root}/YYYY-MM/DD-HHMM_pending_{id}/SESSION.md`
+  - [x] Write `hooks/slug_rename.py`: renames pending dir with slug from first user prompt (extracts ticket IDs)
+  - [x] Write `hooks/session_end.py`: marks session completed, appends deterministic row to `INDEX.md`
+  - [x] Write `hooks/hooks.json` for auto-registration (SessionStart, UserPromptSubmit, SessionEnd)
+  - [x] Verify `SKILMARILLION_SESSIONS_DIR` override redirects session docs correctly
+  - [x] Test: 27 unit tests covering creation, idempotency, slug generation, INDEX.md dedup, graceful degradation
+- **Future:**
+  - [ ] LLM-generated INDEX.md summaries (deterministic entry shipped first)
+  - [ ] Update fotw `/session-index` skill to recurse into `YYYY-MM/` subdirs
 
 ### P0-G: Deterministic Artifact Paths
 
