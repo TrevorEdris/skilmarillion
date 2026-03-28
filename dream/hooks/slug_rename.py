@@ -12,19 +12,24 @@ from datetime import datetime
 from pathlib import Path
 
 TICKET_RE = re.compile(r"([A-Z][A-Za-z]+-\d+)")
-MAX_SLUG_LEN = 50
+STOP_WORDS = {"a", "an", "the", "and", "or", "but", "in", "on", "at", "to", "for",
+              "of", "with", "by", "from", "is", "it", "be", "as", "do", "im", "its",
+              "i", "we", "you", "my", "our", "this", "that", "here", "well", "lets",
+              "want", "going", "just", "really", "very", "also", "about", "some"}
+MAX_SLUG_WORDS = 4
 
 
 def _make_slug(text: str) -> str:
-    """Convert free text to a filesystem-safe Title-Case slug."""
+    """Extract 3-4 meaningful words from the prompt as a Title-Case slug."""
     # Strip ticket IDs (handled separately)
     cleaned = TICKET_RE.sub("", text).strip()
     # Keep only alphanumeric and spaces
     cleaned = re.sub(r"[^a-zA-Z0-9\s]", "", cleaned)
-    # Title case, replace spaces with hyphens
-    words = cleaned.split()
+    # Filter stop words, take first MAX_SLUG_WORDS meaningful words
+    words = [w for w in cleaned.split() if w.lower() not in STOP_WORDS]
+    words = words[:MAX_SLUG_WORDS]
     slug = "-".join(w.capitalize() for w in words if w)
-    return slug[:MAX_SLUG_LEN] if slug else "Session"
+    return slug if slug else "Session"
 
 
 def _extract_ticket(text: str) -> str | None:

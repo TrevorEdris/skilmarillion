@@ -194,8 +194,8 @@ class TestEdgeCases:
         assert "#" not in slug_part
         assert "<" not in slug_part
 
-    def test_truncates_long_slugs(self, month_dir, env_file):
-        """Truncates slugs longer than 50 chars."""
+    def test_limits_slug_to_four_words(self, month_dir, env_file):
+        """Limits slug to 4 meaningful words, stripping stop words."""
         pending = next(month_dir.iterdir())
         sessions_dir = month_dir.parent
         payload = {"prompt": "implement a very long feature name that goes on and on and on about many things"}
@@ -208,10 +208,11 @@ class TestEdgeCases:
         )
 
         new_name = next(month_dir.iterdir()).name
-        # Full dir name can be longer due to date prefix, but slug portion <= 50
+        # Extract slug portion after the date prefix
         parts = new_name.split("_", 1)
-        if len(parts) > 1:
-            assert len(parts[1]) <= 50
+        slug = parts[1] if len(parts) > 1 else new_name
+        word_count = len(slug.split("-"))
+        assert word_count <= 4
 
     def test_updates_env_file(self, month_dir, env_file, stdin_payload):
         """Updates CLAUDE_ENV_FILE with new path after rename."""
