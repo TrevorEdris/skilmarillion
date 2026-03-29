@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 import pytest
 
-from dream.hooks.session_start import handle_session_start
+from plan.hooks.session_start import handle_session_start
 
 
 @pytest.fixture

@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 import pytest
 
-from dream.hooks.slug_rename import (
+from plan.hooks.slug_rename import (
     _generate_slug_haiku,
     _make_slug,
     _make_slug_deterministic,
@@ -17,7 +17,7 @@ from dream.hooks.slug_rename import (
 @pytest.fixture(autouse=True)
 def mock_haiku():
     """Disable Haiku CLI calls in all tests by default."""
-    with patch("dream.hooks.slug_rename._generate_slug_haiku", return_value=None):
+    with patch("plan.hooks.slug_rename._generate_slug_haiku", return_value=None):
         yield
 
 
@@ -49,7 +49,7 @@ class TestSlugGeneration:
         sessions_dir = month_dir.parent
 
         with patch(
-            "dream.hooks.slug_rename._generate_slug_haiku",
+            "plan.hooks.slug_rename._generate_slug_haiku",
             return_value="Build-Auth-Flow",
         ):
             handle_slug_rename(
@@ -96,7 +96,7 @@ class TestSlugGeneration:
     def test_haiku_output_sanitized(self):
         """Haiku output with quotes or extra chars is sanitized."""
         with patch(
-            "dream.hooks.slug_rename._generate_slug_haiku",
+            "plan.hooks.slug_rename._generate_slug_haiku",
             return_value="Build-Auth-Flow",
         ):
             slug = _make_slug("add auth")

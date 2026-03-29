@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from dream.hooks.session_end import handle_session_end
+from plan.hooks.session_end import handle_session_end
 
 
 @pytest.fixture

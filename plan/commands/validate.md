@@ -10,7 +10,7 @@ allowed-tools:
 model: sonnet
 ---
 
-# /dream:validate
+# /plan:validate
 
 Score a spec, PRD, or plan document for structural completeness. Returns a 0–100 score with actionable findings.
 

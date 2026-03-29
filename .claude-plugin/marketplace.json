@@ -5,8 +5,8 @@
   },
   "plugins": [
     {
-      "name": "dream",
-      "source": "./dream",
+      "name": "plan",
+      "source": "./plan",
       "description": "Spec-driven planning: triage, spec, architecture, TDD plan."
     }
   ]

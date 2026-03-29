@@ -86,7 +86,7 @@ def handle_session_start(
             pass
 
     return {
-        "systemMessage": f"[dream] Session directory: {session_dir}",
+        "systemMessage": f"[plan] Session directory: {session_dir}",
     }
 
 

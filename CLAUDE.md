@@ -2,13 +2,13 @@
 
 ## Project Overview
 
-Skilmarillion is a Claude Code plugin system organized as a lifecycle: `dream` (specify) → `draft` (design) → `do` (implement) → `discern` (review). Currently in Phase 0 — building the `dream` plugin for spec-driven planning.
+Skilmarillion is a Claude Code plugin system organized as a lifecycle: `plan` (specify) → `arch` (design) → `impl` (implement) → `review` (review). Currently in Phase 0 — building the `plan` plugin for spec-driven planning.
 
 ## Repository Structure
 
-- `dream/` — The spec-driven planning plugin (commands, agents, skills, references)
+- `plan/` — The spec-driven planning plugin (commands, agents, skills, references)
 - `docs/planning/` — Project PRD and roadmap
-- `docs/{feature}/` — Feature-grouped artifacts: PRD, roadmap, specs, plans (see `dream/skills/artifact-paths.md`)
+- `docs/{feature}/` — Feature-grouped artifacts: PRD, roadmap, specs, plans (see `plan/skills/artifact-paths.md`)
 - `test-fixtures/` — Sample app used for testing plugin commands
 
 ## Build & Test Commands
@@ -17,13 +17,13 @@ Python 3.10+ required for the validation script (stdlib only, no external depend
 
 ```bash
 # Validate a spec, PRD, or plan
-python dream/scripts/validate.py <path> --verbose
+python plan/scripts/validate.py <path> --verbose
 
 # Validate with explicit type and JSON output
-python dream/scripts/validate.py <path> --type spec|prd|plan --json
+python plan/scripts/validate.py <path> --type spec|prd|plan --json
 
 # Draft mode (relaxed threshold: 50)
-python dream/scripts/validate.py <path> --draft
+python plan/scripts/validate.py <path> --draft
 
 # Install the plugin
 /plugin marketplace add https://github.com/TrevorEdris/skilmarillion
@@ -43,5 +43,5 @@ Do not merge a roadmap-item PR without this update.
 
 - **Versioning:** Semver for `plugin.json` — patch for fixes, minor for new commands, major for breaking changes.
 - **Command files:** YAML frontmatter (`description`, `argument-hint`, `allowed-tools`, `model`) + markdown body.
-- **Artifact paths:** Deterministic, feature-grouped — `docs/{feature}/PRD.md`, `docs/{feature}/specs/SPEC-NNN-{slug}.md`. Slug confirmed with user before save. See `dream/skills/artifact-paths.md`.
+- **Artifact paths:** Deterministic, feature-grouped — `docs/{feature}/PRD.md`, `docs/{feature}/specs/SPEC-NNN-{slug}.md`. Slug confirmed with user before save. See `plan/skills/artifact-paths.md`.
 - **Model tiering:** Use the minimum model that handles the task reliably. Haiku for deterministic/structured output. Sonnet for judgment and context. Opus for security/quality-critical roles.

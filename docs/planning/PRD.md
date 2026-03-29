@@ -230,7 +230,7 @@ Skilmarillion addresses this gap: a curated, published collection of five Claude
 
 **Acceptance Criteria:**
 - [ ] Each lifecycle plugin exposes a `:help` command (e.g., `/plan:help`, `/arch:help`, `/impl:help`, `/review:help`)
-- [ ] Each help command detects relevant project artifacts (e.g., `/plan:help` checks for existing specs and active dream states; `/review:help` checks for open PRs and existing review reports)
+- [ ] Each help command detects relevant project artifacts (e.g., `/plan:help` checks for existing specs and active plan states; `/review:help` checks for open PRs and existing review reports)
 - [ ] Each help command walks through the plugin's commands one at a time using `AskUserQuestion`, allowing the user to skip ahead, dive deeper, or exit
 - [ ] Each help command ends with a recommended starting command based on current project state
 - [ ] Help commands are read-only — no artifacts produced, no state modified

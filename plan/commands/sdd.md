@@ -7,14 +7,14 @@ allowed-tools:
   - Edit
   - Glob
   - Grep
-  - "Bash(${CLAUDE_PLUGIN_ROOT}/scripts/update-dream-state.sh:*)"
+  - "Bash(${CLAUDE_PLUGIN_ROOT}/scripts/update-plan-state.sh:*)"
   - "Bash(python ${CLAUDE_PLUGIN_ROOT}/scripts/validate.py:*)"
   - AskUserQuestion
   - Task
   - ToolSearch
 ---
 
-# /dream:sdd
+# /plan:sdd
 
 Triage a task and route it to the correct workflow. Run at the start of every development session.
 
@@ -25,7 +25,7 @@ Triage a task and route it to the correct workflow. Run at the start of every de
 Before anything else, run:
 
 ```bash
-${CLAUDE_PLUGIN_ROOT}/scripts/update-dream-state.sh list
+${CLAUDE_PLUGIN_ROOT}/scripts/update-plan-state.sh list
 ```
 
 Parse the output and categorize each result:
@@ -38,7 +38,7 @@ Parse the output and categorize each result:
 
 Ask the user (using `AskUserQuestion`):
 
-> "Found {N} abandoned dream states older than 30 days: {list of feature names}. Remove them?"
+> "Found {N} abandoned plan states older than 30 days: {list of feature names}. Remove them?"
 
 Options: **"Yes, clean up"** / **"No, keep them"**
 
@@ -48,7 +48,7 @@ If "Yes": run `clear --slug {slug}` for each abandoned file.
 
 Ask the user (using `AskUserQuestion`) with a numbered list:
 
-> "Active dream states found. Resume one or start something new?
+> "Active plan states found. Resume one or start something new?
 > 1. {feature name} — phase: {current_phase}
 > 2. {feature name} — phase: {current_phase}
 > ...
@@ -68,7 +68,7 @@ Skip directly to Entry Mode Detection.
 
 ## Entry Mode Detection
 
-Inspect the argument passed to `/dream:sdd`:
+Inspect the argument passed to `/plan:sdd`:
 
 - **Mode A** — argument ends in `.md` and resolves to an existing file path → the user is providing a pre-written spec. Skip triage. Go to **MODE A: Existing Spec**.
 - **Mode B** — argument is a task description string, or no argument provided → full triage flow. Proceed to MODE B.
@@ -81,7 +81,7 @@ Inspect the argument passed to `/dream:sdd`:
 2. Check which sections exist: Problem Statement, Acceptance Criteria, Vertical Slices, Architecture Recommendation, TDD Plan.
 3. Update state:
    ```bash
-   ${CLAUDE_PLUGIN_ROOT}/scripts/update-dream-state.sh set \
+   ${CLAUDE_PLUGIN_ROOT}/scripts/update-plan-state.sh set \
      --slug "{slug-from-filename}" \
      --current-phase "spec-reviewing"
    ```
@@ -130,7 +130,7 @@ Before initializing state, resolve the project root per `artifact-paths` skill �
 Initialize state:
 
 ```bash
-${CLAUDE_PLUGIN_ROOT}/scripts/update-dream-state.sh init \
+${CLAUDE_PLUGIN_ROOT}/scripts/update-plan-state.sh init \
   --slug "{slug}" \
   --feature "{task description}" \
   --size "{size}" \
@@ -147,7 +147,7 @@ Display the triage result to the user:
 > - Risk: {risk}
 > - Routing: {routing_decision}
 > - Rationale: {rationale}
-> - State file: `.dream-state-{slug}.local.yaml`
+> - State file: `.plan-state-{slug}.local.yaml`
 
 ### B2 — Route by Size
 
@@ -158,7 +158,7 @@ Display the triage result to the user:
 2. If yes: apply the change directly (inline edit — no spec). Verify it works.
 3. After applying, auto-clear state:
    ```bash
-   ${CLAUDE_PLUGIN_ROOT}/scripts/update-dream-state.sh clear --slug "{slug}"
+   ${CLAUDE_PLUGIN_ROOT}/scripts/update-plan-state.sh clear --slug "{slug}"
    ```
 4. Report completion.
 
@@ -168,7 +168,7 @@ If no: ask what the user would like to do instead.
 
 1. Update state:
    ```bash
-   ${CLAUDE_PLUGIN_ROOT}/scripts/update-dream-state.sh set \
+   ${CLAUDE_PLUGIN_ROOT}/scripts/update-plan-state.sh set \
      --slug "{slug}" \
      --current-phase "spec-drafting"
    ```
@@ -191,7 +191,7 @@ If no: ask what the user would like to do instead.
 7. Save spec using Write tool to the confirmed path.
 8. Update state:
    ```bash
-   ${CLAUDE_PLUGIN_ROOT}/scripts/update-dream-state.sh set \
+   ${CLAUDE_PLUGIN_ROOT}/scripts/update-plan-state.sh set \
      --slug "{slug}" \
      --current-phase "spec-drafted" \
      --spec-path "{confirmed_path}"
@@ -216,13 +216,13 @@ If no: ask what the user would like to do instead.
    ```
    Parse the returned JSON as `context`. Update state:
    ```bash
-   ${CLAUDE_PLUGIN_ROOT}/scripts/update-dream-state.sh set \
+   ${CLAUDE_PLUGIN_ROOT}/scripts/update-plan-state.sh set \
      --slug "{slug}" \
      --current-phase "context-gathered"
    ```
 2. Update state:
    ```bash
-   ${CLAUDE_PLUGIN_ROOT}/scripts/update-dream-state.sh set \
+   ${CLAUDE_PLUGIN_ROOT}/scripts/update-plan-state.sh set \
      --slug "{slug}" \
      --current-phase "spec-drafting"
    ```
@@ -233,7 +233,7 @@ If no: ask what the user would like to do instead.
    ```
    Receive spec markdown as `spec_draft`. Update state:
    ```bash
-   ${CLAUDE_PLUGIN_ROOT}/scripts/update-dream-state.sh set \
+   ${CLAUDE_PLUGIN_ROOT}/scripts/update-plan-state.sh set \
      --slug "{slug}" \
      --current-phase "arch-reviewing"
    ```
@@ -244,7 +244,7 @@ If no: ask what the user would like to do instead.
    ```
    Receive architecture section markdown as `arch_section`. Update state:
    ```bash
-   ${CLAUDE_PLUGIN_ROOT}/scripts/update-dream-state.sh set \
+   ${CLAUDE_PLUGIN_ROOT}/scripts/update-plan-state.sh set \
      --slug "{slug}" \
      --current-phase "tdd-planning"
    ```
@@ -268,7 +268,7 @@ If no: ask what the user would like to do instead.
 10. Save assembled spec using Write tool to the confirmed path.
 11. Update state:
     ```bash
-    ${CLAUDE_PLUGIN_ROOT}/scripts/update-dream-state.sh set \
+    ${CLAUDE_PLUGIN_ROOT}/scripts/update-plan-state.sh set \
       --slug "{slug}" \
       --current-phase "spec-drafted" \
       --spec-path "{confirmed_path}"
@@ -286,39 +286,23 @@ If no: ask what the user would like to do instead.
 
 #### EPIC
 
+EPIC tasks require a PRD and a roadmap before individual milestones can be specced. Route the user to the appropriate commands instead of generating inline.
+
 1. Update state:
    ```bash
-   ${CLAUDE_PLUGIN_ROOT}/scripts/update-dream-state.sh set \
+   ${CLAUDE_PLUGIN_ROOT}/scripts/update-plan-state.sh set \
      --slug "{slug}" \
-     --current-phase "epic-decomposing"
+     --current-phase "epic-detected"
    ```
-2. Delegate to `spec-builder` agent via Task:
-   ```
-   Task: spec-builder agent
-   Input: { "task": "{task description}", "triage_result": {triage JSON}, "mode": "epic" }
-   ```
-   Receive phase map markdown as `phase_map`.
-3. **Resolve artifact path** per `artifact-paths` skill:
-   - Resolve project root (git root of target project — not necessarily CWD).
-   - Resolve feature directory (`{project_root}/docs/{feature}/`). For EPICs, the feature slug is the epic slug.
-   - Derive roadmap path: `{project_root}/docs/{feature}/ROADMAP.md`.
-4. **Confirm path with user** per `artifact-paths` slug confirmation protocol. User may accept or override the feature directory.
-5. Create target directory if it does not exist:
+2. **Resolve project root** per `artifact-paths` skill. Check for an existing PRD at `docs/{feature}/PRD.md` where `{feature}` is derived from the task slug.
+3. **If no PRD exists:**
+   > "This is EPIC-scale and needs a PRD first. Run `/plan:prd [description]` to define the feature, then `/plan:roadmap [prd-path]` to decompose into milestones, then `/plan:sdd [milestone]` to spec each one."
+4. **If a PRD exists:**
+   > "This is EPIC-scale. Run `/plan:roadmap {prd-path}` to decompose into milestones, then `/plan:sdd [milestone]` to spec each one."
+5. Clear state — the user will re-enter via `/plan:roadmap` or `/plan:sdd`:
    ```bash
-   mkdir -p {project_root}/docs/{feature}
+   ${CLAUDE_PLUGIN_ROOT}/scripts/update-plan-state.sh clear --slug "{slug}"
    ```
-6. Save phase map using Write tool to the confirmed roadmap path.
-7. Update state:
-   ```bash
-   ${CLAUDE_PLUGIN_ROOT}/scripts/update-dream-state.sh set \
-     --slug "{slug}" \
-     --current-phase "epic-decomposed" \
-     --spec-path "{confirmed_roadmap_path}"
-   ```
-8. Display phase map to user.
-9. Ask user: "Roadmap saved to `{confirmed_roadmap_path}`. Run `/dream:sdd [phase description]` to spec each phase as `docs/{feature}/specs/SPEC-NNN-{phase-slug}.md`. Ready to start with Phase 1?"
-   - If yes: proceed to the FEATURE flow above using Phase 1's description as the task. The current EPIC slug state is preserved; Phase 1 will create its own state file with the same feature directory.
-   - If no: end session. State remains at `epic-decomposed`.
 
 ---
 

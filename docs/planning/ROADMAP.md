@@ -13,12 +13,12 @@
 - [x] PLAN-005: PRD Command (P0-D) — merged PR #TBD
 - [x] PLAN-006: Session Documentation Hooks (P0-F) — merged PR #TBD
 - [x] PLAN-007: Deterministic Artifact Paths (P0-G) — merged PR #TBD
+- [x] PLAN-009: Roadmap Command (P0-I) — merged PR #TBD
 
 ### In Progress
 (none)
 
 ### Not Started
-- [ ] PLAN-009: Roadmap Command (P0-I)
 - [ ] PLAN-008: Migrate Command (P0-H) — Should priority
 - [ ] PLAN-010: Help Command (P0-J) — FR-011
 - [ ] PLAN-011: Out-of-Order Guards (P0-K) — FR-012
@@ -165,14 +165,14 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **Risk:** Roadmap quality depends on PRD quality. If the PRD is vague, the roadmap will decompose poorly. **Mitigation:** Gate on PRD validation score (>= 70) before generating the roadmap — refuse to proceed on an unvalidated PRD.
 - **Model tier:** Sonnet — decomposing a PRD into ordered, dependency-aware milestones requires judgment about scope, coupling, and shippability; not a mechanical transformation.
 - **Checklist:**
-  - [ ] Implement `/plan:roadmap [prd-path]` command that accepts a PRD file path (or auto-discovers `docs/{feature}/PRD.md` if invoked from a feature directory)
-  - [ ] Gate: run `validate.py` on the PRD before proceeding — refuse if score < 70 with message "PRD needs work before roadmap generation. Run `/plan:validate` to see findings."
-  - [ ] Decompose PRD functional requirements into ordered milestones with: milestone name, capability delivered, dependency on prior milestones, estimated scope (SMALL/FEATURE), and acceptance summary
-  - [ ] Identify critical path — which milestone must land first to unblock others
-  - [ ] Produce ROADMAP.md with: phased milestone list, dependency graph (text or Mermaid), risk notes per milestone, and a checklist of `/plan:sdd` invocations to spec each milestone
-  - [ ] Save to `{project_root}/docs/{feature}/ROADMAP.md` per `artifact-paths` skill (confirm path with user)
-  - [ ] Refactor EPIC flow in `/plan:sdd`: replace inline phase map generation with delegation to `/plan:roadmap`, then proceed to spec Phase 1
-  - [ ] Port relevant decomposition logic from `fotw:prd-to-roadmap` skill
+  - [x] Implement `/plan:roadmap [prd-path]` command that accepts a PRD file path (or auto-discovers `docs/{feature}/PRD.md` if invoked from a feature directory)
+  - [x] Gate: run `validate.py` on the PRD before proceeding — refuse if score < 70 with message "PRD needs work before roadmap generation. Run `/plan:validate` to see findings."
+  - [x] Decompose PRD functional requirements into ordered milestones with: milestone name, capability delivered, dependency on prior milestones, estimated scope (SMALL/FEATURE), and acceptance summary
+  - [x] Identify critical path — which milestone must land first to unblock others
+  - [x] Produce ROADMAP.md with: phased milestone list, dependency graph (text or Mermaid), risk notes per milestone, and a checklist of `/plan:sdd` invocations to spec each milestone
+  - [x] Save to `{project_root}/docs/{feature}/ROADMAP.md` per `artifact-paths` skill (confirm path with user)
+  - [x] Refactor EPIC flow in `/plan:sdd`: replace inline phase map generation with routing to `/plan:roadmap`
+  - [x] Port relevant decomposition logic from `fotw:prd-to-roadmap` skill
   - [ ] Manual verification: run `/plan:roadmap` against a real PRD; confirm milestones are ordered, dependencies are explicit, and each milestone is independently spec-able via `/plan:sdd`
 
 ### P0-H: Migrate Command
