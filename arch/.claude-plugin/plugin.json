@@ -11,6 +11,10 @@
   "license": "MIT",
   "keywords": ["architecture", "design", "adr", "openapi", "schema", "diagrams", "c4"],
   "commands": {
+    "design": {
+      "description": "Structured design session producing an ADR and C4 context diagram in Mermaid",
+      "file": "../commands/design.md"
+    },
     "diagram": {
       "description": "Generate a Mermaid diagram from a plain-language description. Supports flowchart, sequence, ERD, C4 context, and C4 container.",
       "file": "../commands/diagram.md"
