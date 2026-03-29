@@ -233,11 +233,35 @@ If this is the last slice:
 
 ### Step 5: Playwright AC Verification (Optional)
 
-After each slice GREEN, if Playwright MCP is available and a dev server is running:
-1. Run browser-based AC verification for that slice's acceptance criteria.
-2. Report results. Non-blocking — a Playwright failure does not block the next slice.
+After each slice GREEN, check for browser-based acceptance criteria verification.
 
-If Playwright is not available: skip silently.
+**5a. Availability Detection**
+
+Check if Playwright MCP is available by looking for `impl/.mcp.json` and attempting a `ToolSearch` for `mcp__playwright__browser_navigate`.
+
+If not available: skip silently and continue to next slice.
+
+**5b. Dev Server Detection**
+
+If Playwright is available, check for a running dev server:
+- Look for common ports: 3000, 5173, 8080, 4200
+- Check `package.json` scripts for dev server commands
+- If no dev server detected: log "No dev server detected — skipping browser verification" and continue
+
+**5c. Browser Verification**
+
+If both Playwright and a dev server are available:
+1. Navigate to the relevant page for the current slice's acceptance criteria
+2. Take a screenshot for visual confirmation
+3. Execute any browser-testable ACs (element presence, text content, interaction flows)
+4. Report results with pass/fail per AC
+
+**5d. Result Handling**
+
+Browser verification is **non-blocking**:
+- A Playwright failure does NOT block the next slice
+- Log failures as warnings: "Browser AC failed: {description} — continuing with next slice"
+- Include browser verification results in the slice completion summary
 
 ---
 
