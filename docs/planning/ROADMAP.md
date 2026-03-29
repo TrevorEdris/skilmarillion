@@ -276,12 +276,12 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **Risk:** Each plugin's state file format must be stable. `skil` reads but never writes these files.
 - **Model tier:** Haiku — reads files, formats output; no judgment required
 - **Checklist:**
-  - [ ] Implement `/skil:status` command
-  - [ ] Read `plan` state: `.plan-state-*.local.yaml` files — show active features, current phases
-  - [ ] Read `impl` state: `.impl-state-*.local.yaml` files — show in-progress TDD slices
-  - [ ] Scan for artifacts: specs in `docs/*/specs/`, PRDs in `docs/*/PRD.md`, review reports in sessions dir
-  - [ ] Present unified view: "Active work: [feature] — plan phase: spec-confirmed, impl phase: slice 2 of 4"
-  - [ ] Gracefully handle missing plugins: "impl not installed — no implementation state available"
+  - [x] Implement `/skil:status` command
+  - [x] Read `plan` state: `.plan-state-*.local.yaml` files — show active features, current phases
+  - [x] Read `impl` state: `.impl-state-*.local.yaml` files — show in-progress TDD slices
+  - [x] Scan for artifacts: specs in `docs/*/specs/`, PRDs in `docs/*/PRD.md`, review reports in sessions dir
+  - [x] Present unified view: "Active work: [feature] — plan phase: spec-confirmed, impl phase: slice 2 of 4"
+  - [x] Gracefully handle missing plugins: "impl not installed — no implementation state available"
   - [ ] Verify: with active `plan` state and no `impl` installed; confirm output shows plan state and missing-plugin note
 
 **Deliverable:** *Users can install `skil` as their first skilmarillion plugin and immediately discover the full suite via `/skil:help`, route any task to the right plugin via `/skil [task]`, and check workflow progress via `/skil:status` — all without reading documentation.*
@@ -298,10 +298,10 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **What:** Establish the `impl` plugin directory structure following the same conventions as `plan`.
 - **Depends on:** Nothing (independent plugin; mirrors scaffold pattern from P0-A)
 - **Checklist:**
-  - [ ] Create `impl/.claude-plugin/plugin.json` manifest
-  - [ ] Scaffold `commands/`, `agents/`, `skills/`, `references/` directories
-  - [ ] Write `CLAUDE.md` and `README.md` with standalone entry conditions
-  - [ ] Verify `claude plugin add` loads `impl` without `plan` or `arch` installed
+  - [x] Create `impl/.claude-plugin/plugin.json` manifest
+  - [x] Scaffold `commands/`, `agents/`, `skills/`, `references/` directories
+  - [x] Write `CLAUDE.md` and `README.md` with standalone entry conditions
+  - [x] Verify `claude plugin add` loads `impl` without `plan` or `arch` installed
 
 ### P1-B: TDD Command
 
@@ -741,8 +741,8 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 | SKIL-001 | Plugin Scaffold | PENDING | 0.5 | P0.5-A |
 | SKIL-002 | Help Tour Command | PENDING | 0.5 | P0.5-B |
 | SKIL-003 | Task Router Command | COMPLETE | 0.5 | P0.5-C |
-| SKIL-004 | Status Dashboard | PENDING | 0.5 | P0.5-D |
-| IMPL-001 | Plugin Scaffold | PENDING | 1 | P1-A |
+| SKIL-004 | Status Dashboard | COMPLETE | 0.5 | P0.5-D |
+| IMPL-001 | Plugin Scaffold | COMPLETE | 1 | P1-A |
 | IMPL-002 | TDD Command | PENDING | 1 | P1-B |
 | IMPL-003 | Debug Command | PENDING | 1 | P1-C |
 | IMPL-004 | Refactor Command | PENDING | 1 | P1-D |
