@@ -411,10 +411,10 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **What:** Commands check preconditions and provide guidance when not met. Guards are informational, not blocking.
 - **Depends on:** P1-B
 - **Checklist:**
-  - [ ] `/impl:tdd` with no argument and no specs in `docs/`: display "No spec found. Run `/plan:sdd [task]` to create one, or provide a spec path." Offer choices via `AskUserQuestion`: "Run /plan:sdd now" / "Provide a spec path" / "Proceed without spec"
-  - [ ] After `/impl:tdd` completes all slices, append: "Next step: `/review:review` to run quality checks before merging"
-  - [ ] After `/impl:commit` and `/impl:pr`, append: "Consider running `/review:review` on this PR"
-  - [ ] If `review` not installed, include install command in breadcrumb
+  - [x] `/impl:tdd` with no argument and no specs in `docs/`: display "No spec found. Run `/plan:sdd [task]` to create one, or provide a spec path." Offer choices via `AskUserQuestion`: "Run /plan:sdd now" / "Provide a spec path" / "Proceed without spec"
+  - [x] After `/impl:tdd` completes all slices, append: "Next step: `/review:review` to run quality checks before merging"
+  - [x] After `/impl:commit` and `/impl:pr`, append: "Consider running `/review:review` on this PR" — `/impl:commit` updated; `/impl:pr` does not exist yet (P1-F pending)
+  - [x] If `review` not installed, include install command in breadcrumb
   - [ ] Verify: run `/impl:tdd` with no spec; confirm guidance appears and user can choose to proceed
 
 **Deliverable:** *Users can bring a `plan` spec and optional `arch` design artifacts to `/impl:tdd`, implement each slice with full TDD quality gates (optionally extended with live browser AC verification when a dev server is running), and open a PR with a conventional commit and a correct PR description — without leaving the plugin. `/impl:help` provides guided discovery. Guards warn when prerequisites are missing.*
@@ -751,7 +751,7 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 | IMPL-006 | PR Command | PENDING | 1 | P1-F |
 | IMPL-007 | Playwright MCP Bundle (Optional) | PENDING | 1 | P1-G |
 | IMPL-008 | Help Command | COMPLETE | 1 | P1-H |
-| IMPL-009 | Out-of-Order Guards | PENDING | 1 | P1-I |
+| IMPL-009 | Out-of-Order Guards | IN_PROGRESS | 1 | P1-I |
 | ARCH-001 | Plugin Scaffold | PENDING | 2 | P2-A |
 | ARCH-002 | System Design Command | COMPLETE | 2 | P2-B |
 | ARCH-003 | API Design Command | PENDING | 2 | P2-C |
