@@ -333,10 +333,10 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **Depends on:** P1-A
 - **Risk:** LLMs tend to jump to fixes. The root cause gate must be enforced structurally (require a filled root cause template before a fix is proposed).
 - **Checklist:**
-  - [ ] Port and rewrite `systematic-debugger` methodology from fotw source
-  - [ ] Implement root cause template: "The bug occurs because [condition] causes [component] to [behavior] when [trigger]"
-  - [ ] Block fix proposals until template is complete with specifics (no vague answers)
-  - [ ] Enforce three-fix limit: after 3 failed fixes, stop and escalate to user
+  - [x] Port and rewrite `systematic-debugger` methodology from fotw source
+  - [x] Implement root cause template: "The bug occurs because [condition] causes [component] to [behavior] when [trigger]"
+  - [x] Block fix proposals until template is complete with specifics (no vague answers)
+  - [x] Enforce three-fix limit: after 3 failed fixes, stop and escalate to user
   - [ ] Manual verification: present a known bug; confirm root cause statement precedes fix proposal
 
 ### P1-D: Refactor Command
@@ -356,11 +356,11 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **Depends on:** P1-A
 - **Model tier:** Haiku — diff → commit message is a deterministic transformation; input is structured (staged diff), output is a fixed format (conventional commit); no codebase reasoning required
 - **Checklist:**
-  - [ ] Port and rewrite `git-workflow` commit generation from fotw source
-  - [ ] Parse `git diff --staged` to infer type (feat/fix/refactor/docs/chore) and scope
-  - [ ] Detect breaking changes: flag if public API signatures changed or if any AC in spec is removed
-  - [ ] Output: `type(scope)!: description` with optional body and `BREAKING CHANGE:` footer
-  - [ ] Never commit automatically — output message for user to review and approve
+  - [x] Port and rewrite `git-workflow` commit generation from fotw source
+  - [x] Parse `git diff --staged` to infer type (feat/fix/refactor/docs/chore) and scope
+  - [x] Detect breaking changes: flag if public API signatures changed or if any AC in spec is removed
+  - [x] Output: `type(scope)!: description` with optional body and `BREAKING CHANGE:` footer
+  - [x] Never commit automatically — output message for user to review and approve
   - [ ] Verify: stage a breaking change; confirm `!` and footer are present in output
 
 ### P1-F: PR Command
@@ -744,9 +744,9 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 | SKIL-004 | Status Dashboard | COMPLETE | 0.5 | P0.5-D |
 | IMPL-001 | Plugin Scaffold | COMPLETE | 1 | P1-A |
 | IMPL-002 | TDD Command | PENDING | 1 | P1-B |
-| IMPL-003 | Debug Command | PENDING | 1 | P1-C |
+| IMPL-003 | Debug Command | IN PROGRESS | 1 | P1-C |
 | IMPL-004 | Refactor Command | PENDING | 1 | P1-D |
-| IMPL-005 | Commit Command | PENDING | 1 | P1-E |
+| IMPL-005 | Commit Command | IN_PROGRESS | 1 | P1-E |
 | IMPL-006 | PR Command | PENDING | 1 | P1-F |
 | IMPL-007 | Playwright MCP Bundle (Optional) | PENDING | 1 | P1-G |
 | IMPL-008 | Help Command | PENDING | 1 | P1-H |
