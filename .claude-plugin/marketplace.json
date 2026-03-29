@@ -8,6 +8,16 @@
       "name": "plan",
       "source": "./plan",
       "description": "Spec-driven planning: triage, spec, architecture, TDD plan."
+    },
+    {
+      "name": "skil",
+      "source": "./skil",
+      "description": "Workflow router and discovery layer for the Skilmarillion suite."
+    },
+    {
+      "name": "arch",
+      "source": "./arch",
+      "description": "Architecture & design: ADRs, OpenAPI specs, database schemas, Mermaid diagrams."
     }
   ]
 }
