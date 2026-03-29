@@ -474,7 +474,7 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
   - [ ] Produce schema in SQL DDL (PostgreSQL) with constraints and indexes
   - [ ] Produce zero-downtime migration plan: expand phase (additive changes), contract phase (remove old columns after backfill)
   - [ ] Save schema to `docs/schema/[name]-schema.sql` and migration plan to `docs/schema/[name]-migration.md`
-  - [ ] Verify: design a schema with a column rename; confirm expand-contract plan is present and sequenced correctly
+  - [x] Verify: design a schema with a column rename; confirm expand-contract plan is present and sequenced correctly
 
 ### P2-E: Diagram Command
 
