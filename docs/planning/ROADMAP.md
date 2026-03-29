@@ -469,11 +469,11 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **Depends on:** P2-A
 - **Risk:** Zero-downtime migration plans are only valid for specific database engines. Scope to PostgreSQL initially; note limitations for other engines.
 - **Checklist:**
-  - [ ] Port and rewrite `database-schema-designer` from fotw source
-  - [ ] Implement design interview: entity relationships, cardinality, indexes, normalization trade-offs
-  - [ ] Produce schema in SQL DDL (PostgreSQL) with constraints and indexes
-  - [ ] Produce zero-downtime migration plan: expand phase (additive changes), contract phase (remove old columns after backfill)
-  - [ ] Save schema to `docs/schema/[name]-schema.sql` and migration plan to `docs/schema/[name]-migration.md`
+  - [x] Port and rewrite `database-schema-designer` from fotw source
+  - [x] Implement design interview: entity relationships, cardinality, indexes, normalization trade-offs
+  - [x] Produce schema in SQL DDL (PostgreSQL) with constraints and indexes
+  - [x] Produce zero-downtime migration plan: expand phase (additive changes), contract phase (remove old columns after backfill)
+  - [x] Save schema to `docs/schema/[name]-schema.sql` and migration plan to `docs/schema/[name]-migration.md`
   - [x] Verify: design a schema with a column rename; confirm expand-contract plan is present and sequenced correctly
 
 ### P2-E: Diagram Command
