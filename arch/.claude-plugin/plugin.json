@@ -9,5 +9,11 @@
   "homepage": "https://github.com/TrevorEdris/skilmarillion",
   "repository": "https://github.com/TrevorEdris/skilmarillion",
   "license": "MIT",
-  "keywords": ["architecture", "design", "adr", "openapi", "schema", "diagrams", "c4"]
+  "keywords": ["architecture", "design", "adr", "openapi", "schema", "diagrams", "c4"],
+  "commands": {
+    "help": {
+      "description": "Interactive tour of arch plugin capabilities. Detects existing design artifacts and recommends a starting command.",
+      "file": "../commands/help.md"
+    }
+  }
 }

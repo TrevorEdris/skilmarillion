@@ -492,12 +492,12 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **Depends on:** P2-A
 - **Model tier:** Haiku
 - **Checklist:**
-  - [ ] Implement `/arch:help` command
-  - [ ] Detect project state: existing ADRs in `docs/adrs/`, schemas, OpenAPI specs, diagrams
-  - [ ] Walk through commands: `design`, `api`, `schema`, `diagram`
-  - [ ] Recommend starting command based on context (e.g., no ADRs → suggest `/arch:design`)
-  - [ ] Reference upstream (`/plan:sdd`) and downstream (`/impl:tdd`) with install hints if needed
-  - [ ] Verify: run in a project with no design artifacts; confirm appropriate recommendation
+  - [x] Implement `/arch:help` command
+  - [x] Detect project state: existing ADRs in `docs/adrs/`, schemas, OpenAPI specs, diagrams
+  - [x] Walk through commands: `design`, `api`, `schema`, `diagram`
+  - [x] Recommend starting command based on context (e.g., no ADRs → suggest `/arch:design`)
+  - [x] Reference upstream (`/plan:sdd`) and downstream (`/impl:tdd`) with install hints if needed
+  - [x] Verify: run in a project with no design artifacts; confirm appropriate recommendation
 
 ### P2-G: Out-of-Order Guards
 
@@ -756,7 +756,7 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 | ARCH-003 | API Design Command | PENDING | 2 | P2-C |
 | ARCH-004 | Schema Design Command | PENDING | 2 | P2-D |
 | ARCH-005 | Diagram Command | PENDING | 2 | P2-E |
-| ARCH-006 | Help Command | PENDING | 2 | P2-F |
+| ARCH-006 | Help Command | COMPLETE | 2 | P2-F |
 | ARCH-007 | Out-of-Order Guards | PENDING | 2 | P2-G |
 | REVIEW-001 | Plugin Scaffold | PENDING | 3 | P3-A |
 | REVIEW-002 | Playwright MCP Bundle (Required) | PENDING | 3 | P3-B |
