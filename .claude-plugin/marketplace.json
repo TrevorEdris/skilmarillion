@@ -10,6 +10,11 @@
       "description": "Spec-driven planning: triage, spec, architecture, TDD plan."
     },
     {
+      "name": "review",
+      "source": "./review",
+      "description": "Review & quality: parallel code, security, and a11y review with deduplicated findings."
+    },
+    {
       "name": "skil",
       "source": "./skil",
       "description": "Workflow router and discovery layer for the Skilmarillion suite."
