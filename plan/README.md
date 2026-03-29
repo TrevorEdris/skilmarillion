@@ -28,7 +28,7 @@ Part of the [Skilmarillion](https://github.com/TrevorEdris/skilmarillion) workfl
 | `/plan:prd [feature]` | Client-shareable PRD from a plain-language description. Saves to `docs/{feature}/PRD.md`. |
 | `/plan:roadmap [prd-path]` | Decompose an approved PRD into ordered milestones. Saves to `docs/{feature}/ROADMAP.md`. *(P0-I)* |
 | `/plan:validate [path]` | Score a spec, PRD, or plan (0–100; PASS at ≥70). Auto-detects doc type. Supports `--draft` for relaxed threshold (50). |
-| `/plan:migrate [legacy] [target]` | Prioritized migration plan as independent specs. *(P0-H)* |
+| `/plan:migrate [legacy] [target]` | Prioritized migration plan as independent specs. Orders by coupling analysis (fan-in) and git hotspot data. Saves to `docs/{migration-slug}/ROADMAP.md`. |
 
 ### Standalone validation script
 
@@ -66,6 +66,7 @@ All paths are relative to the target project's git root (resolved automatically 
 | `/plan:prd` | PRD | `docs/{feature}/PRD.md` |
 | `/plan:sdd` (FEATURE/SMALL) | Spec | `docs/{feature}/specs/SPEC-{NNN}-{slug}.md` |
 | `/plan:roadmap` | Roadmap | `docs/{feature}/ROADMAP.md` |
+| `/plan:migrate` | Migration ROADMAP + Specs | `docs/{migration-slug}/ROADMAP.md` + `docs/{migration-slug}/specs/SPEC-{NNN}-migrate-{module}.md` |
 
 ## Session Documentation Hooks
 

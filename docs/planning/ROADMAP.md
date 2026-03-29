@@ -14,13 +14,13 @@
 - [x] PLAN-006: Session Documentation Hooks (P0-F) — merged PR #TBD
 - [x] PLAN-007: Deterministic Artifact Paths (P0-G) — merged PR #TBD
 - [x] PLAN-009: Roadmap Command (P0-I) — merged PR #TBD
+- [x] PLAN-008: Migrate Command (P0-H) — merged PR #TBD
 
 ### In Progress
 - [ ] PLAN-011: Out-of-Order Guards (P0-K) — FR-012
 - [ ] PLAN-012: QRSPI Mode for SMALL Tasks (P0-C extension) — FR-001, FR-005
 
 ### Not Started
-- [ ] PLAN-008: Migrate Command (P0-H) — Should priority
 - [ ] PLAN-010: Help Command (P0-J) — FR-011
 - [ ] Phase 0.5: `skil` — Workflow Router
 - [ ] Phase 1: `impl` — Implementation
@@ -181,10 +181,10 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **Risk:** Coupling analysis and git hotspot parsing may be brittle across diverse codebases. Scope to a known-good subset of analysis techniques.
 - **Note:** This is a Should priority — ship after P0-A through P0-G are stable.
 - **Checklist:**
-  - [ ] Implement coupling analysis: identify modules with high fan-in (depended upon by many; migrate last)
-  - [ ] Parse git log to identify hotspot files (frequently changed; migrate early to reduce churn)
-  - [ ] Produce ordered list of migration units, each as an independent spec (P0-C format)
-  - [ ] Save migration plan to `docs/{migration-slug}/ROADMAP.md` per `artifact-paths` skill
+  - [x] Implement coupling analysis: identify modules with high fan-in (depended upon by many; migrate last)
+  - [x] Parse git log to identify hotspot files (frequently changed; migrate early to reduce churn)
+  - [x] Produce ordered list of migration units, each as an independent spec (P0-C format)
+  - [x] Save migration plan to `docs/{migration-slug}/ROADMAP.md` per `artifact-paths` skill
   - [ ] Manual verification: run on a small real codebase; confirm ordering is defensible
 
 ### P0-J: Help Command
