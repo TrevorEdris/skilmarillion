@@ -595,15 +595,15 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **Note:** Frontend-only. For backend or CLI code, the command should exit cleanly with "No UI components detected."
 - **Model tier:** Opus — missing a WCAG criterion has real accessibility impact for real users; POUR principle coverage and criterion mapping requires authoritative judgment; read-only tool access only (READ, GLOB, GREP, BASH, Playwright MCP tools)
 - **Checklist:**
-  - [ ] Port and rewrite `accessibility-audit` from fotw source
-  - [ ] Cover all four POUR principles (Perceivable, Operable, Understandable, Robust)
-  - [ ] Map each finding to a WCAG 2.1/2.2 success criterion (e.g., 1.4.3 Contrast)
-  - [ ] Assign severity: critical (blocks use), serious (major barrier), moderate (inconvenience), minor (best practice)
-  - [ ] Include reproduction steps for each finding
-  - [ ] **Browser mode (when Playwright MCP available + dev server confirmed):** Navigate to the running app, take accessibility tree snapshot, check color contrast via computed styles, verify keyboard focus order, check ARIA attributes against live DOM — findings grounded in real rendered state, not source code
-  - [ ] **Static mode (fallback):** Analyze source code and component definitions for WCAG violations; note in report that findings are based on static analysis and may miss runtime-rendered issues
-  - [ ] Report header must declare mode used: `Verification mode: live browser` or `Verification mode: static analysis (no dev server)`
-  - [ ] Gracefully handle non-UI code: detect no DOM/component output and exit cleanly
+  - [x] Port and rewrite `accessibility-audit` from fotw source
+  - [x] Cover all four POUR principles (Perceivable, Operable, Understandable, Robust)
+  - [x] Map each finding to a WCAG 2.1/2.2 success criterion (e.g., 1.4.3 Contrast)
+  - [x] Assign severity: critical (blocks use), serious (major barrier), moderate (inconvenience), minor (best practice)
+  - [x] Include reproduction steps for each finding
+  - [x] **Browser mode (when Playwright MCP available + dev server confirmed):** Navigate to the running app, take accessibility tree snapshot, check color contrast via computed styles, verify keyboard focus order, check ARIA attributes against live DOM — findings grounded in real rendered state, not source code
+  - [x] **Static mode (fallback):** Analyze source code and component definitions for WCAG violations; note in report that findings are based on static analysis and may miss runtime-rendered issues
+  - [x] Report header must declare mode used: `Verification mode: live browser` or `Verification mode: static analysis (no dev server)`
+  - [x] Gracefully handle non-UI code: detect no DOM/component output and exit cleanly
   - [ ] Verify (browser mode): run on a running app with known contrast failure; confirm WCAG criterion cited, severity rated, and finding grounded in live DOM state
   - [ ] Verify (static mode): run with no dev server; confirm fallback note present and no error thrown
 
@@ -764,7 +764,7 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 | REVIEW-003 | Review Command | PENDING | 3 | P3-C |
 | REVIEW-004 | Clean Command | COMPLETE | 3 | P3-D |
 | REVIEW-005 | Security Command | PENDING | 3 | P3-E |
-| REVIEW-006 | A11y Command | PENDING | 3 | P3-F |
+| REVIEW-006 | A11y Command | IN_PROGRESS | 3 | P3-F |
 | REVIEW-007 | Help Command | PENDING | 3 | P3-G |
 | REVIEW-008 | Out-of-Order Guards | PENDING | 3 | P3-H |
 | SITE-001 | Site Scaffold | PENDING | 4 | P4-A |
