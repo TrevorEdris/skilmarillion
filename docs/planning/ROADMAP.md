@@ -744,7 +744,7 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 | SKIL-003 | Task Router Command | COMPLETE | 0.5 | P0.5-C |
 | SKIL-004 | Status Dashboard | COMPLETE | 0.5 | P0.5-D |
 | IMPL-001 | Plugin Scaffold | COMPLETE | 1 | P1-A |
-| IMPL-002 | TDD Command | IN PROGRESS | 1 | P1-B |
+| IMPL-002 | TDD Command | COMPLETE | 1 | P1-B |
 | IMPL-003 | Debug Command | IN PROGRESS | 1 | P1-C |
 | IMPL-004 | Refactor Command | PENDING | 1 | P1-D |
 | IMPL-005 | Commit Command | IN_PROGRESS | 1 | P1-E |
