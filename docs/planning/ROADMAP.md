@@ -262,12 +262,12 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **Risk:** Routing heuristic may misroute tasks. Keep the heuristic simple: planning/spec tasks → `plan:sdd`, design/architecture tasks → `arch:*`, "build/implement/code" → `impl:tdd`, "review/audit/check" → `review:*`. When ambiguous, ask the user.
 - **Model tier:** Haiku — the routing decision is keyword-based classification, not deep reasoning
 - **Checklist:**
-  - [ ] Implement `/skil [task]` as the default command
-  - [ ] Route by intent classification: plan/spec/prd → `/plan:sdd`, design/api/schema/diagram → `/arch:*`, build/implement/code/fix → `/impl:tdd`, review/audit/security/a11y → `/review:*`
-  - [ ] When intent is ambiguous, use `AskUserQuestion`: "What would you like to do?" with options mapping to lifecycle phases
-  - [ ] When target plugin is not installed: "This task needs the `impl` plugin. Run `/plugin install impl@skilmarillion`"
-  - [ ] When target plugin is installed: delegate by invoking the appropriate command with the task description
-  - [ ] Verify: route "add user authentication" → `/plan:sdd`; route "review my PR" → `/review:review`; route ambiguous task → user prompt
+  - [x] Implement `/skil [task]` as the default command
+  - [x] Route by intent classification: plan/spec/prd → `/plan:sdd`, design/api/schema/diagram → `/arch:*`, build/implement/code/fix → `/impl:tdd`, review/audit/security/a11y → `/review:*`
+  - [x] When intent is ambiguous, use `AskUserQuestion`: "What would you like to do?" with options mapping to lifecycle phases
+  - [x] When target plugin is not installed: "This task needs the `impl` plugin. Run `/plugin install impl@skilmarillion`"
+  - [x] When target plugin is installed: delegate by invoking the appropriate command with the task description
+  - [x] Verify: route "add user authentication" → `/plan:sdd`; route "review my PR" → `/review:review`; route ambiguous task → user prompt
 
 ### P0.5-D: Status Dashboard Command
 
@@ -740,7 +740,7 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 | PLAN-012 | QRSPI Mode for SMALL Tasks | PENDING | 0 | P0-C (extension) |
 | SKIL-001 | Plugin Scaffold | PENDING | 0.5 | P0.5-A |
 | SKIL-002 | Help Tour Command | COMPLETE | 0.5 | P0.5-B |
-| SKIL-003 | Task Router Command | PENDING | 0.5 | P0.5-C |
+| SKIL-003 | Task Router Command | COMPLETE | 0.5 | P0.5-C |
 | SKIL-004 | Status Dashboard | COMPLETE | 0.5 | P0.5-D |
 | IMPL-001 | Plugin Scaffold | COMPLETE | 1 | P1-A |
 | IMPL-002 | TDD Command | PENDING | 1 | P1-B |
