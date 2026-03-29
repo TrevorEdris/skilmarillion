@@ -8,8 +8,7 @@ Skilmarillion is a Claude Code plugin system organized as a lifecycle: `dream` (
 
 - `dream/` — The spec-driven planning plugin (commands, agents, skills, references)
 - `docs/planning/` — Project PRD and roadmap
-- `docs/specs/` — Feature specs produced by `/dream:sdd`
-- `docs/prds/` — PRDs produced by `/dream:prd`
+- `docs/{feature}/` — Feature-grouped artifacts: PRD, roadmap, specs, plans (see `dream/skills/artifact-paths.md`)
 - `test-fixtures/` — Sample app used for testing plugin commands
 
 ## Build & Test Commands
@@ -44,5 +43,5 @@ Do not merge a roadmap-item PR without this update.
 
 - **Versioning:** Semver for `plugin.json` — patch for fixes, minor for new commands, major for breaking changes.
 - **Command files:** YAML frontmatter (`description`, `argument-hint`, `allowed-tools`, `model`) + markdown body.
-- **Artifact paths:** Deterministic — specs to `docs/specs/`, PRDs to `docs/prds/`. No prompting for save location.
+- **Artifact paths:** Deterministic, feature-grouped — `docs/{feature}/PRD.md`, `docs/{feature}/specs/SPEC-NNN-{slug}.md`. Slug confirmed with user before save. See `dream/skills/artifact-paths.md`.
 - **Model tiering:** Use the minimum model that handles the task reliably. Haiku for deterministic/structured output. Sonnet for judgment and context. Opus for security/quality-critical roles.

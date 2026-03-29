@@ -68,10 +68,10 @@ Produce the full PRD in template format with:
 
 ### 4. Validation Gate
 
-Run the validation script in draft mode first:
+After saving, run the validation script in draft mode first:
 
 ```bash
-python ${CLAUDE_PLUGIN_ROOT}/scripts/validate.py <path> --type prd --draft --json
+python ${CLAUDE_PLUGIN_ROOT}/scripts/validate.py {confirmed_path} --type prd --draft --json
 ```
 
 - If score < 50 (draft threshold): display findings, re-draft failing sections, re-validate.
@@ -79,7 +79,7 @@ python ${CLAUDE_PLUGIN_ROOT}/scripts/validate.py <path> --type prd --draft --jso
 Then run full validation:
 
 ```bash
-python ${CLAUDE_PLUGIN_ROOT}/scripts/validate.py <path> --type prd --verbose --json
+python ${CLAUDE_PLUGIN_ROOT}/scripts/validate.py {confirmed_path} --type prd --verbose --json
 ```
 
 - If score >= 70: **PASS** — present the PRD to the user.
@@ -87,10 +87,15 @@ python ${CLAUDE_PLUGIN_ROOT}/scripts/validate.py <path> --type prd --verbose --j
 
 ### 5. Save
 
-- Save to `docs/prds/[feature-slug]-prd.md`
-- Create `docs/prds/` directory if it does not exist: `mkdir -p docs/prds`
-- Derive the feature slug from the feature description (lowercase, hyphens, no special characters)
-- Confirm the save path to the user
+Resolve artifact path per `artifact-paths` skill:
+
+1. **Resolve project root** — determine which git repo this PRD targets (git root of target project, not necessarily CWD). See `artifact-paths` skill for the resolution chain.
+2. **Derive feature slug** using the canonical slug algorithm from `artifact-paths` skill (lowercase, replace specials with hyphens, collapse, truncate to 40 chars, strip trailing hyphens).
+3. **Derive PRD path:** `{project_root}/docs/{feature-slug}/PRD.md`
+4. **Confirm path with user** per `artifact-paths` slug confirmation protocol. Show full absolute path on first save. User may accept, override the slug, or correct the project root.
+5. **Create directory** if it does not exist: `mkdir -p {project_root}/docs/{feature-slug}`
+6. **Save** PRD using Write tool to the confirmed path.
+7. **Suggest next step:** "PRD saved. To create a roadmap, add `docs/{feature-slug}/ROADMAP.md`. Then run `/dream:sdd [roadmap item]` to spec each item as `docs/{feature-slug}/specs/SPEC-NNN-{slug}.md`."
 
 ---
 

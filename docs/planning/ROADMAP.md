@@ -12,12 +12,13 @@
 - [x] DREAM-004: Validate Command (P0-E) — merged PR #5
 - [x] DREAM-005: PRD Command (P0-D) — merged PR #TBD
 - [x] DREAM-006: Session Documentation Hooks (P0-F) — merged PR #TBD
+- [x] DREAM-007: Deterministic Artifact Paths (P0-G) — merged PR #TBD
 
 ### In Progress
 (none)
 
 ### Not Started
-- [ ] DREAM-007: Deterministic Artifact Paths (P0-G)
+- [ ] DREAM-009: Roadmap Command (P0-I)
 - [ ] DREAM-008: Migrate Command (P0-H) — Should priority
 - [ ] Phase 1: `draft` — Architecture & Design
 - [ ] Phase 2: `do` — Implementation
@@ -134,11 +135,32 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **What:** Every `dream` command saves its output to a documented, predictable path so users and teammates can find any artifact without asking where it was saved.
 - **Depends on:** P0-C, P0-D
 - **Checklist:**
-  - [ ] Specs → `docs/specs/[feature-name]-spec.md`
-  - [ ] PRDs → `docs/prds/[feature-name]-prd.md`
-  - [ ] Confirm paths are created if directories don't exist (mkdir -p equivalent)
-  - [ ] Document all paths in `dream` README
-  - [ ] Verify: run two commands back-to-back; confirm no path collisions, no prompting for save location
+  - [x] Specs → `docs/{feature}/specs/SPEC-{NNN}-{slug}.md` (feature-grouped, auto-incrementing)
+  - [x] PRDs → `docs/{feature}/PRD.md` (colocated with roadmap)
+  - [x] Roadmaps → `docs/{feature}/ROADMAP.md` (colocated with PRD)
+  - [x] Plans → `docs/{feature}/plans/PLAN-{NNN}-{slug}.md` (convention reserved for `/do`)
+  - [x] Shared `artifact-paths` skill centralizes path resolution, slug algorithm, and project root detection
+  - [x] Paths resolved relative to target project git root (not CWD)
+  - [x] Confirm paths are created if directories don't exist (mkdir -p equivalent)
+  - [x] Document all paths in `dream` README and CLAUDE.md
+  - [x] Slug confirmed with user before save; user may override
+
+### P0-I: Roadmap Command
+
+- **What:** A standalone command that decomposes an approved PRD into a phased, ordered roadmap with shippable milestones. Each milestone maps to one or more `/dream:sdd` specs. The EPIC flow in `/dream:sdd` currently generates a phase map inline — this command extracts that responsibility into a dedicated, reusable command and replaces the EPIC inline decomposition.
+- **Depends on:** P0-D (PRD command — roadmap consumes a PRD), P0-G (artifact paths — saves to `docs/{feature}/ROADMAP.md`)
+- **Risk:** Roadmap quality depends on PRD quality. If the PRD is vague, the roadmap will decompose poorly. **Mitigation:** Gate on PRD validation score (>= 70) before generating the roadmap — refuse to proceed on an unvalidated PRD.
+- **Model tier:** Sonnet — decomposing a PRD into ordered, dependency-aware milestones requires judgment about scope, coupling, and shippability; not a mechanical transformation.
+- **Checklist:**
+  - [ ] Implement `/dream:roadmap [prd-path]` command that accepts a PRD file path (or auto-discovers `docs/{feature}/PRD.md` if invoked from a feature directory)
+  - [ ] Gate: run `validate.py` on the PRD before proceeding — refuse if score < 70 with message "PRD needs work before roadmap generation. Run `/dream:validate` to see findings."
+  - [ ] Decompose PRD functional requirements into ordered milestones with: milestone name, capability delivered, dependency on prior milestones, estimated scope (SMALL/FEATURE), and acceptance summary
+  - [ ] Identify critical path — which milestone must land first to unblock others
+  - [ ] Produce ROADMAP.md with: phased milestone list, dependency graph (text or Mermaid), risk notes per milestone, and a checklist of `/dream:sdd` invocations to spec each milestone
+  - [ ] Save to `{project_root}/docs/{feature}/ROADMAP.md` per `artifact-paths` skill (confirm path with user)
+  - [ ] Refactor EPIC flow in `/dream:sdd`: replace inline phase map generation with delegation to `/dream:roadmap`, then proceed to spec Phase 1
+  - [ ] Port relevant decomposition logic from `fotw:prd-to-roadmap` skill
+  - [ ] Manual verification: run `/dream:roadmap` against a real PRD; confirm milestones are ordered, dependencies are explicit, and each milestone is independently spec-able via `/dream:sdd`
 
 ### P0-H: Migrate Command
 
@@ -150,10 +172,10 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
   - [ ] Implement coupling analysis: identify modules with high fan-in (depended upon by many; migrate last)
   - [ ] Parse git log to identify hotspot files (frequently changed; migrate early to reduce churn)
   - [ ] Produce ordered list of migration units, each as an independent spec (P0-C format)
-  - [ ] Save migration plan to `docs/specs/migration-[source-to-target].md`
+  - [ ] Save migration plan to `docs/{migration-slug}/ROADMAP.md` per `artifact-paths` skill
   - [ ] Manual verification: run on a small real codebase; confirm ordering is defensible
 
-**Deliverable:** *Users can run `/dream:sdd` on any task and receive a spec with testable acceptance criteria, an architecture recommendation, and a TDD plan. Trivial tasks complete in one round-trip. Artifacts always land at the same predictable paths.*
+**Deliverable:** *Users can run `/dream:prd` to define a feature, `/dream:roadmap` to decompose it into milestones, and `/dream:sdd` to spec each milestone — producing a complete PRD → Roadmap → Spec pipeline. Trivial tasks short-circuit in one round-trip. All artifacts land at deterministic, feature-grouped paths (`docs/{feature}/`).*
 
 ---
 

@@ -24,8 +24,8 @@ If a path argument is provided, use it directly.
 
 If no path argument is provided:
 1. Search for candidates:
-   - Specs: `docs/specs/*.md`
-   - PRDs: `docs/prds/*.md`
+   - Specs: `docs/*/specs/SPEC-*.md`
+   - PRDs: `docs/*/PRD.md`
    - Plans: look in the current session directory for `PLAN.md`
 2. If exactly one candidate found, use it.
 3. If multiple candidates found, ask the user which one to validate (using `AskUserQuestion`).
