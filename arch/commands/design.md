@@ -209,6 +209,14 @@ If the `impl` plugin is not installed, append:
 > These artifacts can be passed to `/impl:tdd` as structured context for implementation.
 > The `impl` plugin is not installed. Install with: `claude plugin add impl`
 
+**Spec-exists hint:** After displaying the next steps, check for existing specs in `docs/` (glob for `docs/**/specs/SPEC-*.md` or `docs/**/SDD-*.md`). If a spec is found for a related feature, append:
+
+> A spec exists at `{spec-path}` -- `/impl:tdd {spec-path}` will pick up both the spec and these design artifacts.
+
+If multiple specs exist, list the most recently modified one and note the count:
+
+> {count} specs found. Most recent: `{spec-path}` -- `/impl:tdd {spec-path}` will pick up both the spec and these design artifacts.
+
 ---
 
 ## WHAT NOT TO DO
