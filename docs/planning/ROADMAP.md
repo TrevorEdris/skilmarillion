@@ -20,10 +20,11 @@
 - [ ] PLAN-010: Help Command (P0-J) — FR-011
 - [ ] PLAN-011: Out-of-Order Guards (P0-K) — FR-012
 - [ ] PLAN-012: QRSPI Mode for SMALL Tasks (P0-C extension) — FR-001, FR-005
+- [ ] IMPL-002: TDD Command (P1-B) — PR #TBD
 
 ### Not Started
-- [ ] Phase 0.5: `skil` — Workflow Router
-- [ ] Phase 1: `impl` — Implementation
+- [ ] Phase 0.5: `skil` — Workflow Router (P0.5-B Help Tour in progress)
+- [ ] Phase 1: `impl` — Implementation (P1-B in progress)
 - [ ] Phase 2: `arch` — Architecture & Design
 - [ ] Phase 3: `review` — Review & Quality
 - [ ] Phase 4: Homepage — GitHub Pages
@@ -244,15 +245,15 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **Risk:** Tour content may become stale as plugins evolve. Keep descriptions in a single reference file within `skil` so updates are centralized.
 - **Model tier:** Haiku — reads project state, presents pre-written descriptions, no codebase reasoning
 - **Checklist:**
-  - [ ] Implement `/skil:help` command
-  - [ ] Detect installed plugins: check for `plan/`, `arch/`, `impl/`, `review/` plugin manifests
-  - [ ] Detect project artifacts: specs, PRDs, active state files, review reports, open PRs
-  - [ ] Adapt greeting: fresh project ("Let me show you around") vs. existing artifacts ("Looks like you've been working — here's what's available")
-  - [ ] Walk through lifecycle phases in order: plan → arch → impl → review
-  - [ ] For each phase: name, one-line purpose, key commands, artifact produced
-  - [ ] For uninstalled plugins: show install command instead of commands
-  - [ ] Use `AskUserQuestion` for pacing: "Next plugin?" / "Tell me more" / "Skip to a specific plugin"
-  - [ ] End with recommended starting point based on project state
+  - [x] Implement `/skil:help` command
+  - [x] Detect installed plugins: check for `plan/`, `arch/`, `impl/`, `review/` plugin manifests
+  - [x] Detect project artifacts: specs, PRDs, active state files, review reports, open PRs
+  - [x] Adapt greeting: fresh project ("Let me show you around") vs. existing artifacts ("Looks like you've been working — here's what's available")
+  - [x] Walk through lifecycle phases in order: plan → arch → impl → review
+  - [x] For each phase: name, one-line purpose, key commands, artifact produced
+  - [x] For uninstalled plugins: show install command instead of commands
+  - [x] Use `AskUserQuestion` for pacing: "Next plugin?" / "Tell me more" / "Skip to a specific plugin"
+  - [x] End with recommended starting point based on project state
   - [ ] Verify: install only `skil` + `plan`; confirm tour shows `plan` commands and install hints for `arch`, `impl`, `review`
 
 ### P0.5-C: Task Router Command
@@ -262,12 +263,12 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **Risk:** Routing heuristic may misroute tasks. Keep the heuristic simple: planning/spec tasks → `plan:sdd`, design/architecture tasks → `arch:*`, "build/implement/code" → `impl:tdd`, "review/audit/check" → `review:*`. When ambiguous, ask the user.
 - **Model tier:** Haiku — the routing decision is keyword-based classification, not deep reasoning
 - **Checklist:**
-  - [ ] Implement `/skil [task]` as the default command
-  - [ ] Route by intent classification: plan/spec/prd → `/plan:sdd`, design/api/schema/diagram → `/arch:*`, build/implement/code/fix → `/impl:tdd`, review/audit/security/a11y → `/review:*`
-  - [ ] When intent is ambiguous, use `AskUserQuestion`: "What would you like to do?" with options mapping to lifecycle phases
-  - [ ] When target plugin is not installed: "This task needs the `impl` plugin. Run `/plugin install impl@skilmarillion`"
-  - [ ] When target plugin is installed: delegate by invoking the appropriate command with the task description
-  - [ ] Verify: route "add user authentication" → `/plan:sdd`; route "review my PR" → `/review:review`; route ambiguous task → user prompt
+  - [x] Implement `/skil [task]` as the default command
+  - [x] Route by intent classification: plan/spec/prd → `/plan:sdd`, design/api/schema/diagram → `/arch:*`, build/implement/code/fix → `/impl:tdd`, review/audit/security/a11y → `/review:*`
+  - [x] When intent is ambiguous, use `AskUserQuestion`: "What would you like to do?" with options mapping to lifecycle phases
+  - [x] When target plugin is not installed: "This task needs the `impl` plugin. Run `/plugin install impl@skilmarillion`"
+  - [x] When target plugin is installed: delegate by invoking the appropriate command with the task description
+  - [x] Verify: route "add user authentication" → `/plan:sdd`; route "review my PR" → `/review:review`; route ambiguous task → user prompt
 
 ### P0.5-D: Status Dashboard Command
 
@@ -276,12 +277,12 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **Risk:** Each plugin's state file format must be stable. `skil` reads but never writes these files.
 - **Model tier:** Haiku — reads files, formats output; no judgment required
 - **Checklist:**
-  - [ ] Implement `/skil:status` command
-  - [ ] Read `plan` state: `.plan-state-*.local.yaml` files — show active features, current phases
-  - [ ] Read `impl` state: `.impl-state-*.local.yaml` files — show in-progress TDD slices
-  - [ ] Scan for artifacts: specs in `docs/*/specs/`, PRDs in `docs/*/PRD.md`, review reports in sessions dir
-  - [ ] Present unified view: "Active work: [feature] — plan phase: spec-confirmed, impl phase: slice 2 of 4"
-  - [ ] Gracefully handle missing plugins: "impl not installed — no implementation state available"
+  - [x] Implement `/skil:status` command
+  - [x] Read `plan` state: `.plan-state-*.local.yaml` files — show active features, current phases
+  - [x] Read `impl` state: `.impl-state-*.local.yaml` files — show in-progress TDD slices
+  - [x] Scan for artifacts: specs in `docs/*/specs/`, PRDs in `docs/*/PRD.md`, review reports in sessions dir
+  - [x] Present unified view: "Active work: [feature] — plan phase: spec-confirmed, impl phase: slice 2 of 4"
+  - [x] Gracefully handle missing plugins: "impl not installed — no implementation state available"
   - [ ] Verify: with active `plan` state and no `impl` installed; confirm output shows plan state and missing-plugin note
 
 **Deliverable:** *Users can install `skil` as their first skilmarillion plugin and immediately discover the full suite via `/skil:help`, route any task to the right plugin via `/skil [task]`, and check workflow progress via `/skil:status` — all without reading documentation.*
@@ -298,10 +299,10 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **What:** Establish the `impl` plugin directory structure following the same conventions as `plan`.
 - **Depends on:** Nothing (independent plugin; mirrors scaffold pattern from P0-A)
 - **Checklist:**
-  - [ ] Create `impl/.claude-plugin/plugin.json` manifest
-  - [ ] Scaffold `commands/`, `agents/`, `skills/`, `references/` directories
-  - [ ] Write `CLAUDE.md` and `README.md` with standalone entry conditions
-  - [ ] Verify `claude plugin add` loads `impl` without `plan` or `arch` installed
+  - [x] Create `impl/.claude-plugin/plugin.json` manifest
+  - [x] Scaffold `commands/`, `agents/`, `skills/`, `references/` directories
+  - [x] Write `CLAUDE.md` and `README.md` with standalone entry conditions
+  - [x] Verify `claude plugin add` loads `impl` without `plan` or `arch` installed
 
 ### P1-B: TDD Command
 
@@ -310,19 +311,19 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **Risk:** If the spec's slices are not truly independent (slice 3 depends on slice 2 but the spec doesn't say so), the TDD cycle will fail mid-run. Document that specs must define slice dependencies.
 - **Model tier:** Sonnet — coding requires codebase judgment, context synthesis, and slice-by-slice decision-making
 - **Checklist:**
-  - [ ] Implement input detection: distinguish spec files (contain `## Acceptance Criteria`, `## Vertical Slices`) from impl details files (contain `## Implementation Steps`, `## Target Files`) [ADDED]
-  - [ ] **Spec input path:** Generate a session-scoped IMPL_DETAILS.md from the spec — translating ACs into implementation steps with target files, verification actions, and git strategy. Save to `${SKILMARILLION_SESSIONS_DIR}/YYYY-MM-DD_<slug>/IMPL_DETAILS.md` [ADDED]
-  - [ ] **Impl details input path:** Read the impl details steps directly — no additional generation needed [ADDED]
-  - [ ] Implement spec parser: read slices and their ACs from a `plan`-generated spec
-  - [ ] Inject spec slices and any `arch` design artifacts (ADR, OpenAPI spec, schema) as structured context at session start — do not re-read files per slice iteration; pass already-loaded artifacts as typed inputs
-  - [ ] For each slice: write failing test → confirm RED → write minimal production code → confirm GREEN → refactor → confirm GREEN
-  - [ ] Gate: do not advance to next slice until all tests pass
-  - [ ] Surface clear failure messages when RED confirmation fails for the wrong reason (syntax error vs. missing behavior)
-  - [ ] Implement slice failure escalation: after 3 failed RED-GREEN attempts on the same slice, invoke a diagnostic step (root cause analysis) before retrying with a modified approach
-  - [ ] Diagnostic step produces one of: modified approach (retry), sub-slice decomposition (split), or ACCEPT_WITH_DEBT (close slice with a documented gap — do not loop indefinitely)
-  - [ ] ACCEPT_WITH_DEBT output: structured gap record `{ slice, missing_behavior, severity, justification }` appended to spec file; downstream slices receive gap notes so they can work around missing behavior
-  - [ ] Handle impl-details-based input (SMALL tasks) with a simplified step-by-step cycle: execute each step, verify, advance [MODIFIED]
-  - [ ] After each slice GREEN: if Playwright MCP available and dev server running, invoke browser AC verification for that slice (see P1-G); non-blocking if unavailable
+  - [x] Implement input detection: distinguish spec files (contain `## Acceptance Criteria`, `## Vertical Slices`) from impl details files (contain `## Implementation Steps`, `## Target Files`) [ADDED]
+  - [x] **Spec input path:** Generate a session-scoped IMPL_DETAILS.md from the spec — translating ACs into implementation steps with target files, verification actions, and git strategy. Save to `${SKILMARILLION_SESSIONS_DIR}/YYYY-MM-DD_<slug>/IMPL_DETAILS.md` [ADDED]
+  - [x] **Impl details input path:** Read the impl details steps directly — no additional generation needed [ADDED]
+  - [x] Implement spec parser: read slices and their ACs from a `plan`-generated spec
+  - [x] Inject spec slices and any `arch` design artifacts (ADR, OpenAPI spec, schema) as structured context at session start — do not re-read files per slice iteration; pass already-loaded artifacts as typed inputs
+  - [x] For each slice: write failing test → confirm RED → write minimal production code → confirm GREEN → refactor → confirm GREEN
+  - [x] Gate: do not advance to next slice until all tests pass
+  - [x] Surface clear failure messages when RED confirmation fails for the wrong reason (syntax error vs. missing behavior)
+  - [x] Implement slice failure escalation: after 3 failed RED-GREEN attempts on the same slice, invoke a diagnostic step (root cause analysis) before retrying with a modified approach
+  - [x] Diagnostic step produces one of: modified approach (retry), sub-slice decomposition (split), or ACCEPT_WITH_DEBT (close slice with a documented gap — do not loop indefinitely)
+  - [x] ACCEPT_WITH_DEBT output: structured gap record `{ slice, missing_behavior, severity, justification }` appended to spec file; downstream slices receive gap notes so they can work around missing behavior
+  - [x] Handle impl-details-based input (SMALL tasks) with a simplified step-by-step cycle: execute each step, verify, advance [MODIFIED]
+  - [x] After each slice GREEN: if Playwright MCP available and dev server running, invoke browser AC verification for that slice (see P1-G); non-blocking if unavailable
   - [ ] Manual verification: run `/impl:tdd` against a spec; confirm session-scoped IMPL_DETAILS.md is generated before execution begins [ADDED]
   - [ ] Manual verification: run `/impl:tdd` against impl details; confirm steps execute directly without additional generation [ADDED]
   - [ ] Manual verification: run `/impl:tdd` against a P0-C-generated spec; confirm slice-by-slice execution with no manual intervention between slices
@@ -333,10 +334,10 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **Depends on:** P1-A
 - **Risk:** LLMs tend to jump to fixes. The root cause gate must be enforced structurally (require a filled root cause template before a fix is proposed).
 - **Checklist:**
-  - [ ] Port and rewrite `systematic-debugger` methodology from fotw source
-  - [ ] Implement root cause template: "The bug occurs because [condition] causes [component] to [behavior] when [trigger]"
-  - [ ] Block fix proposals until template is complete with specifics (no vague answers)
-  - [ ] Enforce three-fix limit: after 3 failed fixes, stop and escalate to user
+  - [x] Port and rewrite `systematic-debugger` methodology from fotw source
+  - [x] Implement root cause template: "The bug occurs because [condition] causes [component] to [behavior] when [trigger]"
+  - [x] Block fix proposals until template is complete with specifics (no vague answers)
+  - [x] Enforce three-fix limit: after 3 failed fixes, stop and escalate to user
   - [ ] Manual verification: present a known bug; confirm root cause statement precedes fix proposal
 
 ### P1-D: Refactor Command
@@ -356,11 +357,11 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **Depends on:** P1-A
 - **Model tier:** Haiku — diff → commit message is a deterministic transformation; input is structured (staged diff), output is a fixed format (conventional commit); no codebase reasoning required
 - **Checklist:**
-  - [ ] Port and rewrite `git-workflow` commit generation from fotw source
-  - [ ] Parse `git diff --staged` to infer type (feat/fix/refactor/docs/chore) and scope
-  - [ ] Detect breaking changes: flag if public API signatures changed or if any AC in spec is removed
-  - [ ] Output: `type(scope)!: description` with optional body and `BREAKING CHANGE:` footer
-  - [ ] Never commit automatically — output message for user to review and approve
+  - [x] Port and rewrite `git-workflow` commit generation from fotw source
+  - [x] Parse `git diff --staged` to infer type (feat/fix/refactor/docs/chore) and scope
+  - [x] Detect breaking changes: flag if public API signatures changed or if any AC in spec is removed
+  - [x] Output: `type(scope)!: description` with optional body and `BREAKING CHANGE:` footer
+  - [x] Never commit automatically — output message for user to review and approve
   - [ ] Verify: stage a breaking change; confirm `!` and footer are present in output
 
 ### P1-F: PR Command
@@ -398,12 +399,12 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **Depends on:** P1-A
 - **Model tier:** Haiku
 - **Checklist:**
-  - [ ] Implement `/impl:help` command
-  - [ ] Detect project state: active impl state files, specs in `docs/`, staged changes, open PRs
-  - [ ] Walk through commands: `tdd`, `debug`, `refactor`, `commit`, `pr`
-  - [ ] Recommend starting command based on state (e.g., spec exists but no impl state → suggest `/impl:tdd {spec-path}`)
-  - [ ] Reference upstream (`/plan:sdd` for spec creation) and downstream (`/review:review` for code review) with install hints if not present
-  - [ ] Verify: run in project with an existing spec; confirm recommendation targets that spec
+  - [x] Implement `/impl:help` command
+  - [x] Detect project state: active impl state files, specs in `docs/`, staged changes, open PRs
+  - [x] Walk through commands: `tdd`, `debug`, `refactor`, `commit`, `pr`
+  - [x] Recommend starting command based on state (e.g., spec exists but no impl state → suggest `/impl:tdd {spec-path}`)
+  - [x] Reference upstream (`/plan:sdd` for spec creation) and downstream (`/review:review` for code review) with install hints if not present
+  - [x] Verify: run in project with an existing spec; confirm recommendation targets that spec
 
 ### P1-I: Out-of-Order Guards
 
@@ -441,12 +442,12 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **Depends on:** P2-A
 - **Risk:** C4 diagram quality degrades when the system boundary is poorly defined. Enforce a system boundary clarification step before generating the diagram.
 - **Checklist:**
-  - [ ] Port and rewrite `system-design-reviewer` + `c4-architecture` from fotw source
-  - [ ] Implement structured interview: system boundaries, actors, external dependencies, key quality attributes
-  - [ ] Produce ADR with standard sections: Status, Context, Decision, Consequences
-  - [ ] Produce C4 context diagram in Mermaid (system boundary, external actors, major integrations)
-  - [ ] Save ADR to `docs/adrs/[NNN]-[title].md` with auto-incrementing NNN
-  - [ ] Verify: run command for a simple system; confirm ADR and Mermaid diagram are syntactically valid
+  - [x] Port and rewrite `system-design-reviewer` + `c4-architecture` from fotw source
+  - [x] Implement structured interview: system boundaries, actors, external dependencies, key quality attributes
+  - [x] Produce ADR with standard sections: Status, Context, Decision, Consequences
+  - [x] Produce C4 context diagram in Mermaid (system boundary, external actors, major integrations)
+  - [x] Save ADR to `docs/adrs/[NNN]-[title].md` with auto-incrementing NNN
+  - [x] Verify: run command for a simple system; confirm ADR and Mermaid diagram are syntactically valid
 
 ### P2-C: API Design Command
 
@@ -468,22 +469,22 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **Depends on:** P2-A
 - **Risk:** Zero-downtime migration plans are only valid for specific database engines. Scope to PostgreSQL initially; note limitations for other engines.
 - **Checklist:**
-  - [ ] Port and rewrite `database-schema-designer` from fotw source
-  - [ ] Implement design interview: entity relationships, cardinality, indexes, normalization trade-offs
-  - [ ] Produce schema in SQL DDL (PostgreSQL) with constraints and indexes
-  - [ ] Produce zero-downtime migration plan: expand phase (additive changes), contract phase (remove old columns after backfill)
-  - [ ] Save schema to `docs/schema/[name]-schema.sql` and migration plan to `docs/schema/[name]-migration.md`
-  - [ ] Verify: design a schema with a column rename; confirm expand-contract plan is present and sequenced correctly
+  - [x] Port and rewrite `database-schema-designer` from fotw source
+  - [x] Implement design interview: entity relationships, cardinality, indexes, normalization trade-offs
+  - [x] Produce schema in SQL DDL (PostgreSQL) with constraints and indexes
+  - [x] Produce zero-downtime migration plan: expand phase (additive changes), contract phase (remove old columns after backfill)
+  - [x] Save schema to `docs/schema/[name]-schema.sql` and migration plan to `docs/schema/[name]-migration.md`
+  - [x] Verify: design a schema with a column rename; confirm expand-contract plan is present and sequenced correctly
 
 ### P2-E: Diagram Command
 
 - **What:** A general-purpose Mermaid diagram generator supporting flowcharts, sequence diagrams, ERDs, and C4 variants. Takes a plain-language description and produces a syntactically valid Mermaid diagram.
 - **Depends on:** P2-A
 - **Checklist:**
-  - [ ] Port and rewrite `mermaid-diagram-specialist` from fotw source
-  - [ ] Support: flowchart, sequence, ERD, C4 context, C4 container
-  - [ ] Validate output is syntactically correct Mermaid before presenting
-  - [ ] Save diagram to `docs/diagrams/[name]-[type].md`
+  - [x] Port and rewrite `mermaid-diagram-specialist` from fotw source
+  - [x] Support: flowchart, sequence, ERD, C4 context, C4 container
+  - [x] Validate output is syntactically correct Mermaid before presenting
+  - [x] Save diagram to `docs/diagrams/[name]-[type].md`
   - [ ] Verify: generate each diagram type; paste into mermaid.live and confirm renders without errors
 
 ### P2-F: Help Command
@@ -567,11 +568,11 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **Note:** `review` evaluates; the clean command produces a findings list, not a diff. The user applies changes.
 - **Model tier:** Sonnet — distinguishing "genuinely useful comment" from "AI noise" is nuanced; the >90% confidence gate prevents over-firing but the judgment itself requires more than pattern matching; read-only
 - **Checklist:**
-  - [ ] Port and rewrite `desloppify` from fotw source
-  - [ ] Define noise categories: narrator comments, obvious comments, hollow prose, excessive hedging
-  - [ ] Produce findings list with file:line references and suggested replacements
-  - [ ] Confidence gate: only flag findings with >90% confidence of being noise
-  - [ ] Verify: run on a file with deliberate AI slop; confirm noise flagged and signal-carrying comments retained
+  - [x] Port and rewrite `desloppify` from fotw source
+  - [x] Define noise categories: narrator comments, obvious comments, hollow prose, excessive hedging
+  - [x] Produce findings list with file:line references and suggested replacements
+  - [x] Confidence gate: only flag findings with >90% confidence of being noise
+  - [x] Verify: run on a file with deliberate AI slop; confirm noise flagged and signal-carrying comments retained
 
 ### P3-E: Security Command
 
@@ -739,29 +740,29 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 | PLAN-011 | Out-of-Order Guards | PENDING | 0 | P0-K |
 | PLAN-012 | QRSPI Mode for SMALL Tasks | PENDING | 0 | P0-C (extension) |
 | SKIL-001 | Plugin Scaffold | PENDING | 0.5 | P0.5-A |
-| SKIL-002 | Help Tour Command | PENDING | 0.5 | P0.5-B |
-| SKIL-003 | Task Router Command | PENDING | 0.5 | P0.5-C |
-| SKIL-004 | Status Dashboard | PENDING | 0.5 | P0.5-D |
-| IMPL-001 | Plugin Scaffold | PENDING | 1 | P1-A |
-| IMPL-002 | TDD Command | PENDING | 1 | P1-B |
-| IMPL-003 | Debug Command | PENDING | 1 | P1-C |
+| SKIL-002 | Help Tour Command | COMPLETE | 0.5 | P0.5-B |
+| SKIL-003 | Task Router Command | COMPLETE | 0.5 | P0.5-C |
+| SKIL-004 | Status Dashboard | COMPLETE | 0.5 | P0.5-D |
+| IMPL-001 | Plugin Scaffold | COMPLETE | 1 | P1-A |
+| IMPL-002 | TDD Command | COMPLETE | 1 | P1-B |
+| IMPL-003 | Debug Command | COMPLETE | 1 | P1-C |
 | IMPL-004 | Refactor Command | PENDING | 1 | P1-D |
-| IMPL-005 | Commit Command | PENDING | 1 | P1-E |
+| IMPL-005 | Commit Command | IN_PROGRESS | 1 | P1-E |
 | IMPL-006 | PR Command | PENDING | 1 | P1-F |
 | IMPL-007 | Playwright MCP Bundle (Optional) | PENDING | 1 | P1-G |
-| IMPL-008 | Help Command | PENDING | 1 | P1-H |
+| IMPL-008 | Help Command | COMPLETE | 1 | P1-H |
 | IMPL-009 | Out-of-Order Guards | PENDING | 1 | P1-I |
 | ARCH-001 | Plugin Scaffold | PENDING | 2 | P2-A |
-| ARCH-002 | System Design Command | PENDING | 2 | P2-B |
+| ARCH-002 | System Design Command | COMPLETE | 2 | P2-B |
 | ARCH-003 | API Design Command | PENDING | 2 | P2-C |
 | ARCH-004 | Schema Design Command | PENDING | 2 | P2-D |
-| ARCH-005 | Diagram Command | PENDING | 2 | P2-E |
+| ARCH-005 | Diagram Command | COMPLETE | 2 | P2-E |
 | ARCH-006 | Help Command | COMPLETE | 2 | P2-F |
 | ARCH-007 | Out-of-Order Guards | PENDING | 2 | P2-G |
 | REVIEW-001 | Plugin Scaffold | PENDING | 3 | P3-A |
 | REVIEW-002 | Playwright MCP Bundle (Required) | PENDING | 3 | P3-B |
 | REVIEW-003 | Review Command | PENDING | 3 | P3-C |
-| REVIEW-004 | Clean Command | PENDING | 3 | P3-D |
+| REVIEW-004 | Clean Command | COMPLETE | 3 | P3-D |
 | REVIEW-005 | Security Command | PENDING | 3 | P3-E |
 | REVIEW-006 | A11y Command | PENDING | 3 | P3-F |
 | REVIEW-007 | Help Command | PENDING | 3 | P3-G |
