@@ -442,12 +442,12 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **Depends on:** P2-A
 - **Risk:** C4 diagram quality degrades when the system boundary is poorly defined. Enforce a system boundary clarification step before generating the diagram.
 - **Checklist:**
-  - [ ] Port and rewrite `system-design-reviewer` + `c4-architecture` from fotw source
-  - [ ] Implement structured interview: system boundaries, actors, external dependencies, key quality attributes
-  - [ ] Produce ADR with standard sections: Status, Context, Decision, Consequences
-  - [ ] Produce C4 context diagram in Mermaid (system boundary, external actors, major integrations)
-  - [ ] Save ADR to `docs/adrs/[NNN]-[title].md` with auto-incrementing NNN
-  - [ ] Verify: run command for a simple system; confirm ADR and Mermaid diagram are syntactically valid
+  - [x] Port and rewrite `system-design-reviewer` + `c4-architecture` from fotw source
+  - [x] Implement structured interview: system boundaries, actors, external dependencies, key quality attributes
+  - [x] Produce ADR with standard sections: Status, Context, Decision, Consequences
+  - [x] Produce C4 context diagram in Mermaid (system boundary, external actors, major integrations)
+  - [x] Save ADR to `docs/adrs/[NNN]-[title].md` with auto-incrementing NNN
+  - [x] Verify: run command for a simple system; confirm ADR and Mermaid diagram are syntactically valid
 
 ### P2-C: API Design Command
 
@@ -753,7 +753,7 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 | IMPL-008 | Help Command | COMPLETE | 1 | P1-H |
 | IMPL-009 | Out-of-Order Guards | PENDING | 1 | P1-I |
 | ARCH-001 | Plugin Scaffold | PENDING | 2 | P2-A |
-| ARCH-002 | System Design Command | PENDING | 2 | P2-B |
+| ARCH-002 | System Design Command | COMPLETE | 2 | P2-B |
 | ARCH-003 | API Design Command | PENDING | 2 | P2-C |
 | ARCH-004 | Schema Design Command | PENDING | 2 | P2-D |
 | ARCH-005 | Diagram Command | PENDING | 2 | P2-E |
