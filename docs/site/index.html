@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Skilmarillion — Lifecycle Plugins for Claude Code</title>
+  <meta name="description" content="Five Claude Code plugins that turn fragmented AI dev workflows into a coherent lifecycle: plan, architect, implement, review.">
+  <meta property="og:title" content="Skilmarillion — Lifecycle Plugins for Claude Code">
+  <meta property="og:description" content="Five Claude Code plugins that turn fragmented AI dev workflows into a coherent lifecycle: plan, architect, implement, review.">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#6c8cff">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to main content</a>
+
+  <header class="site-header" role="banner">
+    <div class="container">
+      <div class="site-title"><span>skil</span>marillion</div>
+      <nav aria-label="Primary navigation">
+        <ul class="header-nav">
+          <li><a href="#lifecycle">Lifecycle</a></li>
+          <li><a href="#plugins">Plugins</a></li>
+          <li><a href="#output">Output</a></li>
+          <li><a href="https://github.com/TrevorEdris/skilmarillion">GitHub</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- Hero -->
+    <section class="hero" aria-labelledby="hero-heading">
+      <div class="container">
+        <h1 id="hero-heading">A <span class="highlight">coherent lifecycle</span> for AI-assisted development</h1>
+        <p class="hero-subtitle">Five Claude Code plugins that replace ad-hoc prompting with structured workflows. Specify, design, implement, review &mdash; each step produces a real artifact, not just conversation.</p>
+        <div class="hero-actions">
+          <a href="https://github.com/TrevorEdris/skilmarillion" class="btn btn-primary">View on GitHub</a>
+          <a href="#lifecycle" class="btn btn-secondary">See the lifecycle</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Problem / Solution -->
+    <section class="section section--alt" aria-labelledby="ps-heading">
+      <div class="container">
+        <h2 id="ps-heading" class="section-title">Why this exists</h2>
+        <div class="problem-solution">
+          <div class="ps-card ps-card--problem">
+            <h3>The problem</h3>
+            <p>AI coding assistants are powerful but unstructured. Each prompt starts from scratch. There is no shared context between planning and implementation, no design record, no review gate. Teams end up with code that works but was never specified, never architected, and never systematically reviewed.</p>
+          </div>
+          <div class="ps-card ps-card--solution">
+            <h3>The solution</h3>
+            <p>Skilmarillion organizes AI-assisted work into a repeatable lifecycle. Each plugin handles one phase and produces a concrete artifact &mdash; a spec, an ADR, tested code, a findings report. Artifacts flow forward: specs feed implementation, implementations feed review. Nothing is lost between steps.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lifecycle Visualization -->
+    <section class="section" id="lifecycle" aria-labelledby="lifecycle-heading">
+      <div class="container">
+        <h2 id="lifecycle-heading" class="section-title">The lifecycle</h2>
+        <p class="section-subtitle">Four phases, connected by artifacts. Each phase is a standalone plugin you can use independently.</p>
+
+        <div class="lifecycle" role="list" aria-label="Development lifecycle phases">
+          <div class="lifecycle-step lifecycle-step--plan" role="listitem">
+            <span class="lifecycle-phase">Specify</span>
+            <code class="lifecycle-command">/plan:sdd</code>
+            <p class="lifecycle-desc">Turn a task description into testable acceptance criteria, vertical slices, and a TDD plan.</p>
+            <span class="lifecycle-artifact">specs/SPEC-001-*.md</span>
+          </div>
+          <div class="lifecycle-step lifecycle-step--arch" role="listitem">
+            <span class="lifecycle-phase">Design</span>
+            <code class="lifecycle-command">/arch:design</code>
+            <p class="lifecycle-desc">Structured design sessions producing ADRs, OpenAPI specs, database schemas, and C4 diagrams.</p>
+            <span class="lifecycle-artifact">adrs/001-*.md</span>
+          </div>
+          <div class="lifecycle-step lifecycle-step--impl" role="listitem">
+            <span class="lifecycle-phase">Implement</span>
+            <code class="lifecycle-command">/impl:tdd</code>
+            <p class="lifecycle-desc">Slice-by-slice TDD execution from a spec. Red, green, refactor &mdash; one slice at a time.</p>
+            <span class="lifecycle-artifact">tested, committed code</span>
+          </div>
+          <div class="lifecycle-step lifecycle-step--review" role="listitem">
+            <span class="lifecycle-phase">Review</span>
+            <code class="lifecycle-command">/review:review</code>
+            <p class="lifecycle-desc">Parallel specialist reviewers for code quality, security, and accessibility. Findings only, no edits.</p>
+            <span class="lifecycle-artifact">review-report.md</span>
+          </div>
+        </div>
+
+        <div class="entry-point">
+          <span class="entry-point-label">Start here:</span>
+          <code class="entry-point-command">/skil:help</code>
+          <span class="entry-point-desc">The workflow router detects installed plugins and recommends where to begin based on your project state.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Plugins -->
+    <section class="section section--alt" id="plugins" aria-labelledby="plugins-heading">
+      <div class="container">
+        <h2 id="plugins-heading" class="section-title">Five plugins, one suite</h2>
+        <p class="section-subtitle">Install any plugin independently. Each works standalone; together they form the full lifecycle.</p>
+
+        <div class="plugin-grid">
+          <div class="plugin-card plugin-card--plan">
+            <h3>plan</h3>
+            <p>Spec-driven planning. Turns a task description into testable acceptance criteria, a vertical slice spec, and a TDD plan.</p>
+            <div class="artifact-label">Produces</div>
+            <div class="artifact-value">SPEC-NNN-slug.md</div>
+          </div>
+          <div class="plugin-card plugin-card--arch">
+            <h3>arch</h3>
+            <p>Architecture and design sessions. Produces ADRs, OpenAPI specs, database schemas, and Mermaid diagrams.</p>
+            <div class="artifact-label">Produces</div>
+            <div class="artifact-value">ADR, OpenAPI YAML, DDL</div>
+          </div>
+          <div class="plugin-card plugin-card--impl">
+            <h3>impl</h3>
+            <p>Implementation executor. Drives slice-by-slice TDD, structured debugging, refactoring, and conventional commits.</p>
+            <div class="artifact-label">Produces</div>
+            <div class="artifact-value">Tested, committed code</div>
+          </div>
+          <div class="plugin-card plugin-card--review">
+            <h3>review</h3>
+            <p>Parallel specialist reviewers for code quality, security, and accessibility. Produces a unified, deduplicated findings report.</p>
+            <div class="artifact-label">Produces</div>
+            <div class="artifact-value">review-report.md</div>
+          </div>
+          <div class="plugin-card plugin-card--skil">
+            <h3>skil</h3>
+            <p>Workflow router and discovery layer. Routes tasks to the right plugin and provides guided tours of available commands.</p>
+            <div class="artifact-label">Entry point</div>
+            <div class="artifact-value">/skil:help</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Artifact Excerpt Showcase -->
+    <section class="section" id="output" aria-labelledby="output-heading">
+      <div class="container">
+        <h2 id="output-heading" class="section-title">What the output looks like</h2>
+        <p class="section-subtitle">Real artifact excerpts from actual plugin runs. This is what Skilmarillion produces.</p>
+
+        <div class="excerpt">
+          <div class="excerpt-header">
+            <span class="excerpt-source">Spec excerpt</span>
+            <code class="excerpt-command">/plan:sdd</code>
+          </div>
+          <pre class="excerpt-block" role="region" aria-label="Spec excerpt from plan:sdd" tabindex="0"><span class="heading">## Acceptance Criteria</span>
+
+<span class="heading">### Slice 1: Task Triage</span>
+<span class="keyword">GIVEN</span> <span class="value">a plain-language task description</span>
+<span class="keyword">WHEN</span>  <span class="value">the triage agent receives the input</span>
+<span class="keyword">THEN</span>  <span class="value">it classifies the task as TRIVIAL | SMALL | FEATURE | EPIC</span>
+  <span class="keyword">AND</span>  <span class="value">assigns a risk level of LOW | MODERATE | HIGH</span>
+  <span class="keyword">AND</span>  <span class="value">routes to the appropriate workflow depth</span>
+
+<span class="heading">### Slice 2: Context Gathering</span>
+<span class="keyword">GIVEN</span> <span class="value">a triaged FEATURE-size task</span>
+<span class="keyword">WHEN</span>  <span class="value">the context-gatherer agent runs</span>
+<span class="keyword">THEN</span>  <span class="value">it identifies entry points, conventions, and hotspot files</span>
+  <span class="keyword">AND</span>  <span class="value">produces a structured context summary for spec building</span>
+
+<span class="heading">## Architecture Recommendation</span>
+<span class="comment"># Pattern: Modular monolith with agent pipeline</span>
+<span class="comment"># Each agent handles one workflow phase</span>
+<span class="comment"># Artifacts flow forward via deterministic file paths</span></pre>
+          <p class="excerpt-caption">Abridged output from /plan:sdd running against a real task. Full specs include TDD plans, risk assessments, and file path inventories.</p>
+        </div>
+
+        <div class="excerpt">
+          <div class="excerpt-header">
+            <span class="excerpt-source">Review excerpt</span>
+            <code class="excerpt-command">/review:review</code>
+          </div>
+          <pre class="excerpt-block" role="region" aria-label="Review report excerpt from review:review" tabindex="0"><span class="heading">## What's Working</span>
+<span class="value">- Clean separation between triage, context, and spec agents</span>
+<span class="value">- Deterministic artifact paths prevent path drift across runs</span>
+<span class="value">- Model tier annotations match task complexity</span>
+
+<span class="heading">## Findings</span>
+
+<span class="keyword">| # | Severity | Category     | File                | Finding                          |</span>
+| 1 | HIGH     | Security     | validate.py:42      | User input passed to eval()      |
+| 2 | MEDIUM   | Code Quality | triage-agent.md:18  | Fallback branch unreachable      |
+| 3 | LOW      | Accessibility| help.md:5           | Missing aria-label on nav region |
+
+<span class="heading">## Summary</span>
+<span class="comment">3 findings: 1 HIGH, 1 MEDIUM, 1 LOW</span>
+<span class="comment">Overall: PASS with 1 required fix before merge</span></pre>
+          <p class="excerpt-caption">Representative output from /review:review. Parallel specialists (code quality, security, accessibility) produce findings that are deduplicated and sorted by impact-to-effort ratio.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Install -->
+    <section class="section section--alt" aria-labelledby="install-heading">
+      <div class="container">
+        <h2 id="install-heading" class="section-title">Get started</h2>
+        <p class="section-subtitle">Install the full suite or any individual plugin.</p>
+        <pre class="install-block" role="region" aria-label="Installation command" tabindex="0">/install-plugin https://github.com/TrevorEdris/skilmarillion</pre>
+        <p style="margin-top: 1rem; color: var(--color-text-muted); font-size: 0.875rem;">Then run <code>/skil:help</code> to see what is available and where to start.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <p>Skilmarillion is open source under the <a href="https://github.com/TrevorEdris/skilmarillion/blob/main/LICENSE">MIT License</a>. Built for <a href="https://docs.anthropic.com/en/docs/claude-code">Claude Code</a>.</p>
+    </div>
+  </footer>
+</body>
+</html>
