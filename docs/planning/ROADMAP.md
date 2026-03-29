@@ -20,10 +20,11 @@
 - [ ] PLAN-010: Help Command (P0-J) — FR-011
 - [ ] PLAN-011: Out-of-Order Guards (P0-K) — FR-012
 - [ ] PLAN-012: QRSPI Mode for SMALL Tasks (P0-C extension) — FR-001, FR-005
+- [ ] IMPL-002: TDD Command (P1-B) — PR #TBD
 
 ### Not Started
 - [ ] Phase 0.5: `skil` — Workflow Router (P0.5-B Help Tour in progress)
-- [ ] Phase 1: `impl` — Implementation
+- [ ] Phase 1: `impl` — Implementation (P1-B in progress)
 - [ ] Phase 2: `arch` — Architecture & Design
 - [ ] Phase 3: `review` — Review & Quality
 - [ ] Phase 4: Homepage — GitHub Pages
@@ -310,19 +311,19 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **Risk:** If the spec's slices are not truly independent (slice 3 depends on slice 2 but the spec doesn't say so), the TDD cycle will fail mid-run. Document that specs must define slice dependencies.
 - **Model tier:** Sonnet — coding requires codebase judgment, context synthesis, and slice-by-slice decision-making
 - **Checklist:**
-  - [ ] Implement input detection: distinguish spec files (contain `## Acceptance Criteria`, `## Vertical Slices`) from impl details files (contain `## Implementation Steps`, `## Target Files`) [ADDED]
-  - [ ] **Spec input path:** Generate a session-scoped IMPL_DETAILS.md from the spec — translating ACs into implementation steps with target files, verification actions, and git strategy. Save to `${SKILMARILLION_SESSIONS_DIR}/YYYY-MM-DD_<slug>/IMPL_DETAILS.md` [ADDED]
-  - [ ] **Impl details input path:** Read the impl details steps directly — no additional generation needed [ADDED]
-  - [ ] Implement spec parser: read slices and their ACs from a `plan`-generated spec
-  - [ ] Inject spec slices and any `arch` design artifacts (ADR, OpenAPI spec, schema) as structured context at session start — do not re-read files per slice iteration; pass already-loaded artifacts as typed inputs
-  - [ ] For each slice: write failing test → confirm RED → write minimal production code → confirm GREEN → refactor → confirm GREEN
-  - [ ] Gate: do not advance to next slice until all tests pass
-  - [ ] Surface clear failure messages when RED confirmation fails for the wrong reason (syntax error vs. missing behavior)
-  - [ ] Implement slice failure escalation: after 3 failed RED-GREEN attempts on the same slice, invoke a diagnostic step (root cause analysis) before retrying with a modified approach
-  - [ ] Diagnostic step produces one of: modified approach (retry), sub-slice decomposition (split), or ACCEPT_WITH_DEBT (close slice with a documented gap — do not loop indefinitely)
-  - [ ] ACCEPT_WITH_DEBT output: structured gap record `{ slice, missing_behavior, severity, justification }` appended to spec file; downstream slices receive gap notes so they can work around missing behavior
-  - [ ] Handle impl-details-based input (SMALL tasks) with a simplified step-by-step cycle: execute each step, verify, advance [MODIFIED]
-  - [ ] After each slice GREEN: if Playwright MCP available and dev server running, invoke browser AC verification for that slice (see P1-G); non-blocking if unavailable
+  - [x] Implement input detection: distinguish spec files (contain `## Acceptance Criteria`, `## Vertical Slices`) from impl details files (contain `## Implementation Steps`, `## Target Files`) [ADDED]
+  - [x] **Spec input path:** Generate a session-scoped IMPL_DETAILS.md from the spec — translating ACs into implementation steps with target files, verification actions, and git strategy. Save to `${SKILMARILLION_SESSIONS_DIR}/YYYY-MM-DD_<slug>/IMPL_DETAILS.md` [ADDED]
+  - [x] **Impl details input path:** Read the impl details steps directly — no additional generation needed [ADDED]
+  - [x] Implement spec parser: read slices and their ACs from a `plan`-generated spec
+  - [x] Inject spec slices and any `arch` design artifacts (ADR, OpenAPI spec, schema) as structured context at session start — do not re-read files per slice iteration; pass already-loaded artifacts as typed inputs
+  - [x] For each slice: write failing test → confirm RED → write minimal production code → confirm GREEN → refactor → confirm GREEN
+  - [x] Gate: do not advance to next slice until all tests pass
+  - [x] Surface clear failure messages when RED confirmation fails for the wrong reason (syntax error vs. missing behavior)
+  - [x] Implement slice failure escalation: after 3 failed RED-GREEN attempts on the same slice, invoke a diagnostic step (root cause analysis) before retrying with a modified approach
+  - [x] Diagnostic step produces one of: modified approach (retry), sub-slice decomposition (split), or ACCEPT_WITH_DEBT (close slice with a documented gap — do not loop indefinitely)
+  - [x] ACCEPT_WITH_DEBT output: structured gap record `{ slice, missing_behavior, severity, justification }` appended to spec file; downstream slices receive gap notes so they can work around missing behavior
+  - [x] Handle impl-details-based input (SMALL tasks) with a simplified step-by-step cycle: execute each step, verify, advance [MODIFIED]
+  - [x] After each slice GREEN: if Playwright MCP available and dev server running, invoke browser AC verification for that slice (see P1-G); non-blocking if unavailable
   - [ ] Manual verification: run `/impl:tdd` against a spec; confirm session-scoped IMPL_DETAILS.md is generated before execution begins [ADDED]
   - [ ] Manual verification: run `/impl:tdd` against impl details; confirm steps execute directly without additional generation [ADDED]
   - [ ] Manual verification: run `/impl:tdd` against a P0-C-generated spec; confirm slice-by-slice execution with no manual intervention between slices
@@ -743,7 +744,7 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 | SKIL-003 | Task Router Command | COMPLETE | 0.5 | P0.5-C |
 | SKIL-004 | Status Dashboard | COMPLETE | 0.5 | P0.5-D |
 | IMPL-001 | Plugin Scaffold | COMPLETE | 1 | P1-A |
-| IMPL-002 | TDD Command | PENDING | 1 | P1-B |
+| IMPL-002 | TDD Command | IN PROGRESS | 1 | P1-B |
 | IMPL-003 | Debug Command | PENDING | 1 | P1-C |
 | IMPL-004 | Refactor Command | PENDING | 1 | P1-D |
 | IMPL-005 | Commit Command | PENDING | 1 | P1-E |
