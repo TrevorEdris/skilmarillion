@@ -1,7 +1,7 @@
 {
   "name": "review",
   "description": "Review and quality plugin. Spawns parallel specialist reviewers (code quality, security, accessibility) and produces a unified, deduplicated, prioritized findings report -- no code changes, findings only.",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "author": {
     "name": "TrevorEdris",
     "url": "https://github.com/TrevorEdris"
@@ -14,6 +14,14 @@
     "clean": {
       "description": "Detect and flag AI-generated noise in code comments, docstrings, and prose",
       "file": "../commands/clean.md"
+    },
+    "security": {
+      "description": "Security-focused review with >80% confidence threshold and mandatory exploitation chains",
+      "file": "../commands/security.md"
+    },
+    "review": {
+      "description": "Full parallel review -- spawns code quality, security, and accessibility specialists, deduplicates findings, produces unified report",
+      "file": "../commands/review.md"
     },
     "a11y": {
       "description": "WCAG 2.1/2.2 accessibility audit with live browser verification or static analysis fallback",
