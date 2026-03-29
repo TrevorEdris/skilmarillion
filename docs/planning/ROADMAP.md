@@ -481,10 +481,10 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **What:** A general-purpose Mermaid diagram generator supporting flowcharts, sequence diagrams, ERDs, and C4 variants. Takes a plain-language description and produces a syntactically valid Mermaid diagram.
 - **Depends on:** P2-A
 - **Checklist:**
-  - [ ] Port and rewrite `mermaid-diagram-specialist` from fotw source
-  - [ ] Support: flowchart, sequence, ERD, C4 context, C4 container
-  - [ ] Validate output is syntactically correct Mermaid before presenting
-  - [ ] Save diagram to `docs/diagrams/[name]-[type].md`
+  - [x] Port and rewrite `mermaid-diagram-specialist` from fotw source
+  - [x] Support: flowchart, sequence, ERD, C4 context, C4 container
+  - [x] Validate output is syntactically correct Mermaid before presenting
+  - [x] Save diagram to `docs/diagrams/[name]-[type].md`
   - [ ] Verify: generate each diagram type; paste into mermaid.live and confirm renders without errors
 
 ### P2-F: Help Command
@@ -756,7 +756,7 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 | ARCH-002 | System Design Command | PENDING | 2 | P2-B |
 | ARCH-003 | API Design Command | PENDING | 2 | P2-C |
 | ARCH-004 | Schema Design Command | PENDING | 2 | P2-D |
-| ARCH-005 | Diagram Command | PENDING | 2 | P2-E |
+| ARCH-005 | Diagram Command | IN_PROGRESS | 2 | P2-E |
 | ARCH-006 | Help Command | PENDING | 2 | P2-F |
 | ARCH-007 | Out-of-Order Guards | PENDING | 2 | P2-G |
 | REVIEW-001 | Plugin Scaffold | PENDING | 3 | P3-A |
