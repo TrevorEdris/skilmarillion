@@ -17,11 +17,11 @@
 - [x] PLAN-008: Migrate Command (P0-H) — merged PR #TBD
 
 ### In Progress
+- [ ] PLAN-010: Help Command (P0-J) — FR-011
 - [ ] PLAN-011: Out-of-Order Guards (P0-K) — FR-012
 - [ ] PLAN-012: QRSPI Mode for SMALL Tasks (P0-C extension) — FR-001, FR-005
 
 ### Not Started
-- [ ] PLAN-010: Help Command (P0-J) — FR-011
 - [ ] Phase 0.5: `skil` — Workflow Router
 - [ ] Phase 1: `impl` — Implementation
 - [ ] Phase 2: `arch` — Architecture & Design
@@ -194,14 +194,14 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **Risk:** Low — read-only command with no state mutation.
 - **Model tier:** Haiku — the help command reads project state and presents pre-written descriptions; no codebase reasoning or judgment required
 - **Checklist:**
-  - [ ] Implement `/plan:help` command
-  - [ ] On startup: scan for existing specs (`docs/*/specs/`), active state files (`.plan-state-*.local.yaml`), PRDs (`docs/*/PRD.md`)
-  - [ ] Adapt greeting based on findings: fresh project vs. existing artifacts vs. active workflow
-  - [ ] Walk through commands one at a time: `sdd`, `prd`, `validate`, `roadmap`, `migrate`
-  - [ ] For each command: describe purpose, show example invocation, name artifact produced
-  - [ ] Use `AskUserQuestion` for navigation: "Next command?" / "Tell me more" / "Skip to a specific command"
-  - [ ] End with recommended starting command based on project state
-  - [ ] When referencing downstream plugins (`impl`, `arch`, `review`), include install command if not detected
+  - [x] Implement `/plan:help` command
+  - [x] On startup: scan for existing specs (`docs/*/specs/`), active state files (`.plan-state-*.local.yaml`), PRDs (`docs/*/PRD.md`)
+  - [x] Adapt greeting based on findings: fresh project vs. existing artifacts vs. active workflow
+  - [x] Walk through commands one at a time: `sdd`, `prd`, `validate`, `roadmap`, `migrate`
+  - [x] For each command: describe purpose, show example invocation, name artifact produced
+  - [x] Use `AskUserQuestion` for navigation: "Next command?" / "Tell me more" / "Skip to a specific command"
+  - [x] End with recommended starting command based on project state
+  - [x] When referencing downstream plugins (`impl`, `arch`, `review`), include install command if not detected
   - [ ] Verify: run in a fresh project; confirm tour covers all commands and ends with a recommendation
 
 ### P0-K: Out-of-Order Guards
@@ -735,7 +735,7 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 | PLAN-007 | Deterministic Paths | COMPLETE | 0 | P0-G |
 | PLAN-008 | Migrate Command | PENDING | 0 | P0-H |
 | PLAN-009 | Roadmap Command | PENDING | 0 | P0-I |
-| PLAN-010 | Help Command | PENDING | 0 | P0-J |
+| PLAN-010 | Help Command | IN PROGRESS | 0 | P0-J |
 | PLAN-011 | Out-of-Order Guards | PENDING | 0 | P0-K |
 | PLAN-012 | QRSPI Mode for SMALL Tasks | PENDING | 0 | P0-C (extension) |
 | SKIL-001 | Plugin Scaffold | PENDING | 0.5 | P0.5-A |

@@ -24,6 +24,7 @@ Part of the [Skilmarillion](https://github.com/TrevorEdris/skilmarillion) workfl
 
 | Command | Purpose |
 |---------|---------|
+| `/plan:help` | Interactive, context-aware tour of plan's capabilities. Detects project state and recommends a starting command. |
 | `/plan:sdd [task]` | Full spec-driven workflow. Routes by size (TRIVIAL → quick confirm; FEATURE → full workflow). |
 | `/plan:prd [feature]` | Client-shareable PRD from a plain-language description. Saves to `docs/{feature}/PRD.md`. |
 | `/plan:roadmap [prd-path]` | Decompose an approved PRD into ordered milestones. Saves to `docs/{feature}/ROADMAP.md`. *(P0-I)* |
