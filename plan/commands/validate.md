@@ -88,3 +88,14 @@ Return the result as structured data for programmatic consumption by other comma
 - Do NOT modify the document being validated — this command is read-only.
 - Do NOT skip the structural validation script — always run it first.
 - Do NOT run semantic checks on PRD or plan documents — only specs get the AC quality layer.
+
+---
+
+## NEXT STEP BREADCRUMB
+
+After displaying validation results, suggest the logical next command based on document type:
+
+- **Spec (PASS):** "Ready for implementation. Run `/impl:tdd {spec-path}` to begin the TDD cycle."
+- **PRD (PASS):** "PRD is valid. Run `/plan:roadmap {prd-path}` to decompose into milestones."
+- **Plan (PASS):** "Plan is valid. Proceed with implementation."
+- **Any (NEEDS WORK):** "Fix the findings above, then re-run `/plan:validate {path}` to confirm."

@@ -395,3 +395,25 @@ EPIC tasks require a PRD and a roadmap before individual milestones can be specc
 - Do NOT read code during the Question phase of QRSPI — work only from the user's task description.
 - Do NOT over-plan SMALL tasks — a 3-file bug fix should not produce a 50-step plan. See `qrspi-prompts` skill for size guidance.
 - Do NOT skip the risk promotion gate — SMALL + HIGH risk must prompt for FEATURE promotion.
+
+---
+
+## NEXT STEP BREADCRUMB
+
+After the spec is confirmed (state = `spec-confirmed`) for SMALL or FEATURE tasks, display:
+
+> **Spec confirmed.** Next step:
+> ```
+> /impl:tdd {spec-path}
+> ```
+> This hands the spec to the implementation plugin for test-driven development.
+
+**If the `impl` plugin is not installed:** Check whether `/impl:tdd` is available by looking for `impl/` in the plugin directory or checking plugin manifest. If not found, display instead:
+
+> **Spec confirmed.** Next step: run `/impl:tdd {spec-path}` to begin implementation.
+>
+> The `impl` plugin is not yet installed. Install it with:
+> ```
+> claude plugin add impl
+> ```
+> Once installed, run `/impl:tdd {spec-path}` to start the TDD cycle from this spec.

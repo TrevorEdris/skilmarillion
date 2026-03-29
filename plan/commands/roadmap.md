@@ -135,3 +135,19 @@ Suggest next step: "Roadmap saved. Run `/plan:sdd [milestone description]` to sp
 - Do NOT hardcode paths — use the `artifact-paths` skill for all path resolution.
 - Do NOT modify any existing files — this command only creates new roadmaps.
 - Do NOT skip the slug confirmation protocol — always confirm the save path with the user.
+
+---
+
+## NEXT STEP BREADCRUMB
+
+After the roadmap is saved successfully, display:
+
+> **Roadmap saved.** Next step: run `/plan:sdd` on each milestone to generate specs.
+>
+> Suggested commands for Phase 0 milestones:
+> ```
+> /plan:sdd [milestone-1 description]
+> /plan:sdd [milestone-2 description]
+> ...
+> ```
+> Each `/plan:sdd` invocation produces a spec at `docs/{feature}/specs/SPEC-NNN-{slug}.md`.

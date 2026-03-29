@@ -107,3 +107,15 @@ Resolve artifact path per `artifact-paths` skill:
 - Do NOT produce a PRD without the Status field.
 - Do NOT ask the user to fill in every section individually — use discovery answers and inference, then ask about gaps.
 - Do NOT modify any existing files — this command only creates new PRDs.
+
+---
+
+## NEXT STEP BREADCRUMB
+
+After the PRD is saved successfully, display:
+
+> **PRD saved.** Next step:
+> ```
+> /plan:roadmap {prd-path}
+> ```
+> This decomposes the PRD into phased milestones with dependency ordering.
