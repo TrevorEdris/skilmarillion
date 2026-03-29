@@ -1,5 +1,5 @@
 {
-  "description": "Session documentation lifecycle hooks for the dream plugin",
+  "description": "Session documentation lifecycle hooks for the plan plugin",
   "hooks": {
     "SessionStart": [
       {

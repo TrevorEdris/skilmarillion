@@ -8,7 +8,7 @@ tags: [planning, spec]
 
 # spec-format
 
-A loadable skill that defines the structure, AC format, vertical slice format, and risk-depth rules for dream specs.
+A loadable skill that defines the structure, AC format, vertical slice format, and risk-depth rules for plan specs.
 
 ---
 

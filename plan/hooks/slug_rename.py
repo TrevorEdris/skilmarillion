@@ -169,7 +169,7 @@ def handle_slug_rename(
             pass
 
     return {
-        "systemMessage": f"[dream] Session renamed: {new_path}",
+        "systemMessage": f"[plan] Session renamed: {new_path}",
     }
 
 

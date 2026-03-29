@@ -76,7 +76,7 @@ Before calling `AskUserQuestion` for the first time, call `ToolSearch` with quer
 
    ---
 
-   To spec a phase, run `/dream:sdd [phase description]`.
+   To spec a phase, run `/plan:sdd [phase description]`.
    ```
 
 4. Order phases from foundational (schema, core domain) to surface (API, UI, integrations).

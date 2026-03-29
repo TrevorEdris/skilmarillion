@@ -8,13 +8,13 @@ tags: [planning, prd]
 
 # prd-format
 
-A loadable skill that defines the structure, requirement format, and abstraction rules for dream PRDs.
+A loadable skill that defines the structure, requirement format, and abstraction rules for plan PRDs.
 
 ---
 
 ## Required Sections
 
-Every PRD produced by the `/dream:prd` command must include these sections:
+Every PRD produced by the `/plan:prd` command must include these sections:
 
 1. **Problem Statement** — 1-3 paragraphs. What problem exists, who has it, why it matters now.
 2. **User Personas** — 2-3 personas with goals and pain points.

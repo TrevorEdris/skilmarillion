@@ -8,7 +8,7 @@ tags: [planning, paths, artifacts]
 
 # artifact-paths
 
-Shared path resolution for all dream artifacts. Every command that saves an artifact references this skill instead of hardcoding paths.
+Shared path resolution for all plan artifacts. Every command that saves an artifact references this skill instead of hardcoding paths.
 
 ---
 
@@ -35,10 +35,10 @@ All paths below are relative to the resolved project root.
 
 ```
 {project_root}/docs/{feature}/
-  PRD.md                           # One per feature (/dream:prd output)
+  PRD.md                           # One per feature (/plan:prd output)
   ROADMAP.md                       # Colocated roadmap (epic decomposition or manual)
   specs/
-    SPEC-{NNN}-{slug}.md           # Auto-incrementing (/dream:sdd output)
+    SPEC-{NNN}-{slug}.md           # Auto-incrementing (/plan:sdd output)
   plans/
     PLAN-{NNN}-{slug}.md           # Mirrors spec numbering (future /do output)
 ```
@@ -68,10 +68,10 @@ Determines the `{feature}` segment of the path.
 **Resolution chain** (use the first that succeeds):
 
 1. **Explicit argument** — User provides `--feature add-oauth` or equivalent.
-2. **Triage state** — Read `feature` from `.dream-state-{slug}.local.yaml` if the current session has an active triage state.
+2. **Triage state** — Read `feature` from `.plan-state-{slug}.local.yaml` if the current session has an active triage state.
 3. **Prompt user** — "Which feature does this belong to?" List existing `{project_root}/docs/*/` directories. User may select one or provide a new feature slug.
 
-For `/dream:prd`, the PRD's feature name becomes the directory name. For `/dream:sdd`, the feature directory should already exist (created by a prior PRD) or be created if this is a standalone spec.
+For `/plan:prd`, the PRD's feature name becomes the directory name. For `/plan:sdd`, the feature directory should already exist (created by a prior PRD) or be created if this is a standalone spec.
 
 ---
 
@@ -129,7 +129,7 @@ mkdir -p {project_root}/docs/{feature}/plans
 
 | Command | Artifact | Path |
 |---------|----------|------|
-| `/dream:prd` | PRD | `{project_root}/docs/{feature}/PRD.md` |
-| `/dream:sdd` (FEATURE/SMALL) | Spec | `{project_root}/docs/{feature}/specs/SPEC-{NNN}-{slug}.md` |
-| `/dream:sdd` (EPIC) | Roadmap | `{project_root}/docs/{feature}/ROADMAP.md` |
-| `/do:tdd` (future) | Plan | `{project_root}/docs/{feature}/plans/PLAN-{NNN}-{slug}.md` |
+| `/plan:prd` | PRD | `{project_root}/docs/{feature}/PRD.md` |
+| `/plan:sdd` (FEATURE/SMALL) | Spec | `{project_root}/docs/{feature}/specs/SPEC-{NNN}-{slug}.md` |
+| `/plan:roadmap` | Roadmap | `{project_root}/docs/{feature}/ROADMAP.md` |
+| `/impl:tdd` (future) | Plan | `{project_root}/docs/{feature}/plans/PLAN-{NNN}-{slug}.md` |

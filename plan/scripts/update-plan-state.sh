@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# update-dream-state.sh — Silent dream state persistence for /dream:sdd
-# State files: .dream-state-{slug}.local.yaml (relative to CWD)
+# update-plan-state.sh — Silent plan state persistence for /plan:sdd
+# State files: .plan-state-{slug}.local.yaml (relative to CWD)
 set -euo pipefail
 
 COMMAND="${1:-}"
@@ -18,7 +18,7 @@ usage() {
 }
 
 state_file() {
-  echo ".dream-state-${1}.local.yaml"
+  echo ".plan-state-${1}.local.yaml"
 }
 
 # Parse key=value args into named vars
@@ -128,7 +128,7 @@ case "$COMMAND" in
     [[ -z "$SLUG" ]] && { echo "Error: --slug is required" >&2; exit 1; }
     FILE=$(state_file "$SLUG")
     if [[ ! -f "$FILE" ]]; then
-      echo "No active dream state."
+      echo "No active plan state."
       exit 0
     fi
     if [[ -n "$FIELD" ]]; then
@@ -140,13 +140,13 @@ case "$COMMAND" in
 
   list)
     shopt -s nullglob
-    FILES=(.dream-state-*.local.yaml)
+    FILES=(.plan-state-*.local.yaml)
     if [[ ${#FILES[@]} -eq 0 ]]; then
-      echo "No dream state files found."
+      echo "No plan state files found."
       exit 0
     fi
     for f in "${FILES[@]}"; do
-      slug="${f#.dream-state-}"
+      slug="${f#.plan-state-}"
       slug="${slug%.local.yaml}"
       phase=$(read_field "$f" "current_phase")
       age=$(file_age_days "$f")
@@ -158,7 +158,7 @@ case "$COMMAND" in
     parse_flags "$@"
     if [[ "$ALL" == true ]]; then
       shopt -s nullglob
-      FILES=(.dream-state-*.local.yaml)
+      FILES=(.plan-state-*.local.yaml)
       for f in "${FILES[@]}"; do
         rm -f "$f"
       done
