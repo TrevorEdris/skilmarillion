@@ -298,10 +298,10 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **What:** Establish the `impl` plugin directory structure following the same conventions as `plan`.
 - **Depends on:** Nothing (independent plugin; mirrors scaffold pattern from P0-A)
 - **Checklist:**
-  - [ ] Create `impl/.claude-plugin/plugin.json` manifest
-  - [ ] Scaffold `commands/`, `agents/`, `skills/`, `references/` directories
-  - [ ] Write `CLAUDE.md` and `README.md` with standalone entry conditions
-  - [ ] Verify `claude plugin add` loads `impl` without `plan` or `arch` installed
+  - [x] Create `impl/.claude-plugin/plugin.json` manifest
+  - [x] Scaffold `commands/`, `agents/`, `skills/`, `references/` directories
+  - [x] Write `CLAUDE.md` and `README.md` with standalone entry conditions
+  - [x] Verify `claude plugin add` loads `impl` without `plan` or `arch` installed
 
 ### P1-B: TDD Command
 
@@ -742,7 +742,7 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 | SKIL-002 | Help Tour Command | PENDING | 0.5 | P0.5-B |
 | SKIL-003 | Task Router Command | PENDING | 0.5 | P0.5-C |
 | SKIL-004 | Status Dashboard | COMPLETE | 0.5 | P0.5-D |
-| IMPL-001 | Plugin Scaffold | PENDING | 1 | P1-A |
+| IMPL-001 | Plugin Scaffold | COMPLETE | 1 | P1-A |
 | IMPL-002 | TDD Command | PENDING | 1 | P1-B |
 | IMPL-003 | Debug Command | PENDING | 1 | P1-C |
 | IMPL-004 | Refactor Command | PENDING | 1 | P1-D |

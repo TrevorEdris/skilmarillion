@@ -10,14 +10,24 @@
       "description": "Spec-driven planning: triage, spec, architecture, TDD plan."
     },
     {
-      "name": "skil",
-      "source": "./skil",
-      "description": "Workflow router and discovery layer for the Skilmarillion suite."
-    },
-    {
       "name": "arch",
       "source": "./arch",
       "description": "Architecture & design: ADRs, OpenAPI specs, database schemas, Mermaid diagrams."
+    },
+    {
+      "name": "impl",
+      "source": "./impl",
+      "description": "Implementation executor: slice-by-slice TDD, debugging, refactoring, commits."
+    },
+    {
+      "name": "review",
+      "source": "./review",
+      "description": "Review & quality: parallel code, security, and a11y review with deduplicated findings."
+    },
+    {
+      "name": "skil",
+      "source": "./skil",
+      "description": "Workflow router and discovery layer for the Skilmarillion suite."
     }
   ]
 }
