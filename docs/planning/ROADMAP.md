@@ -398,12 +398,12 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **Depends on:** P1-A
 - **Model tier:** Haiku
 - **Checklist:**
-  - [ ] Implement `/impl:help` command
-  - [ ] Detect project state: active impl state files, specs in `docs/`, staged changes, open PRs
-  - [ ] Walk through commands: `tdd`, `debug`, `refactor`, `commit`, `pr`
-  - [ ] Recommend starting command based on state (e.g., spec exists but no impl state → suggest `/impl:tdd {spec-path}`)
-  - [ ] Reference upstream (`/plan:sdd` for spec creation) and downstream (`/review:review` for code review) with install hints if not present
-  - [ ] Verify: run in project with an existing spec; confirm recommendation targets that spec
+  - [x] Implement `/impl:help` command
+  - [x] Detect project state: active impl state files, specs in `docs/`, staged changes, open PRs
+  - [x] Walk through commands: `tdd`, `debug`, `refactor`, `commit`, `pr`
+  - [x] Recommend starting command based on state (e.g., spec exists but no impl state → suggest `/impl:tdd {spec-path}`)
+  - [x] Reference upstream (`/plan:sdd` for spec creation) and downstream (`/review:review` for code review) with install hints if not present
+  - [x] Verify: run in project with an existing spec; confirm recommendation targets that spec
 
 ### P1-I: Out-of-Order Guards
 
@@ -749,7 +749,7 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 | IMPL-005 | Commit Command | PENDING | 1 | P1-E |
 | IMPL-006 | PR Command | PENDING | 1 | P1-F |
 | IMPL-007 | Playwright MCP Bundle (Optional) | PENDING | 1 | P1-G |
-| IMPL-008 | Help Command | PENDING | 1 | P1-H |
+| IMPL-008 | Help Command | COMPLETE | 1 | P1-H |
 | IMPL-009 | Out-of-Order Guards | PENDING | 1 | P1-I |
 | ARCH-001 | Plugin Scaffold | PENDING | 2 | P2-A |
 | ARCH-002 | System Design Command | PENDING | 2 | P2-B |

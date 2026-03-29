@@ -1,7 +1,7 @@
 {
   "name": "impl",
   "description": "Implementation executor. Takes a spec or impl-details file and drives slice-by-slice TDD, structured debugging, phase-gated refactoring, and conventional commits.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {
     "name": "TrevorEdris",
     "url": "https://github.com/TrevorEdris"
@@ -9,5 +9,12 @@
   "homepage": "https://github.com/TrevorEdris/skilmarillion",
   "repository": "https://github.com/TrevorEdris/skilmarillion",
   "license": "MIT",
-  "keywords": ["implementation", "tdd", "debugging", "refactoring", "commit", "workflow"]
+  "keywords": ["implementation", "tdd", "debugging", "refactoring", "commit", "workflow"],
+  "commands": [
+    {
+      "name": "help",
+      "description": "Interactive tour of impl capabilities. Detects project state and recommends a starting command.",
+      "file": "../commands/help.md"
+    }
+  ]
 }
