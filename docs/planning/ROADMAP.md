@@ -16,12 +16,12 @@
 - [x] PLAN-009: Roadmap Command (P0-I) — merged PR #TBD
 
 ### In Progress
+- [ ] PLAN-011: Out-of-Order Guards (P0-K) — FR-012
 - [ ] PLAN-012: QRSPI Mode for SMALL Tasks (P0-C extension) — FR-001, FR-005
 
 ### Not Started
 - [ ] PLAN-008: Migrate Command (P0-H) — Should priority
 - [ ] PLAN-010: Help Command (P0-J) — FR-011
-- [ ] PLAN-011: Out-of-Order Guards (P0-K) — FR-012
 - [ ] Phase 0.5: `skil` — Workflow Router
 - [ ] Phase 1: `impl` — Implementation
 - [ ] Phase 2: `arch` — Architecture & Design
