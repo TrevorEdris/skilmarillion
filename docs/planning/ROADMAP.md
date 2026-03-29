@@ -613,11 +613,11 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **Depends on:** P3-A
 - **Model tier:** Haiku
 - **Checklist:**
-  - [ ] Implement `/review:help` command
-  - [ ] Detect project state: open PRs (via `gh pr list`), existing review reports, staged changes, Playwright MCP availability
-  - [ ] Walk through commands: `review`, `clean`, `security`, `a11y`
-  - [ ] Recommend starting command based on state (e.g., open PR exists → suggest `/review:review {PR-number}`)
-  - [ ] Reference upstream (`/impl:tdd` for implementation) with install hint if needed
+  - [x] Implement `/review:help` command
+  - [x] Detect project state: open PRs (via `gh pr list`), existing review reports, staged changes, Playwright MCP availability
+  - [x] Walk through commands: `review`, `clean`, `security`, `a11y`
+  - [x] Recommend starting command based on state (e.g., open PR exists → suggest `/review:review {PR-number}`)
+  - [x] Reference upstream (`/impl:tdd` for implementation) with install hint if needed
   - [ ] Verify: run in project with an open PR; confirm recommendation targets that PR
 
 ### P3-H: Out-of-Order Guards
@@ -765,7 +765,7 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 | REVIEW-004 | Clean Command | COMPLETE | 3 | P3-D |
 | REVIEW-005 | Security Command | PENDING | 3 | P3-E |
 | REVIEW-006 | A11y Command | IN_PROGRESS | 3 | P3-F |
-| REVIEW-007 | Help Command | PENDING | 3 | P3-G |
+| REVIEW-007 | Help Command | COMPLETE | 3 | P3-G |
 | REVIEW-008 | Out-of-Order Guards | PENDING | 3 | P3-H |
 | SITE-001 | Site Scaffold | PENDING | 4 | P4-A |
 | SITE-002 | Core Narrative & Workflow | PENDING | 4 | P4-B |

@@ -26,6 +26,10 @@
     "a11y": {
       "description": "WCAG 2.1/2.2 accessibility audit with live browser verification or static analysis fallback",
       "file": "../commands/a11y.md"
+    },
+    "help": {
+      "description": "Interactive tour of review capabilities — detects open PRs, existing reports, and Playwright MCP availability",
+      "file": "../commands/help.md"
     }
   }
 }
