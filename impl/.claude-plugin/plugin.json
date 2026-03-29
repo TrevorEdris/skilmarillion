@@ -23,6 +23,10 @@
       "description": "Phase-gated refactoring with test verification between every transformation step",
       "argument-hint": "[file-or-directory]",
       "file": "commands/refactor.md"
+    },
+    "commit": {
+      "description": "Conventional commit from staged changes with breaking change detection",
+      "file": "commands/commit.md"
     }
   }
 }
