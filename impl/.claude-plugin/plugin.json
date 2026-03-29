@@ -9,5 +9,11 @@
   "homepage": "https://github.com/TrevorEdris/skilmarillion",
   "repository": "https://github.com/TrevorEdris/skilmarillion",
   "license": "MIT",
-  "keywords": ["implementation", "tdd", "debugging", "refactoring", "commit", "workflow"]
+  "keywords": ["implementation", "tdd", "debugging", "refactoring", "commit", "workflow"],
+  "commands": {
+    "tdd": {
+      "description": "Slice-by-slice TDD execution from a spec or impl-details file",
+      "file": "commands/tdd.md"
+    }
+  }
 }
