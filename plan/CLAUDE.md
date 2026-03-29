@@ -33,7 +33,7 @@ Risk shapes spec depth:
 ## Navigation by Size
 
 - **TRIVIAL**: "I see what needs to change. Want me to describe the fix?" No spec document produced.
-- **SMALL**: Lightweight spec — ACs only. One round of questions. Saves to `docs/{feature}/specs/`.
+- **SMALL**: QRSPI cycle (Question, Research, Structure, Plan, Implement-offer). Produces `IMPL_DETAILS.md` in the session directory. SMALL + HIGH risk prompts for FEATURE promotion.
 - **FEATURE**: Full workflow — triage → context gather → spec → architecture recommendation → TDD plan.
 - **EPIC**: "This needs a PRD and roadmap first." Route to `/plan:prd` and `/plan:roadmap`, then spec each milestone independently.
 
