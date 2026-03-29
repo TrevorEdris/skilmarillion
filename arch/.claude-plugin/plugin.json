@@ -1,0 +1,13 @@
+{
+  "name": "arch",
+  "description": "Architecture and design navigator. Produces ADRs, OpenAPI specs, database schemas, and Mermaid diagrams from structured design sessions.",
+  "version": "0.1.0",
+  "author": {
+    "name": "TrevorEdris",
+    "url": "https://github.com/TrevorEdris"
+  },
+  "homepage": "https://github.com/TrevorEdris/skilmarillion",
+  "repository": "https://github.com/TrevorEdris/skilmarillion",
+  "license": "MIT",
+  "keywords": ["architecture", "design", "adr", "openapi", "schema", "diagrams", "c4"]
+}

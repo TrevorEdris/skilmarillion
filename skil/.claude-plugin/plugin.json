@@ -15,6 +15,11 @@
       "name": "help",
       "description": "Interactive tour of the full Skilmarillion plugin suite. Detects installed plugins and project state.",
       "path": "commands/help.md"
+    },
+    {
+      "name": "status",
+      "description": "Workflow state dashboard across all installed Skilmarillion plugins",
+      "file": "../commands/status.md"
     }
   ]
 }
