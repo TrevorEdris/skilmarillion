@@ -198,5 +198,6 @@ Estimated signal-to-noise improvement: <percentage of comment/doc lines that are
 
 After displaying the report:
 
-- If findings exist: "To address these findings, apply the suggested fixes manually or run `/impl:refactor` on the flagged files."
+- If findings exist: "To address these findings, run `/impl:debug` or `/impl:refactor` on the flagged files."
 - If clean: "No action needed. The code is clean."
+- If `impl` plugin is not installed, include: "Install the impl plugin: `/plugin install impl@skilmarillion`"

@@ -15,6 +15,7 @@
 - [x] PLAN-007: Deterministic Artifact Paths (P0-G) — merged PR #TBD
 - [x] PLAN-009: Roadmap Command (P0-I) — merged PR #TBD
 - [x] PLAN-008: Migrate Command (P0-H) — merged PR #TBD
+- [x] REVIEW-008: Out-of-Order Guards (P3-H) — merged PR #TBD
 
 ### In Progress
 - [ ] PLAN-010: Help Command (P0-J) — FR-011
@@ -625,10 +626,10 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **What:** Commands check preconditions and provide guidance when not met.
 - **Depends on:** P3-C
 - **Checklist:**
-  - [ ] `/review:review` with no argument, no staged changes, and no open PR: display "Nothing to review. Provide a file path, PR number, or stage changes first." Offer choices via `AskUserQuestion`: "Review a specific file" / "Review latest PR" / "Cancel"
-  - [ ] `/review:a11y` on a backend-only codebase: exit cleanly with "No UI components detected. This command targets frontend code."
-  - [ ] After review completes, if findings exist: "To address these findings, run `/impl:debug` or `/impl:refactor`" (with install hint if needed)
-  - [ ] Verify: run `/review:review` with nothing staged; confirm guidance appears
+  - [x] `/review:review` with no argument, no staged changes, and no open PR: display "Nothing to review. Provide a file path, PR number, or stage changes first." Offer choices via `AskUserQuestion`: "Review a specific file" / "Review latest PR" / "Cancel"
+  - [x] `/review:a11y` on a backend-only codebase: exit cleanly with "No UI components detected. This command targets frontend code."
+  - [x] After review completes, if findings exist: "To address these findings, run `/impl:debug` or `/impl:refactor`" (with install hint if needed)
+  - [x] Verify: run `/review:review` with nothing staged; confirm guidance appears
 
 **Deliverable:** *Users can run `/review:review` on any PR or file set and receive a parallel, deduplicated, prioritized report covering code quality, AI noise, security, and accessibility — with no code changes made by the plugin. The a11y command performs live browser WCAG verification against a running app when available, with clear static-analysis fallback. `/review:help` provides guided discovery. Guards inform when nothing is available to review.*
 
@@ -766,7 +767,7 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 | REVIEW-005 | Security Command | PENDING | 3 | P3-E |
 | REVIEW-006 | A11y Command | IN_PROGRESS | 3 | P3-F |
 | REVIEW-007 | Help Command | PENDING | 3 | P3-G |
-| REVIEW-008 | Out-of-Order Guards | PENDING | 3 | P3-H |
+| REVIEW-008 | Out-of-Order Guards | DONE | 3 | P3-H |
 | SITE-001 | Site Scaffold | PENDING | 4 | P4-A |
 | SITE-002 | Core Narrative & Workflow | PENDING | 4 | P4-B |
 | SITE-003 | Artifact Excerpt Showcase | PENDING | 4 | P4-C |

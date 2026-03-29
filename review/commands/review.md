@@ -65,9 +65,16 @@ git diff --name-only --cached
 git diff --name-only origin/main...HEAD
 ```
 
-If still nothing: ask the user to provide a target.
+If still nothing: display the following message and offer choices:
+
+> Nothing to review. Provide a file path, PR number, or stage changes first.
 
 > **Deferred tool note:** Before calling `AskUserQuestion`, call `ToolSearch` with query `"select:AskUserQuestion"` to load the tool schema.
+
+Use `AskUserQuestion` to present the following choices:
+1. **Review a specific file** -- prompt the user for a file or directory path, then restart from step 1 with that path.
+2. **Review latest PR** -- run `gh pr list --state open --limit 1 --json number,title` to find the most recent open PR and use it as the target. If no open PR exists, report "No open PRs found" and return to the choices.
+3. **Cancel** -- exit cleanly with no report.
 
 ### 2. Gather context
 
