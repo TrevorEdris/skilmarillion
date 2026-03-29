@@ -11,6 +11,10 @@
   "license": "MIT",
   "keywords": ["implementation", "tdd", "debugging", "refactoring", "commit", "workflow"],
   "commands": {
+    "help": {
+      "description": "Interactive tour of impl capabilities. Detects project state and recommends a starting command.",
+      "file": "commands/help.md"
+    },
     "tdd": {
       "description": "Slice-by-slice TDD execution from a spec or impl-details file",
       "file": "commands/tdd.md"
