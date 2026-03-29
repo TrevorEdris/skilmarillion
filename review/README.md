@@ -36,6 +36,20 @@ Part of the [Skilmarillion](https://github.com/TrevorEdris/skilmarillion) workfl
 2. **Findings** -- Sorted by impact-to-effort ratio (HIGH impact, LOW effort first); each with category, severity, file:line, description, suggested action
 3. **Summary** -- Counts by severity, overall assessment
 
+## Prerequisites (Optional)
+
+### Playwright MCP
+
+The `review` plugin ships with a `.mcp.json` that configures the Playwright MCP server for live browser testing during accessibility audits. This is **optional** — all commands work without it, falling back to static analysis.
+
+To enable live browser testing:
+
+```bash
+npx playwright install chromium
+```
+
+When Playwright is available, `/review:a11y` runs live browser tests. When absent, it degrades gracefully to static-only analysis and declares the mode in the report header.
+
 ## Artifact Paths
 
 Reports are saved to the active session directory:
