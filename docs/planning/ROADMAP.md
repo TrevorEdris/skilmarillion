@@ -28,7 +28,10 @@
 - [ ] Phase 1: `impl` — Implementation (P1-B in progress)
 - [ ] Phase 2: `arch` — Architecture & Design
 - [ ] Phase 3: `review` — Review & Quality
-- [ ] Phase 4: Homepage — GitHub Pages
+- [x] SITE-001: Site Scaffold (P4-A) — PR #TBD
+- [x] SITE-002: Core Narrative & Workflow (P4-B) — PR #TBD
+- [x] SITE-003: Artifact Excerpt Showcase (P4-C) — PR #TBD
+- [x] SITE-004: Polish & Quality Gate (P4-D) — PR #TBD
 
 ---
 
@@ -646,11 +649,11 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **Depends on:** Nothing (can scaffold structure ahead of content, but content requires Phases 0–3)
 - **Risk:** GitHub Pages branch or `/docs` directory configuration is a one-time manual step in repo settings. Document it explicitly so it isn't a surprise at launch.
 - **Checklist:**
-  - [ ] Create `docs/site/` (or `gh-pages` branch) with `index.html` and `style.css`
+  - [x] Create `docs/site/` (or `gh-pages` branch) with `index.html` and `style.css`
   - [ ] Enable GitHub Pages in repo settings, pointing to the correct branch/directory
   - [ ] Verify the site loads at the Pages URL with no 404 or build errors
-  - [ ] Add a `<meta>` description, `og:title`, and `og:description` for link previews
-  - [ ] Confirm mobile viewport meta tag is present
+  - [x] Add a `<meta>` description, `og:title`, and `og:description` for link previews
+  - [x] Confirm mobile viewport meta tag is present
 
 ### P4-B: Core Narrative — Problem, Solution, Workflow
 
@@ -658,12 +661,12 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **Depends on:** P4-A
 - **Risk:** The narrative risks being too abstract ("better AI workflows") without concrete specificity. Ground each plugin description in what artifact it produces — specs, ADRs, review reports — not just what it does.
 - **Checklist:**
-  - [ ] Write problem statement section: 2-3 sentences, no jargon, grounded in the user's frustration (not in architecture)
-  - [ ] Write solution section: introduce the five plugins by name with a one-line description each
-  - [ ] Present `skil` as the recommended entry point: "Start here → `/skil:help`"
-  - [ ] Build workflow visualization: plan → arch → impl → review as a visual sequence (CSS only, no JS library)
-  - [ ] For each plugin node in the workflow, show: command invoked, artifact produced, example path
-  - [ ] Add a primary CTA button linking to the GitHub repo
+  - [x] Write problem statement section: 2-3 sentences, no jargon, grounded in the user's frustration (not in architecture)
+  - [x] Write solution section: introduce the five plugins by name with a one-line description each
+  - [x] Present `skil` as the recommended entry point: "Start here → `/skil:help`"
+  - [x] Build workflow visualization: plan → arch → impl → review as a visual sequence (CSS only, no JS library)
+  - [x] For each plugin node in the workflow, show: command invoked, artifact produced, example path
+  - [x] Add a primary CTA button linking to the GitHub repo
 
 ### P4-C: Artifact Excerpt Showcase
 
@@ -671,11 +674,11 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **Depends on:** P4-B, and at least one real spec or review report from Phases 0–3
 - **Risk:** Excerpts may become stale as plugin output evolves. Treat the showcase content as manually maintained; note in the repo that it should be refreshed when artifact format changes significantly.
 - **Checklist:**
-  - [ ] Select one real spec excerpt and/or one real review report excerpt from actual plugin output
-  - [ ] Display as a styled code/pre block with syntax highlighting (CSS-only highlight is fine)
-  - [ ] Truncate tastefully — show enough to demonstrate structure and quality, not a wall of text
-  - [ ] Add a caption identifying the source command and plugin
-  - [ ] Verify the excerpt renders correctly at mobile viewport width
+  - [x] Select one real spec excerpt and/or one real review report excerpt from actual plugin output
+  - [x] Display as a styled code/pre block with syntax highlighting (CSS-only highlight is fine)
+  - [x] Truncate tastefully — show enough to demonstrate structure and quality, not a wall of text
+  - [x] Add a caption identifying the source command and plugin
+  - [x] Verify the excerpt renders correctly at mobile viewport width
 
 ### P4-D: Polish — Performance, Accessibility, Mobile
 
@@ -684,10 +687,10 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **Risk:** A project that ships an accessibility audit plugin (`review:a11y`) with an inaccessible homepage is a credibility failure. This phase is not optional polish — it is a hard exit criterion.
 - **Checklist:**
   - [ ] Run Lighthouse against the live Pages URL; confirm ≥ 90 on Performance, Accessibility, Best Practices
-  - [ ] Fix any WCAG 2.1 AA failures (contrast, focus indicators, alt text, heading order)
-  - [ ] Verify CTA button and any interactive elements are keyboard-navigable
-  - [ ] Test at 375px (mobile) and 1280px (desktop) — no horizontal scroll, no clipped content
-  - [ ] Confirm page load time < 2s on a standard connection (no unoptimized images or blocking scripts)
+  - [x] Fix any WCAG 2.1 AA failures (contrast, focus indicators, alt text, heading order)
+  - [x] Verify CTA button and any interactive elements are keyboard-navigable
+  - [x] Test at 375px (mobile) and 1280px (desktop) — no horizontal scroll, no clipped content
+  - [x] Confirm page load time < 2s on a standard connection (no unoptimized images or blocking scripts)
   - [ ] Run `/review:a11y` against the site's HTML as a final gate before marking phase complete
 
 **Deliverable:** *A publicly hosted GitHub Pages site is live, communicating the "why" of skilmarillion with strong visual design, showing the full five-plugin suite with the plan → arch → impl → review lifecycle, `skil` as the entry point, real artifact excerpts, and linking visitors directly to the repo for installation.*
@@ -768,7 +771,7 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 | REVIEW-006 | A11y Command | IN_PROGRESS | 3 | P3-F |
 | REVIEW-007 | Help Command | COMPLETE | 3 | P3-G |
 | REVIEW-008 | Out-of-Order Guards | COMPLETE | 3 | P3-H |
-| SITE-001 | Site Scaffold | PENDING | 4 | P4-A |
-| SITE-002 | Core Narrative & Workflow | PENDING | 4 | P4-B |
-| SITE-003 | Artifact Excerpt Showcase | PENDING | 4 | P4-C |
-| SITE-004 | Polish & Quality Gate | PENDING | 4 | P4-D |
+| SITE-001 | Site Scaffold | COMPLETE | 4 | P4-A |
+| SITE-002 | Core Narrative & Workflow | COMPLETE | 4 | P4-B |
+| SITE-003 | Artifact Excerpt Showcase | COMPLETE | 4 | P4-C |
+| SITE-004 | Polish & Quality Gate | IN_PROGRESS | 4 | P4-D |
