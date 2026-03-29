@@ -22,17 +22,20 @@ plan:  [decomposes into 4 phases, 12 milestones]
 
 You:   yes
 
-You:   /plan:sdd Implement Stripe integration for payment processing
-plan:  [FEATURE flow → SPEC-001]
-
 You:   /arch:api Design the billing REST API                               (planned)
 arch:  [guided interview → billing-api-openapi.yaml]
 
 You:   /arch:schema Design the billing data model                          (planned)
 arch:  [guided interview → billing-schema.sql + migration plan]
 
+You:   /plan:sdd Implement Stripe integration for payment processing.
+       Endpoints per docs/api/billing-api-openapi.yaml.
+       Schema per docs/schema/billing-schema.sql.
+plan:  [FEATURE flow → spec ACs reference the API contract and schema]
+       [SPEC-001 saved]
+
 You:   /impl:tdd docs/billing/specs/SPEC-001-stripe-integration.md         (planned)
-impl:  [TDD cycle with arch artifacts as context]
+impl:  [TDD cycle — spec references arch artifacts as the source of truth]
 
 You:   /review:review 50                                                    (planned)
 review: [code + security + a11y review]

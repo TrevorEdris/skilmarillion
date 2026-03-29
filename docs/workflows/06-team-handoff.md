@@ -74,22 +74,34 @@ plan:  [decomposes into phases]
 Bob:   yes
 ```
 
-Bob specs the first milestone and optionally designs the API:
+Bob designs the API contract first, then specs milestones that reference it:
 
 ```
-Bob:   /plan:sdd Preference data model and CRUD API for notification preferences
-plan:  [FEATURE flow → context gathering → spec building → architecture → TDD plan]
+Bob:   /arch:api Design the notification preferences API                   (planned)
+arch:  [guided interview: resources, versioning, pagination, auth, error format]
+       Save to docs/api/notification-preferences-openapi.yaml?
+
+Bob:   yes
+```
+
+Now Bob specs milestones. The specs reference the API contract so engineers implement against a defined interface:
+
+```
+Bob:   /plan:sdd Preference data model and CRUD API for notification preferences.
+       Endpoints must conform to docs/api/notification-preferences-openapi.yaml.
+plan:  [FEATURE flow → context gathering → reads OpenAPI spec as context]
+       [spec ACs reference the contract: "GET /preferences returns shape matching
+        the Preference schema in the OpenAPI spec"]
        Save to docs/notification-preferences/specs/SPEC-001-preference-model-api.md?
 
 Bob:   yes
 
-Bob:   /arch:api Design the notification preferences API                   (planned)
-arch:  [interview → notification-preferences-openapi.yaml]
-
-Bob:   /plan:sdd Email channel integration for notification delivery
+Bob:   /plan:sdd Email channel integration for notification delivery.
+       Email dispatch endpoint per docs/api/notification-preferences-openapi.yaml.
 plan:  [FEATURE flow → SPEC-002-email-channel.md]
 
-Bob:   /plan:sdd Push notification channel integration
+Bob:   /plan:sdd Push notification channel integration.
+       Push endpoint per docs/api/notification-preferences-openapi.yaml.
 plan:  [FEATURE flow → SPEC-003-push-channel.md]
 ```
 
