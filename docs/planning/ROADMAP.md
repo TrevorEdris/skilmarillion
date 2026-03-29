@@ -370,10 +370,10 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **Depends on:** P1-E (PR typically follows commit)
 - **Model tier:** Haiku when a PR template is present (mechanical section fill from diff + spec ACs); Sonnet when no template exists (judgment needed to write a coherent summary without structural guidance)
 - **Checklist:**
-  - [ ] Detect `.github/PULL_REQUEST_TEMPLATE.md` and parse its structure
-  - [ ] When template present: fill each template section from staged diff and spec ACs
-  - [ ] When template absent: use standard format (Summary bullets, Test Plan checklist, linked spec path)
-  - [ ] Include spec path in PR description for traceability back to `plan` artifact
+  - [x] Detect `.github/PULL_REQUEST_TEMPLATE.md` and parse its structure
+  - [x] When template present: fill each template section from staged diff and spec ACs
+  - [x] When template absent: use standard format (Summary bullets, Test Plan checklist, linked spec path)
+  - [x] Include spec path in PR description for traceability back to `plan` artifact
   - [ ] Verify: run in a repo with and without a PR template; confirm correct format in both cases
 
 ### P1-G: Playwright MCP Bundle (Optional)
@@ -748,7 +748,7 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 | IMPL-003 | Debug Command | COMPLETE | 1 | P1-C |
 | IMPL-004 | Refactor Command | PENDING | 1 | P1-D |
 | IMPL-005 | Commit Command | IN_PROGRESS | 1 | P1-E |
-| IMPL-006 | PR Command | PENDING | 1 | P1-F |
+| IMPL-006 | PR Command | IN_PROGRESS | 1 | P1-F |
 | IMPL-007 | Playwright MCP Bundle (Optional) | PENDING | 1 | P1-G |
 | IMPL-008 | Help Command | COMPLETE | 1 | P1-H |
 | IMPL-009 | Out-of-Order Guards | PENDING | 1 | P1-I |
