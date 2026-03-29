@@ -164,48 +164,127 @@ Display the triage result to the user:
 
 If no: ask what the user would like to do instead.
 
-#### SMALL
+#### SMALL — QRSPI Cycle
+
+SMALL tasks use the QRSPI cycle (Question, Research, Structure, Plan, Implement-offer) instead of a full spec workflow. The output is an `IMPL_DETAILS.md` saved to the active session directory — not a spec in `docs/`.
+
+> **Risk promotion gate:** If the triage result shows SMALL + HIGH risk, pause before starting QRSPI:
+> "This task is small but high-risk. Promote to FEATURE workflow for full spec coverage? (yes / no)"
+> If "yes": re-route to the FEATURE workflow below. If "no": continue with QRSPI.
+
+##### Q — Question
+
+Surface design decisions as explicit choices **before reading any code**.
 
 1. Update state:
    ```bash
    ${CLAUDE_PLUGIN_ROOT}/scripts/update-plan-state.sh set \
      --slug "{slug}" \
-     --current-phase "spec-drafting"
+     --current-phase "qrspi-question"
    ```
-2. Delegate to `spec-builder` agent via Task:
-   ```
-   Task: spec-builder agent
-   Input: { "task": "{task description}", "triage_result": {triage JSON}, "mode": "small" }
-   ```
-3. Receive spec markdown from agent.
-4. **Resolve artifact path** per `artifact-paths` skill:
-   - Resolve project root (git root of target project — not necessarily CWD).
-   - Resolve feature directory (`{project_root}/docs/{feature}/`).
-   - Auto-increment spec number from existing `SPEC-*.md` files in `{project_root}/docs/{feature}/specs/`.
-   - Derive spec path: `{project_root}/docs/{feature}/specs/SPEC-{NNN}-{slug}.md`.
-5. **Confirm path with user** per `artifact-paths` slug confirmation protocol. User may accept, override slug, or override feature directory.
-6. Create target directory if it does not exist:
-   ```bash
-   mkdir -p {project_root}/docs/{feature}/specs
-   ```
-7. Save spec using Write tool to the confirmed path.
-8. Update state:
+2. Work only from the user's task description. Do NOT read code yet.
+3. Identify every decision point that will shape the fix or change. Present numbered options for each:
+   - "What approach for X? (1) option-a (2) option-b (3) option-c"
+   - "Which trade-off matters? (a) performance (b) simplicity (c) consistency"
+4. Ask clarifying questions about scope, constraints, and non-goals.
+5. Confirm answers with the user. Record confirmed answers as the **research frame** — the specific questions that code reading must answer.
+6. If no design decisions exist (e.g., a straightforward bug fix with one obvious approach), state that explicitly and proceed directly to Research.
+
+**Gate:** Do not proceed to Research until design questions are answered or explicitly scoped out.
+
+##### R — Research
+
+Targeted codebase reading to answer each question from the Question phase.
+
+1. Update state:
    ```bash
    ${CLAUDE_PLUGIN_ROOT}/scripts/update-plan-state.sh set \
      --slug "{slug}" \
-     --current-phase "spec-drafted" \
-     --spec-path "{confirmed_path}"
+     --current-phase "qrspi-research"
    ```
-9. Display spec to user.
-10. **Validation gate:** Run the validation script on the saved spec:
-    ```bash
-    python ${CLAUDE_PLUGIN_ROOT}/scripts/validate.py {confirmed_path} --type spec --verbose --json
-    ```
-    - If score >= 70: display PASS with summary and proceed to step 11.
-    - If score < 70: display findings, re-run `spec-builder` with findings as feedback, save the updated spec, then re-validate. Repeat until score >= 70.
-11. Ask user: "This spec is ready. Looks good? (yes / request changes)"
-    - If "request changes": re-run `spec-builder` with user's feedback as additional context. Repeat from step 3.
-    - If "yes": update state `set --slug {slug} --current-phase "spec-confirmed"`.
+2. Map each research question to specific files and code paths to read.
+3. Read **only** what is needed to answer the identified questions — no broad exploration.
+4. For each question, provide an answer with code evidence (`file:line` references).
+5. Present findings to the user as a summary:
+   > **Research findings:**
+   > - Q1: {answer} — `src/foo.py:42`
+   > - Q2: {answer} — `src/bar.py:18`, `src/baz.py:7`
+   > - Constraints identified: {list}
+6. If research reveals the task is larger than expected (e.g., touches more than 5 files or requires new behavior), prompt:
+   > "Research suggests this is bigger than SMALL. Promote to FEATURE workflow? (yes / no)"
+
+**Gate:** Every question from the Question phase must be answered or explicitly deferred with rationale.
+
+##### S — Structure
+
+Phase breakdown with dependencies. For SMALL tasks, this is typically 1-2 phases.
+
+1. Update state:
+   ```bash
+   ${CLAUDE_PLUGIN_ROOT}/scripts/update-plan-state.sh set \
+     --slug "{slug}" \
+     --current-phase "qrspi-structure"
+   ```
+2. Decompose the work into phases (usually 1-2 for SMALL tasks):
+   - What each phase delivers
+   - Dependencies between phases
+   - What each phase enables
+3. Identify the critical path — which phase must land first.
+4. Surface risks: what could cause a phase to fail or expand in scope.
+5. Present the structure to the user for confirmation before detailed planning.
+
+**Gate:** Structure must be confirmed before proceeding to Plan.
+
+##### P — Plan
+
+Produce `IMPL_DETAILS.md` with target files, ordered steps, git strategy, and verification actions.
+
+1. Update state:
+   ```bash
+   ${CLAUDE_PLUGIN_ROOT}/scripts/update-plan-state.sh set \
+     --slug "{slug}" \
+     --current-phase "qrspi-plan"
+   ```
+2. Draft `IMPL_DETAILS.md` following the template defined in the `qrspi-prompts` skill. Required sections:
+   - **Target Repos and File Paths** — explicit list of every file to be touched
+   - **Structure** — phase breakdown from step S
+   - **Ordered Implementation Steps** — each step has an exact file path and a verification action; steps that add behavior are structured as RED-GREEN pairs
+   - **Risks and Assumptions** — what could go wrong, what we assume
+   - **Verification Steps** — how to confirm each step is correct
+   - **Traceability** — map each research finding to a plan step
+   - **Git Strategy** — branch name, commit checkpoints with messages, anticipated PR title and description
+3. Resolve the active session directory. Save `IMPL_DETAILS.md` to:
+   ```
+   {session_dir}/IMPL_DETAILS.md
+   ```
+   Where `{session_dir}` is the current session's `.ai/sessions/YYYY-MM-DD_<slug>/` directory. Do NOT save to `docs/`.
+4. **Validation gate:** Run the validation script on the saved plan:
+   ```bash
+   python ${CLAUDE_PLUGIN_ROOT}/scripts/validate.py {session_dir}/IMPL_DETAILS.md --type plan --verbose --json
+   ```
+   - If score >= 70: display PASS with summary and proceed to step 5.
+   - If score < 70: display findings, re-draft the failing sections using the findings as feedback, then re-run validation. Repeat until score >= 70.
+5. Present the plan to the user:
+   > **Implementation plan ready** (validation score: {score}/100)
+   > {summary of steps}
+6. Ask user: "This plan is ready. Looks good? (yes / request changes)"
+   - If "request changes": re-draft with user's feedback as additional context. Repeat from step 2.
+   - If "yes": update state `set --slug {slug} --current-phase "plan-confirmed"`.
+
+##### I — Implement Offer
+
+After plan approval, offer execution options.
+
+1. Update state:
+   ```bash
+   ${CLAUDE_PLUGIN_ROOT}/scripts/update-plan-state.sh set \
+     --slug "{slug}" \
+     --current-phase "plan-confirmed"
+   ```
+2. Ask the user:
+   > "Execute now or hand to `/impl:tdd`?"
+   - **"Execute now"**: Run implementation steps in-place within the current session, following RED-GREEN-REFACTOR for each behavioral step. Update state to `implementing`, then `done — shipped` on completion. Auto-clear state file.
+   - **"Hand to `/impl:tdd`"**: Report the path to `IMPL_DETAILS.md` and instruct the user to run `/impl:tdd {session_dir}/IMPL_DETAILS.md`. Update state to `ready-for-impl`.
 
 #### FEATURE
 
@@ -308,11 +387,14 @@ EPIC tasks require a PRD and a roadmap before individual milestones can be specc
 
 ## WHAT NOT TO DO
 
-- Do NOT write a spec in this command — spec writing is P0-C.
 - Do NOT re-classify a task that already has an active state file — resume instead.
 - Do NOT skip the startup scan — state files from prior sessions must be checked every time.
 - Do NOT apply a TRIVIAL change without confirmation from the user.
 - Do NOT proceed past triage if the triage agent returns prose instead of JSON — retry once, then ask the user to re-describe the task.
+- Do NOT save SMALL task IMPL_DETAILS.md to `docs/` — it belongs in the active session directory.
+- Do NOT read code during the Question phase of QRSPI — work only from the user's task description.
+- Do NOT over-plan SMALL tasks — a 3-file bug fix should not produce a 50-step plan. See `qrspi-prompts` skill for size guidance.
+- Do NOT skip the risk promotion gate — SMALL + HIGH risk must prompt for FEATURE promotion.
 
 ---
 
