@@ -74,6 +74,7 @@ All outputs land at deterministic, feature-grouped paths relative to the target 
 | `/plan:prd` | PRD | `docs/{feature}/PRD.md` |
 | `/plan:sdd` (FEATURE/SMALL) | Spec | `docs/{feature}/specs/SPEC-{NNN}-{slug}.md` |
 | `/plan:roadmap` | Roadmap | `docs/{feature}/ROADMAP.md` |
+| `/plan:migrate` | Migration ROADMAP + Specs | `docs/{migration-slug}/ROADMAP.md` + `docs/{migration-slug}/specs/SPEC-{NNN}-migrate-{module}.md` |
 
 Directories are created if they do not exist.
 
