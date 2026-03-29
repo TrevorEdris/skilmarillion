@@ -1,7 +1,7 @@
 {
   "name": "review",
   "description": "Review and quality plugin. Spawns parallel specialist reviewers (code quality, security, accessibility) and produces a unified, deduplicated, prioritized findings report -- no code changes, findings only.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {
     "name": "TrevorEdris",
     "url": "https://github.com/TrevorEdris"
@@ -9,5 +9,11 @@
   "homepage": "https://github.com/TrevorEdris/skilmarillion",
   "repository": "https://github.com/TrevorEdris/skilmarillion",
   "license": "MIT",
-  "keywords": ["review", "code-quality", "security", "accessibility", "audit"]
+  "keywords": ["review", "code-quality", "security", "accessibility", "audit", "desloppify", "ai-noise"],
+  "commands": {
+    "clean": {
+      "description": "Detect and flag AI-generated noise in code comments, docstrings, and prose",
+      "file": "../commands/clean.md"
+    }
+  }
 }
