@@ -7,6 +7,8 @@ Skilmarillion is a Claude Code plugin system organized as a lifecycle: `plan` (s
 ## Repository Structure
 
 - `plan/` — The spec-driven planning plugin (commands, agents, skills, references)
+- `arch/` — The architecture & design plugin (ADRs, OpenAPI specs, schemas, diagrams)
+- `skil/` — Workflow router and discovery layer (meta-plugin, no agents or skills)
 - `docs/planning/` — Project PRD and roadmap
 - `docs/{feature}/` — Feature-grouped artifacts: PRD, roadmap, specs, plans (see `plan/skills/artifact-paths.md`)
 - `test-fixtures/` — Sample app used for testing plugin commands
