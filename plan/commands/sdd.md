@@ -313,3 +313,25 @@ EPIC tasks require a PRD and a roadmap before individual milestones can be specc
 - Do NOT skip the startup scan — state files from prior sessions must be checked every time.
 - Do NOT apply a TRIVIAL change without confirmation from the user.
 - Do NOT proceed past triage if the triage agent returns prose instead of JSON — retry once, then ask the user to re-describe the task.
+
+---
+
+## NEXT STEP BREADCRUMB
+
+After the spec is confirmed (state = `spec-confirmed`) for SMALL or FEATURE tasks, display:
+
+> **Spec confirmed.** Next step:
+> ```
+> /impl:tdd {spec-path}
+> ```
+> This hands the spec to the implementation plugin for test-driven development.
+
+**If the `impl` plugin is not installed:** Check whether `/impl:tdd` is available by looking for `impl/` in the plugin directory or checking plugin manifest. If not found, display instead:
+
+> **Spec confirmed.** Next step: run `/impl:tdd {spec-path}` to begin implementation.
+>
+> The `impl` plugin is not yet installed. Install it with:
+> ```
+> claude plugin add impl
+> ```
+> Once installed, run `/impl:tdd {spec-path}` to start the TDD cycle from this spec.
