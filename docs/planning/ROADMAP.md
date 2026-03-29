@@ -357,11 +357,11 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **Depends on:** P1-A
 - **Model tier:** Haiku — diff → commit message is a deterministic transformation; input is structured (staged diff), output is a fixed format (conventional commit); no codebase reasoning required
 - **Checklist:**
-  - [ ] Port and rewrite `git-workflow` commit generation from fotw source
-  - [ ] Parse `git diff --staged` to infer type (feat/fix/refactor/docs/chore) and scope
-  - [ ] Detect breaking changes: flag if public API signatures changed or if any AC in spec is removed
-  - [ ] Output: `type(scope)!: description` with optional body and `BREAKING CHANGE:` footer
-  - [ ] Never commit automatically — output message for user to review and approve
+  - [x] Port and rewrite `git-workflow` commit generation from fotw source
+  - [x] Parse `git diff --staged` to infer type (feat/fix/refactor/docs/chore) and scope
+  - [x] Detect breaking changes: flag if public API signatures changed or if any AC in spec is removed
+  - [x] Output: `type(scope)!: description` with optional body and `BREAKING CHANGE:` footer
+  - [x] Never commit automatically — output message for user to review and approve
   - [ ] Verify: stage a breaking change; confirm `!` and footer are present in output
 
 ### P1-F: PR Command
@@ -747,7 +747,7 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 | IMPL-002 | TDD Command | COMPLETE | 1 | P1-B |
 | IMPL-003 | Debug Command | IN PROGRESS | 1 | P1-C |
 | IMPL-004 | Refactor Command | PENDING | 1 | P1-D |
-| IMPL-005 | Commit Command | PENDING | 1 | P1-E |
+| IMPL-005 | Commit Command | IN_PROGRESS | 1 | P1-E |
 | IMPL-006 | PR Command | PENDING | 1 | P1-F |
 | IMPL-007 | Playwright MCP Bundle (Optional) | PENDING | 1 | P1-G |
 | IMPL-008 | Help Command | PENDING | 1 | P1-H |
