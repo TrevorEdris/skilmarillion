@@ -150,6 +150,9 @@ Report the commit hash and short stat.
 
 **Suggest next step:** "Consider running `/impl:pr` to open a pull request, or `/review:review` to run quality checks first."
 
+Check whether the `review` plugin is installed (look for a `review/` directory at the skilmarillion plugin root, or check if `/review:review` is a known command). If not installed, append:
+> "Install the review plugin: `claude plugin add review`"
+
 ---
 
 ## Breaking Change Examples

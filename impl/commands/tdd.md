@@ -42,10 +42,15 @@ If found:
 
 Inspect the argument passed to `/impl:tdd`:
 
-- **No argument:** Check for specs in `docs/` — if found, list them and ask the user to pick. If no specs exist, display:
+- **No argument:** Check for specs in `docs/` — if found, list them and ask the user to pick. If no specs exist, display the precondition guard:
   > "No spec found. Run `/plan:sdd [task]` to create one, or provide a spec path."
-  >
-  > Offer choices: "Run /plan:sdd now" / "Provide a spec path" / "Proceed without spec"
+
+  Use `AskUserQuestion` to offer choices:
+  1. "Run /plan:sdd now" — hand off to the plan plugin
+  2. "Provide a spec path" — prompt for a file path, then resume
+  3. "Proceed without spec" — continue without a spec (advanced users)
+
+  This guard is **informational, not blocking** — the user can always choose option 3 to proceed.
 
 - **Argument is a file path:** Read the file and classify by content markers:
   - **Spec file:** Contains `## Acceptance Criteria` AND (`## Vertical Slices` OR `## Slice `)
@@ -339,12 +344,12 @@ Delete `.impl-state-{slug}.local.yaml`.
 
 ### 4. Next Step Breadcrumb
 
-> "Implementation complete. Next steps:"
+> "All slices green. Implementation complete. Next steps:"
 > - `/impl:commit` — generate a conventional commit from staged changes
-> - `/review:review` — run quality checks before merging
+> - "Next step: `/review:review` to run quality checks before merging"
 
-If the `review` plugin is not installed:
-> - Run `/review:review` to validate changes. (Install: `claude plugin add review`)
+Check whether the `review` plugin is installed (look for a `review/` directory at the skilmarillion plugin root, or check if `/review:review` is a known command). If not installed:
+> - `/review:review` — run quality checks before merging. (Install: `claude plugin add review`)
 
 ---
 
