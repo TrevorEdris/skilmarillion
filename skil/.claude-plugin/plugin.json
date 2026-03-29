@@ -1,7 +1,7 @@
 {
   "name": "skil",
   "description": "Workflow router and discovery layer for the Skilmarillion plugin suite. Routes tasks to the right lifecycle plugin and provides guided tours of available commands.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {
     "name": "TrevorEdris",
     "url": "https://github.com/TrevorEdris"
@@ -9,5 +9,12 @@
   "homepage": "https://github.com/TrevorEdris/skilmarillion",
   "repository": "https://github.com/TrevorEdris/skilmarillion",
   "license": "MIT",
-  "keywords": ["router", "discovery", "workflow", "meta-plugin"]
+  "keywords": ["router", "discovery", "workflow", "meta-plugin"],
+  "commands": [
+    {
+      "name": "status",
+      "description": "Workflow state dashboard across all installed Skilmarillion plugins",
+      "file": "../commands/status.md"
+    }
+  ]
 }
