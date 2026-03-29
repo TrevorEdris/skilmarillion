@@ -13,6 +13,16 @@
       "name": "review",
       "source": "./review",
       "description": "Review & quality: parallel code, security, and a11y review with deduplicated findings."
+    },
+    {
+      "name": "skil",
+      "source": "./skil",
+      "description": "Workflow router and discovery layer for the Skilmarillion suite."
+    },
+    {
+      "name": "arch",
+      "source": "./arch",
+      "description": "Architecture & design: ADRs, OpenAPI specs, database schemas, Mermaid diagrams."
     }
   ]
 }
