@@ -505,9 +505,9 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **What:** Informational breadcrumbs after each command output referencing the next logical step.
 - **Depends on:** P2-B, P2-C, P2-D, P2-E
 - **Checklist:**
-  - [ ] After design artifacts are saved, append: "These artifacts can be passed to `/impl:tdd` as structured context for implementation"
-  - [ ] If `impl` not installed, include install hint
-  - [ ] If a spec exists for the same feature, suggest: "A spec exists at {path} — `/impl:tdd {spec-path}` will pick up both the spec and these design artifacts"
+  - [x] After design artifacts are saved, append: "These artifacts can be passed to `/impl:tdd` as structured context for implementation"
+  - [x] If `impl` not installed, include install hint
+  - [x] If a spec exists for the same feature, suggest: "A spec exists at {path} — `/impl:tdd {spec-path}` will pick up both the spec and these design artifacts"
   - [ ] Verify: produce an ADR without `impl` installed; confirm install hint in output
 
 **Deliverable:** *Users can run `/arch:design`, `/arch:api`, `/arch:schema`, or `/arch:diagram` and receive a production-ready design artifact saved to a predictable path — ready to use as implementation input for `impl`. `/arch:help` provides guided discovery.*
@@ -758,7 +758,7 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 | ARCH-004 | Schema Design Command | PENDING | 2 | P2-D |
 | ARCH-005 | Diagram Command | COMPLETE | 2 | P2-E |
 | ARCH-006 | Help Command | COMPLETE | 2 | P2-F |
-| ARCH-007 | Out-of-Order Guards | PENDING | 2 | P2-G |
+| ARCH-007 | Out-of-Order Guards | IN_PROGRESS | 2 | P2-G |
 | REVIEW-001 | Plugin Scaffold | PENDING | 3 | P3-A |
 | REVIEW-002 | Playwright MCP Bundle (Required) | PENDING | 3 | P3-B |
 | REVIEW-003 | Review Command | PENDING | 3 | P3-C |

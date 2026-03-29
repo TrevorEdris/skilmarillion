@@ -246,3 +246,11 @@ If `impl` is installed, suggest:
 If `impl` is not installed:
 
 > Tip: Install the `impl` plugin to use these diagrams as implementation context.
+
+**Spec-exists hint:** After displaying the follow-up, check for existing specs in `docs/` (glob for `docs/**/specs/SPEC-*.md` or `docs/**/SDD-*.md`). If a spec is found for a related feature, append:
+
+> A spec exists at `{spec-path}` -- `/impl:tdd {spec-path}` will pick up both the spec and these design artifacts.
+
+If multiple specs exist, list the most recently modified one and note the count:
+
+> {count} specs found. Most recent: `{spec-path}` -- `/impl:tdd {spec-path}` will pick up both the spec and these design artifacts.
