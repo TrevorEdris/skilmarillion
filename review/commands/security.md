@@ -301,3 +301,4 @@ After displaying the report:
 
 - If findings exist: "To address these findings, run `/impl:debug` or `/impl:refactor` on the affected files."
 - If clean: "No action needed. Clean security review."
+- If `impl` plugin is not installed, include: "Install the impl plugin: `/plugin install impl@skilmarillion`"
