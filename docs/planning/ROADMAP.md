@@ -16,13 +16,12 @@
 - [x] PLAN-009: Roadmap Command (P0-I) — merged PR #TBD
 
 ### In Progress
-(none)
+- [ ] PLAN-012: QRSPI Mode for SMALL Tasks (P0-C extension) — FR-001, FR-005
 
 ### Not Started
 - [ ] PLAN-008: Migrate Command (P0-H) — Should priority
 - [ ] PLAN-010: Help Command (P0-J) — FR-011
 - [ ] PLAN-011: Out-of-Order Guards (P0-K) — FR-012
-- [ ] PLAN-012: QRSPI Mode for SMALL Tasks (P0-C extension) — FR-001, FR-005
 - [ ] Phase 0.5: `skil` — Workflow Router
 - [ ] Phase 1: `impl` — Implementation
 - [ ] Phase 2: `arch` — Architecture & Design
@@ -91,14 +90,14 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
   - [x] Save spec to `docs/{feature}/specs/SPEC-{NNN}-{slug}.md` (see P0-G)
   - [x] Run the spec through the validate command (P0-E) before presenting to user; re-draft if score < 70
   - [x] Manual verification: feed a FEATURE task; confirm spec alone is sufficient to start `/impl:tdd`
-  - [ ] **SMALL mode (QRSPI):** Implement Question phase — surface design decisions as explicit choices before reading code [ADDED]
-  - [ ] **SMALL mode (QRSPI):** Implement Research phase — targeted codebase reading to answer each question with file:line evidence [ADDED]
-  - [ ] **SMALL mode (QRSPI):** Implement Structure phase — phase breakdown with dependencies (usually 1-2 phases for SMALL tasks) [ADDED]
-  - [ ] **SMALL mode (QRSPI):** Implement Plan phase — produce IMPL_DETAILS.md with: target files, ordered steps (each with exact file path + verification action), risks, git strategy (branch, commit checkpoints, PR title) [ADDED]
-  - [ ] **SMALL mode (QRSPI):** Save IMPL_DETAILS.md to active session directory (`${SKILMARILLION_SESSIONS_DIR}/YYYY-MM-DD_<slug>/IMPL_DETAILS.md`), not `docs/` [ADDED]
-  - [ ] **SMALL mode (QRSPI):** Run plan through `validate.py --type plan` before presenting; re-draft if score < 70 [ADDED]
-  - [ ] **SMALL mode (QRSPI):** After plan approval, offer: "Execute now or hand to `/impl:tdd`?" — if execute, run implementation steps in-place within the same session [ADDED]
-  - [ ] **Risk promotion:** When a SMALL task has HIGH risk, prompt user: "This task is small but high-risk. Promote to FEATURE workflow for full spec coverage?" [ADDED]
+  - [x] **SMALL mode (QRSPI):** Implement Question phase — surface design decisions as explicit choices before reading code [ADDED]
+  - [x] **SMALL mode (QRSPI):** Implement Research phase — targeted codebase reading to answer each question with file:line evidence [ADDED]
+  - [x] **SMALL mode (QRSPI):** Implement Structure phase — phase breakdown with dependencies (usually 1-2 phases for SMALL tasks) [ADDED]
+  - [x] **SMALL mode (QRSPI):** Implement Plan phase — produce IMPL_DETAILS.md with: target files, ordered steps (each with exact file path + verification action), risks, git strategy (branch, commit checkpoints, PR title) [ADDED]
+  - [x] **SMALL mode (QRSPI):** Save IMPL_DETAILS.md to active session directory (`${SKILMARILLION_SESSIONS_DIR}/YYYY-MM-DD_<slug>/IMPL_DETAILS.md`), not `docs/` [ADDED]
+  - [x] **SMALL mode (QRSPI):** Run plan through `validate.py --type plan` before presenting; re-draft if score < 70 [ADDED]
+  - [x] **SMALL mode (QRSPI):** After plan approval, offer: "Execute now or hand to `/impl:tdd`?" — if execute, run implementation steps in-place within the same session [ADDED]
+  - [x] **Risk promotion:** When a SMALL task has HIGH risk, prompt user: "This task is small but high-risk. Promote to FEATURE workflow for full spec coverage?" [ADDED]
   - [ ] Manual verification: feed a SMALL task (bug fix); confirm IMPL_DETAILS.md is produced (not a spec) and is sufficient for `/impl:tdd` [ADDED]
 
 ### P0-D: PRD Command
