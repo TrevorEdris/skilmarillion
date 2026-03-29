@@ -12,6 +12,11 @@
   "keywords": ["router", "discovery", "workflow", "meta-plugin"],
   "commands": [
     {
+      "name": "help",
+      "description": "Interactive tour of the full Skilmarillion plugin suite. Detects installed plugins and project state.",
+      "file": "../commands/help.md"
+    },
+    {
       "name": "",
       "description": "Route a task description to the appropriate lifecycle plugin command",
       "file": "../commands/router.md"

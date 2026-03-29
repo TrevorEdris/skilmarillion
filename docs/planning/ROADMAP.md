@@ -23,7 +23,7 @@
 - [ ] IMPL-002: TDD Command (P1-B) — PR #TBD
 
 ### Not Started
-- [ ] Phase 0.5: `skil` — Workflow Router
+- [ ] Phase 0.5: `skil` — Workflow Router (P0.5-B Help Tour in progress)
 - [ ] Phase 1: `impl` — Implementation (P1-B in progress)
 - [ ] Phase 2: `arch` — Architecture & Design
 - [ ] Phase 3: `review` — Review & Quality
@@ -245,15 +245,15 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **Risk:** Tour content may become stale as plugins evolve. Keep descriptions in a single reference file within `skil` so updates are centralized.
 - **Model tier:** Haiku — reads project state, presents pre-written descriptions, no codebase reasoning
 - **Checklist:**
-  - [ ] Implement `/skil:help` command
-  - [ ] Detect installed plugins: check for `plan/`, `arch/`, `impl/`, `review/` plugin manifests
-  - [ ] Detect project artifacts: specs, PRDs, active state files, review reports, open PRs
-  - [ ] Adapt greeting: fresh project ("Let me show you around") vs. existing artifacts ("Looks like you've been working — here's what's available")
-  - [ ] Walk through lifecycle phases in order: plan → arch → impl → review
-  - [ ] For each phase: name, one-line purpose, key commands, artifact produced
-  - [ ] For uninstalled plugins: show install command instead of commands
-  - [ ] Use `AskUserQuestion` for pacing: "Next plugin?" / "Tell me more" / "Skip to a specific plugin"
-  - [ ] End with recommended starting point based on project state
+  - [x] Implement `/skil:help` command
+  - [x] Detect installed plugins: check for `plan/`, `arch/`, `impl/`, `review/` plugin manifests
+  - [x] Detect project artifacts: specs, PRDs, active state files, review reports, open PRs
+  - [x] Adapt greeting: fresh project ("Let me show you around") vs. existing artifacts ("Looks like you've been working — here's what's available")
+  - [x] Walk through lifecycle phases in order: plan → arch → impl → review
+  - [x] For each phase: name, one-line purpose, key commands, artifact produced
+  - [x] For uninstalled plugins: show install command instead of commands
+  - [x] Use `AskUserQuestion` for pacing: "Next plugin?" / "Tell me more" / "Skip to a specific plugin"
+  - [x] End with recommended starting point based on project state
   - [ ] Verify: install only `skil` + `plan`; confirm tour shows `plan` commands and install hints for `arch`, `impl`, `review`
 
 ### P0.5-C: Task Router Command
@@ -740,7 +740,7 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 | PLAN-011 | Out-of-Order Guards | PENDING | 0 | P0-K |
 | PLAN-012 | QRSPI Mode for SMALL Tasks | PENDING | 0 | P0-C (extension) |
 | SKIL-001 | Plugin Scaffold | PENDING | 0.5 | P0.5-A |
-| SKIL-002 | Help Tour Command | PENDING | 0.5 | P0.5-B |
+| SKIL-002 | Help Tour Command | COMPLETE | 0.5 | P0.5-B |
 | SKIL-003 | Task Router Command | COMPLETE | 0.5 | P0.5-C |
 | SKIL-004 | Status Dashboard | COMPLETE | 0.5 | P0.5-D |
 | IMPL-001 | Plugin Scaffold | COMPLETE | 1 | P1-A |
