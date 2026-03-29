@@ -1,7 +1,7 @@
 {
   "name": "impl",
   "description": "Implementation executor. Takes a spec or impl-details file and drives slice-by-slice TDD, structured debugging, phase-gated refactoring, and conventional commits.",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "author": {
     "name": "TrevorEdris",
     "url": "https://github.com/TrevorEdris"
@@ -31,6 +31,10 @@
     "commit": {
       "description": "Conventional commit from staged changes with breaking change detection",
       "file": "commands/commit.md"
+    },
+    "pr": {
+      "description": "PR description generation with AC traceability and template detection",
+      "file": "commands/pr.md"
     }
   }
 }
