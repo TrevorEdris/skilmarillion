@@ -6,6 +6,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/example/sample-app/internal/auth"
 	"github.com/example/sample-app/internal/billing"
@@ -27,10 +28,14 @@ func main() {
 	userHandler := user.NewHandler(userSvc)
 	authHandler := auth.NewHandler(authSvc)
 
+	// Rate limiting
+	loginLimiter := auth.NewRateLimiter(5, 15*time.Minute)
+	defer loginLimiter.Stop()
+
 	// Routing
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /users/{id}/profile", userHandler.GetProfile)
-	mux.HandleFunc("POST /auth/login", authHandler.Login)
+	mux.Handle("POST /auth/login", loginLimiter.Middleware(http.HandlerFunc(authHandler.Login)))
 	mux.Handle("POST /auth/change-password", auth.RequireAuth(authSvc)(http.HandlerFunc(authHandler.ChangePassword)))
 
 	log.Println("sample-app listening on :8080")
