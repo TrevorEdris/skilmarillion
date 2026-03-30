@@ -67,7 +67,7 @@ For each milestone, determine:
 - **Milestone name** — descriptive, action-oriented
 - **Capability delivered** — what the user can do after this milestone ships
 - **Dependency on prior milestones** — which milestones must complete first
-- **Estimated scope** — SMALL or FEATURE (informs whether `/plan:sdd` produces a lightweight spec or full workflow)
+- **Estimated scope** — TRIVIAL, SMALL, or FEATURE (informs spec depth when `/plan:sdd` generates the spec — see `spec-format` skill for section gating)
 - **Acceptance summary** — high-level AC from the PRD requirements mapped to this milestone
 
 Assign feature IDs: `P{phase}-{letter}` (e.g., P0-A, P0-B, P1-A).

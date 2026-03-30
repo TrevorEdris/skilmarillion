@@ -8,8 +8,8 @@ shift || true
 
 usage() {
   echo "Usage:"
-  echo "  $0 init --slug SLUG --feature FEATURE [--size SIZE] [--risk RISK] [--routing ROUTING] [--current-phase PHASE]"
-  echo "  $0 set --slug SLUG [--feature FEATURE] [--size SIZE] [--risk RISK] [--routing ROUTING] [--current-phase PHASE] [--spec-path PATH]"
+  echo "  $0 init --slug SLUG --feature FEATURE [--size SIZE] [--risk RISK] [--routing ROUTING] [--current-phase PHASE] [--project-root ROOT]"
+  echo "  $0 set --slug SLUG [--feature FEATURE] [--size SIZE] [--risk RISK] [--routing ROUTING] [--current-phase PHASE] [--spec-path PATH] [--project-root ROOT]"
   echo "  $0 get --slug SLUG [--field FIELD]"
   echo "  $0 list"
   echo "  $0 clear --slug SLUG"
@@ -30,6 +30,7 @@ parse_flags() {
   ROUTING=""
   CURRENT_PHASE=""
   SPEC_PATH=""
+  PROJECT_ROOT=""
   FIELD=""
   ALL=false
 
@@ -42,6 +43,7 @@ parse_flags() {
       --routing)    ROUTING="$2";      shift 2 ;;
       --current-phase) CURRENT_PHASE="$2"; shift 2 ;;
       --spec-path)  SPEC_PATH="$2";    shift 2 ;;
+      --project-root) PROJECT_ROOT="$2"; shift 2 ;;
       --field)      FIELD="$2";        shift 2 ;;
       --all)        ALL=true;          shift ;;
       *) echo "Unknown flag: $1" >&2; usage ;;
@@ -64,19 +66,21 @@ risk: ${RISK}
 routing_decision: ${ROUTING}
 current_phase: ${CURRENT_PHASE}
 spec_path: ${SPEC_PATH}
+project_root: ${PROJECT_ROOT}
 EOF
 }
 
 merge_and_write_state() {
   local file="$1"
   # Load existing values as defaults
-  local cur_feature cur_size cur_risk cur_routing cur_phase cur_spec
+  local cur_feature cur_size cur_risk cur_routing cur_phase cur_spec cur_project_root
   cur_feature=$(read_field "$file" "feature")
   cur_size=$(read_field "$file" "size")
   cur_risk=$(read_field "$file" "risk")
   cur_routing=$(read_field "$file" "routing_decision")
   cur_phase=$(read_field "$file" "current_phase")
   cur_spec=$(read_field "$file" "spec_path")
+  cur_project_root=$(read_field "$file" "project_root")
 
   FEATURE="${FEATURE:-$cur_feature}"
   SIZE="${SIZE:-$cur_size}"
@@ -84,6 +88,7 @@ merge_and_write_state() {
   ROUTING="${ROUTING:-$cur_routing}"
   CURRENT_PHASE="${CURRENT_PHASE:-$cur_phase}"
   SPEC_PATH="${SPEC_PATH:-$cur_spec}"
+  PROJECT_ROOT="${PROJECT_ROOT:-$cur_project_root}"
 
   write_state "$file"
 }

@@ -19,10 +19,18 @@ Every spec produced by `spec-builder` must include these sections:
 1. **Problem Statement** — One paragraph. What problem does this solve? Who is affected?
 2. **Acceptance Criteria** — Testable conditions in Given/When/Then format. Organized as Vertical Slices for FEATURE specs.
 3. **Vertical Slices** — *(FEATURE only)* Self-contained, independently shippable units of behavior. Each slice has its own ACs.
-4. **Architecture Recommendation** — *(FEATURE only)* Pattern chosen and rationale. Filled by `architecture-advisor`.
-5. **TDD Plan** — *(FEATURE only)* Ordered RED→GREEN→REFACTOR steps per slice. Filled by `tdd-planner`.
+4. **Architecture Recommendation** — *(SMALL and FEATURE)* Pattern chosen and rationale. Filled by `architecture-advisor`.
+5. **TDD Plan** — Ordered RED→GREEN→REFACTOR steps per slice (or per AC for non-sliced specs). Filled by `tdd-planner`.
 
-**SMALL spec minimum:** Problem Statement and Acceptance Criteria only. Architecture and TDD sections are omitted.
+### Section Gating by Size
+
+| Section | TRIVIAL | SMALL | FEATURE |
+|---------|---------|-------|---------|
+| Problem Statement | Yes | Yes | Yes |
+| Acceptance Criteria | Happy path only | Risk-scaled | Risk-scaled |
+| Vertical Slices | No | No | Yes |
+| Architecture Recommendation | No | Yes | Yes |
+| TDD Plan | Yes | Yes | Yes |
 
 ---
 
