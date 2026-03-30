@@ -9,6 +9,9 @@
   <meta property="og:description" content="Five Claude Code plugins that turn fragmented AI dev workflows into a coherent lifecycle: plan, architect, implement, review.">
   <meta property="og:type" content="website">
   <meta name="theme-color" content="#6c8cff">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -33,7 +36,7 @@
     <section class="hero" aria-labelledby="hero-heading">
       <div class="container">
         <h1 id="hero-heading">A <span class="highlight">coherent lifecycle</span> for AI-assisted development</h1>
-        <p class="hero-subtitle">Five Claude Code plugins that replace ad-hoc prompting with structured workflows. Specify, design, implement, review &mdash; each step produces a real artifact, not just conversation.</p>
+        <p class="hero-subtitle">Five Claude Code plugins. Specify, design, implement, review &mdash; each step produces an artifact, not conversation.</p>
         <div class="hero-actions">
           <a href="https://github.com/TrevorEdris/skilmarillion" class="btn btn-primary">View on GitHub</a>
           <a href="#lifecycle" class="btn btn-secondary">See the lifecycle</a>
@@ -48,11 +51,11 @@
         <div class="problem-solution">
           <div class="ps-card ps-card--problem">
             <h3>The problem</h3>
-            <p>AI coding assistants are powerful but unstructured. Each prompt starts from scratch. There is no shared context between planning and implementation, no design record, no review gate. Teams end up with code that works but was never specified, never architected, and never systematically reviewed.</p>
+            <p>Each prompt starts from scratch. There's no shared context between planning and implementation &mdash; no spec, no design record, no review gate.</p>
           </div>
           <div class="ps-card ps-card--solution">
             <h3>The solution</h3>
-            <p>Skilmarillion organizes AI-assisted work into a repeatable lifecycle. Each plugin handles one phase and produces a concrete artifact &mdash; a spec, an ADR, tested code, a findings report. Artifacts flow forward: specs feed implementation, implementations feed review. Nothing is lost between steps.</p>
+            <p>Each plugin handles one phase and produces a concrete artifact &mdash; a spec, an ADR, tested code, a findings report. Artifacts flow forward: specs feed implementation, implementations feed review.</p>
           </div>
         </div>
       </div>
@@ -62,7 +65,7 @@
     <section class="section" id="lifecycle" aria-labelledby="lifecycle-heading">
       <div class="container">
         <h2 id="lifecycle-heading" class="section-title">The lifecycle</h2>
-        <p class="section-subtitle">Four phases, connected by artifacts. Each phase is a standalone plugin you can use independently.</p>
+        <p class="section-subtitle">Four phases, connected by artifacts. Each plugin works standalone.</p>
 
         <div class="lifecycle" role="list" aria-label="Development lifecycle phases">
           <div class="lifecycle-step lifecycle-step--plan" role="listitem">
@@ -80,7 +83,7 @@
           <div class="lifecycle-step lifecycle-step--impl" role="listitem">
             <span class="lifecycle-phase">Implement</span>
             <code class="lifecycle-command">/impl:tdd</code>
-            <p class="lifecycle-desc">Slice-by-slice TDD execution from a spec. Red, green, refactor &mdash; one slice at a time.</p>
+            <p class="lifecycle-desc">Slice-by-slice TDD from a spec. Red, green, refactor &mdash; one slice at a time.</p>
             <span class="lifecycle-artifact">tested, committed code</span>
           </div>
           <div class="lifecycle-step lifecycle-step--review" role="listitem">
@@ -94,7 +97,7 @@
         <div class="entry-point">
           <span class="entry-point-label">Start here:</span>
           <code class="entry-point-command">/skil:help</code>
-          <span class="entry-point-desc">The workflow router detects installed plugins and recommends where to begin based on your project state.</span>
+          <span class="entry-point-desc">Detects installed plugins and recommends where to begin based on project state.</span>
         </div>
       </div>
     </section>
@@ -103,48 +106,50 @@
     <section class="section section--alt" id="plugins" aria-labelledby="plugins-heading">
       <div class="container">
         <h2 id="plugins-heading" class="section-title">Five plugins, one suite</h2>
-        <p class="section-subtitle">Install any plugin independently. Each works standalone; together they form the full lifecycle.</p>
+        <p class="section-subtitle">Each plugin works standalone. Together they form the full lifecycle.</p>
 
         <div class="plugin-grid">
           <div class="plugin-card plugin-card--plan">
             <h3>plan</h3>
-            <p>Spec-driven planning. Turns a task description into testable acceptance criteria, a vertical slice spec, and a TDD plan.</p>
+            <p>Triage, spec, and TDD plan generation. Accepts a task description, produces a structured spec with acceptance criteria and vertical slices.</p>
             <div class="artifact-label">Produces</div>
             <div class="artifact-value">SPEC-NNN-slug.md</div>
           </div>
           <div class="plugin-card plugin-card--arch">
             <h3>arch</h3>
-            <p>Architecture and design sessions. Produces ADRs, OpenAPI specs, database schemas, and Mermaid diagrams.</p>
+            <p>Design interview sessions. Walks through trade-offs, records decisions as ADRs, generates OpenAPI specs and database schemas.</p>
             <div class="artifact-label">Produces</div>
             <div class="artifact-value">ADR, OpenAPI YAML, DDL</div>
           </div>
           <div class="plugin-card plugin-card--impl">
             <h3>impl</h3>
-            <p>Implementation executor. Drives slice-by-slice TDD, structured debugging, refactoring, and conventional commits.</p>
+            <p>Takes a spec and executes it slice by slice. Enforces red-green-refactor at every step. Also handles debugging, refactoring, and commits.</p>
             <div class="artifact-label">Produces</div>
             <div class="artifact-value">Tested, committed code</div>
           </div>
           <div class="plugin-card plugin-card--review">
             <h3>review</h3>
-            <p>Parallel specialist reviewers for code quality, security, and accessibility. Produces a unified, deduplicated findings report.</p>
+            <p>Runs code quality, security, and accessibility checks in parallel. Produces a unified, deduplicated findings report.</p>
             <div class="artifact-label">Produces</div>
             <div class="artifact-value">review-report.md</div>
           </div>
           <div class="plugin-card plugin-card--skil">
             <h3>skil</h3>
-            <p>Workflow router and discovery layer. Routes tasks to the right plugin and provides guided tours of available commands.</p>
-            <div class="artifact-label">Entry point</div>
-            <div class="artifact-value">/skil:help</div>
+            <p>Workflow router. Routes tasks to the right plugin and lists available commands.</p>
+            <div class="artifact-group">
+              <div class="artifact-label">Entry point</div>
+              <div class="artifact-value">/skil:help</div>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
     <!-- Artifact Excerpt Showcase -->
-    <section class="section" id="output" aria-labelledby="output-heading">
+    <section class="section excerpt-section" id="output" aria-labelledby="output-heading">
       <div class="container">
         <h2 id="output-heading" class="section-title">What the output looks like</h2>
-        <p class="section-subtitle">Real artifact excerpts from actual plugin runs. This is what Skilmarillion produces.</p>
+        <p class="section-subtitle">Excerpts from plugin runs against a real codebase.</p>
 
         <div class="excerpt">
           <div class="excerpt-header">
@@ -170,7 +175,7 @@
 <span class="comment"># Pattern: Modular monolith with agent pipeline</span>
 <span class="comment"># Each agent handles one workflow phase</span>
 <span class="comment"># Artifacts flow forward via deterministic file paths</span></pre>
-          <p class="excerpt-caption">Abridged output from /plan:sdd running against a real task. Full specs include TDD plans, risk assessments, and file path inventories.</p>
+          <p class="excerpt-caption">Abridged. Full specs include TDD plans, risk assessments, and file path inventories.</p>
         </div>
 
         <div class="excerpt">
@@ -193,7 +198,7 @@
 <span class="heading">## Summary</span>
 <span class="comment">3 findings: 1 HIGH, 1 MEDIUM, 1 LOW</span>
 <span class="comment">Overall: PASS with 1 required fix before merge</span></pre>
-          <p class="excerpt-caption">Representative output from /review:review. Parallel specialists (code quality, security, accessibility) produce findings that are deduplicated and sorted by impact-to-effort ratio.</p>
+          <p class="excerpt-caption">Findings are deduplicated and sorted by impact-to-effort ratio.</p>
         </div>
       </div>
     </section>
@@ -204,7 +209,7 @@
         <h2 id="install-heading" class="section-title">Get started</h2>
         <p class="section-subtitle">Install the full suite or any individual plugin.</p>
         <pre class="install-block" role="region" aria-label="Installation command" tabindex="0">/install-plugin https://github.com/TrevorEdris/skilmarillion</pre>
-        <p style="margin-top: 1rem; color: var(--color-text-muted); font-size: 0.875rem;">Then run <code>/skil:help</code> to see what is available and where to start.</p>
+        <p class="install-note">Then run <code>/skil:help</code> to see what is available and where to start.</p>
       </div>
     </section>
   </main>
