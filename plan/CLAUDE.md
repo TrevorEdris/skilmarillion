@@ -14,9 +14,9 @@ Navigator, not gatekeeper. Suggest the right process for the task size. The deve
 
 ### Size
 
-- **TRIVIAL**: typo, config value, obvious one-liner — no spec document produced
-- **SMALL**: 1–3 files, simple bug fix, no new behavior — lightweight spec (ACs only, no architecture section)
-- **FEATURE**: new behavior, multi-file, any new endpoint or screen — full spec workflow
+- **TRIVIAL**: typo, config value, obvious one-liner — lightweight spec (Problem Statement, happy-path ACs, TDD Plan)
+- **SMALL**: 1–3 files, simple bug fix, no new behavior — spec with Problem Statement, risk-scaled ACs, Architecture Recommendation, TDD Plan
+- **FEATURE**: new behavior, multi-file, any new endpoint or screen — full spec with Vertical Slices, Architecture Recommendation, TDD Plan
 - **EPIC**: multiple features, cross-cutting concerns, new subsystem — decompose into features before speccing any individual one
 
 ### Risk
@@ -32,20 +32,21 @@ Risk shapes spec depth:
 
 ## Navigation by Size
 
-- **TRIVIAL**: "I see what needs to change. Want me to describe the fix?" No spec document produced.
-- **SMALL**: QRSPI cycle (Question, Research, Structure, Plan, Implement-offer). Produces `IMPL_DETAILS.md` in the session directory. SMALL + HIGH risk prompts for FEATURE promotion.
-- **FEATURE**: Full workflow — triage → context gather → spec → architecture recommendation → TDD plan.
+- **TRIVIAL**: Triage → Question → draft spec directly → TDD plan. Lightweight spec saved to `docs/{feature}/specs/`.
+- **SMALL**: Triage → Question → context gather → spec build → architecture → TDD plan. Spec saved to `docs/{feature}/specs/`.
+- **FEATURE**: Triage → Question → context gather → spec build (with vertical slices) → architecture → TDD plan. Spec saved to `docs/{feature}/specs/`.
 - **EPIC**: "This needs a PRD and roadmap first." Route to `/plan:prd` and `/plan:roadmap`, then spec each milestone independently.
 
-## Workflow Phases (FEATURE/EPIC)
+## Workflow Phases (TRIVIAL/SMALL/FEATURE)
 
 1. **Triage** — Assess size + risk. Route to appropriate workflow. Entry: `/plan:sdd`
-2. **Context Gathering** — Read entry points and relevant modules. Identify conventions and hotspot files. Agent: `context-gatherer`
-3. **Spec Building** — Interview developer → testable ACs organized as vertical slices. Agent: `spec-builder`
-4. **Architecture Advising** — Evaluate spec against codebase. Recommend pattern (simple / MVC / modular monolith / onion). Agent: `architecture-advisor`
-5. **TDD Planning** — Convert confirmed spec + architecture into ordered RED→GREEN→REFACTOR steps per slice. Agent: `tdd-planner`
+2. **Question** — Surface design decisions before reading code. See `pre-spec-questions` skill. Confirmed answers become constraints for downstream agents.
+3. **Context Gathering** — *(SMALL, FEATURE)* Read entry points and relevant modules. Identify conventions and hotspot files. Agent: `context-gatherer`
+4. **Spec Building** — *(SMALL, FEATURE)* Interview developer → testable ACs (organized as vertical slices for FEATURE). Agent: `spec-builder`
+5. **Architecture Advising** — *(SMALL, FEATURE)* Evaluate spec against codebase. Recommend pattern. Agent: `architecture-advisor`
+6. **TDD Planning** — Convert confirmed spec + architecture into ordered RED→GREEN→REFACTOR steps. Agent: `tdd-planner`
 
-The output of the full workflow is a spec file at `docs/{feature}/specs/SPEC-{NNN}-{slug}.md` that is sufficient input for `/impl:tdd` with no additional clarification.
+The output is always a spec file at `docs/{feature}/specs/SPEC-{NNN}-{slug}.md` that is sufficient input for `/impl:tdd` with no additional clarification.
 
 ## Commands
 
@@ -73,7 +74,7 @@ All outputs land at deterministic, feature-grouped paths relative to the target 
 | Command | Artifact | Path |
 |---------|----------|------|
 | `/plan:prd` | PRD | `docs/{feature}/PRD.md` |
-| `/plan:sdd` (FEATURE/SMALL) | Spec | `docs/{feature}/specs/SPEC-{NNN}-{slug}.md` |
+| `/plan:sdd` | Spec | `docs/{feature}/specs/SPEC-{NNN}-{slug}.md` |
 | `/plan:roadmap` | Roadmap | `docs/{feature}/ROADMAP.md` |
 | `/plan:migrate` | Migration ROADMAP + Specs | `docs/{migration-slug}/ROADMAP.md` + `docs/{migration-slug}/specs/SPEC-{NNN}-migrate-{module}.md` |
 
