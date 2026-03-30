@@ -36,7 +36,7 @@
     <section class="hero" aria-labelledby="hero-heading">
       <div class="container">
         <h1 id="hero-heading">A <span class="highlight">coherent lifecycle</span> for AI-assisted development</h1>
-        <p class="hero-subtitle">Five Claude Code plugins. Specify, design, implement, review &mdash; each step produces an artifact, not conversation.</p>
+        <p class="hero-subtitle">Five Claude Code plugins. Specify, design, implement, review &mdash; each step produces a concrete artifact.</p>
         <div class="hero-actions">
           <a href="https://github.com/TrevorEdris/skilmarillion" class="btn btn-primary">View on GitHub</a>
           <a href="#lifecycle" class="btn btn-secondary">See the lifecycle</a>
@@ -51,11 +51,11 @@
         <div class="problem-solution">
           <div class="ps-card ps-card--problem">
             <h3>The problem</h3>
-            <p>Each prompt starts from scratch. There's no shared context between planning and implementation &mdash; no spec, no design record, no review gate.</p>
+            <p>Every prompt starts from scratch. Nothing carries forward &mdash; no spec, no design record, no review gate.</p>
           </div>
           <div class="ps-card ps-card--solution">
             <h3>The solution</h3>
-            <p>Each plugin handles one phase and produces a concrete artifact &mdash; a spec, an ADR, tested code, a findings report. Artifacts flow forward: specs feed implementation, implementations feed review.</p>
+            <p>One plugin per phase, one artifact per plugin &mdash; a spec, an ADR, tested code, a findings report. Each feeds the next.</p>
           </div>
         </div>
       </div>
@@ -71,13 +71,13 @@
           <div class="lifecycle-step lifecycle-step--plan" role="listitem">
             <span class="lifecycle-phase">Specify</span>
             <code class="lifecycle-command">/plan:sdd</code>
-            <p class="lifecycle-desc">Turn a task description into testable acceptance criteria, vertical slices, and a TDD plan.</p>
+            <p class="lifecycle-desc">From a task description: testable acceptance criteria, vertical slices, TDD plan.</p>
             <span class="lifecycle-artifact">specs/SPEC-001-*.md</span>
           </div>
           <div class="lifecycle-step lifecycle-step--arch" role="listitem">
             <span class="lifecycle-phase">Design</span>
             <code class="lifecycle-command">/arch:design</code>
-            <p class="lifecycle-desc">Structured design sessions producing ADRs, OpenAPI specs, database schemas, and C4 diagrams.</p>
+            <p class="lifecycle-desc">Interview-driven design. Produces ADRs, OpenAPI specs, schemas, and C4 diagrams.</p>
             <span class="lifecycle-artifact">adrs/001-*.md</span>
           </div>
           <div class="lifecycle-step lifecycle-step--impl" role="listitem">
@@ -89,7 +89,7 @@
           <div class="lifecycle-step lifecycle-step--review" role="listitem">
             <span class="lifecycle-phase">Review</span>
             <code class="lifecycle-command">/review:review</code>
-            <p class="lifecycle-desc">Parallel specialist reviewers for code quality, security, and accessibility. Findings only, no edits.</p>
+            <p class="lifecycle-desc">Code quality, security, and accessibility &mdash; checked in parallel. Findings only.</p>
             <span class="lifecycle-artifact">review-report.md</span>
           </div>
         </div>
@@ -97,7 +97,7 @@
         <div class="entry-point">
           <span class="entry-point-label">Start here:</span>
           <code class="entry-point-command">/skil:help</code>
-          <span class="entry-point-desc">Detects installed plugins and recommends where to begin based on project state.</span>
+          <span class="entry-point-desc">Scans your project and recommends where to start.</span>
         </div>
       </div>
     </section>
@@ -111,31 +111,31 @@
         <div class="plugin-grid">
           <div class="plugin-card plugin-card--plan">
             <h3>plan</h3>
-            <p>Triage, spec, and TDD plan generation. Accepts a task description, produces a structured spec with acceptance criteria and vertical slices.</p>
+            <p>Classifies tasks by size and risk, then generates a spec: acceptance criteria, vertical slices, TDD plan.</p>
             <div class="artifact-label">Produces</div>
             <div class="artifact-value">SPEC-NNN-slug.md</div>
           </div>
           <div class="plugin-card plugin-card--arch">
             <h3>arch</h3>
-            <p>Design interview sessions. Walks through trade-offs, records decisions as ADRs, generates OpenAPI specs and database schemas.</p>
+            <p>Guided design sessions. Records trade-offs as ADRs, generates OpenAPI specs and database schemas.</p>
             <div class="artifact-label">Produces</div>
             <div class="artifact-value">ADR, OpenAPI YAML, DDL</div>
           </div>
           <div class="plugin-card plugin-card--impl">
             <h3>impl</h3>
-            <p>Takes a spec and executes it slice by slice. Enforces red-green-refactor at every step. Also handles debugging, refactoring, and commits.</p>
+            <p>Executes a spec slice by slice: red, green, refactor. Also drives debugging and conventional commits.</p>
             <div class="artifact-label">Produces</div>
             <div class="artifact-value">Tested, committed code</div>
           </div>
           <div class="plugin-card plugin-card--review">
             <h3>review</h3>
-            <p>Runs code quality, security, and accessibility checks in parallel. Produces a unified, deduplicated findings report.</p>
+            <p>Checks code quality, security, and accessibility in parallel. One findings report, sorted by impact.</p>
             <div class="artifact-label">Produces</div>
             <div class="artifact-value">review-report.md</div>
           </div>
           <div class="plugin-card plugin-card--skil">
             <h3>skil</h3>
-            <p>Workflow router. Routes tasks to the right plugin and lists available commands.</p>
+            <p>Routes tasks to the right plugin. Lists available commands.</p>
             <div class="artifact-group">
               <div class="artifact-label">Entry point</div>
               <div class="artifact-value">/skil:help</div>
@@ -198,7 +198,7 @@
 <span class="heading">## Summary</span>
 <span class="comment">3 findings: 1 HIGH, 1 MEDIUM, 1 LOW</span>
 <span class="comment">Overall: PASS with 1 required fix before merge</span></pre>
-          <p class="excerpt-caption">Findings are deduplicated and sorted by impact-to-effort ratio.</p>
+          <p class="excerpt-caption">Sorted by impact-to-effort ratio, duplicates removed.</p>
         </div>
       </div>
     </section>
@@ -209,7 +209,7 @@
         <h2 id="install-heading" class="section-title">Get started</h2>
         <p class="section-subtitle">Install the full suite or any individual plugin.</p>
         <pre class="install-block" role="region" aria-label="Installation command" tabindex="0">/install-plugin https://github.com/TrevorEdris/skilmarillion</pre>
-        <p class="install-note">Then run <code>/skil:help</code> to see what is available and where to start.</p>
+        <p class="install-note">Then run <code>/skil:help</code> to see where to start.</p>
       </div>
     </section>
   </main>
