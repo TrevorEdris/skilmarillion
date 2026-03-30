@@ -9,27 +9,13 @@
   "homepage": "https://github.com/TrevorEdris/skilmarillion",
   "repository": "https://github.com/TrevorEdris/skilmarillion",
   "license": "MIT",
-  "keywords": ["review", "code-quality", "security", "accessibility", "audit", "desloppify", "ai-noise"],
-  "commands": {
-    "clean": {
-      "description": "Detect and flag AI-generated noise in code comments, docstrings, and prose",
-      "file": "../commands/clean.md"
-    },
-    "security": {
-      "description": "Security-focused review with >80% confidence threshold and mandatory exploitation chains",
-      "file": "../commands/security.md"
-    },
-    "review": {
-      "description": "Full parallel review -- spawns code quality, security, and accessibility specialists, deduplicates findings, produces unified report",
-      "file": "../commands/review.md"
-    },
-    "a11y": {
-      "description": "WCAG 2.1/2.2 accessibility audit with live browser verification or static analysis fallback",
-      "file": "../commands/a11y.md"
-    },
-    "help": {
-      "description": "Interactive tour of review capabilities — detects open PRs, existing reports, and Playwright MCP availability",
-      "file": "../commands/help.md"
-    }
-  }
+  "keywords": [
+    "review",
+    "code-quality",
+    "security",
+    "accessibility",
+    "audit",
+    "desloppify",
+    "ai-noise"
+  ]
 }

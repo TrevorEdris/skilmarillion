@@ -9,27 +9,13 @@
   "homepage": "https://github.com/TrevorEdris/skilmarillion",
   "repository": "https://github.com/TrevorEdris/skilmarillion",
   "license": "MIT",
-  "keywords": ["architecture", "design", "adr", "openapi", "schema", "diagrams", "c4"],
-  "commands": {
-    "design": {
-      "description": "Structured design session producing an ADR and C4 context diagram in Mermaid",
-      "file": "../commands/design.md"
-    },
-    "diagram": {
-      "description": "Generate a Mermaid diagram from a plain-language description. Supports flowchart, sequence, ERD, C4 context, and C4 container.",
-      "file": "../commands/diagram.md"
-    },
-    "api": {
-      "description": "Guided API design session producing an OpenAPI 3.1 specification",
-      "file": "../commands/api.md"
-    },
-    "schema": {
-      "description": "Guided database schema design with zero-downtime migration plan (PostgreSQL DDL)",
-      "file": "../commands/schema.md"
-    },
-    "help": {
-      "description": "Interactive tour of arch plugin capabilities. Detects existing design artifacts and recommends a starting command.",
-      "file": "../commands/help.md"
-    }
-  }
+  "keywords": [
+    "architecture",
+    "design",
+    "adr",
+    "openapi",
+    "schema",
+    "diagrams",
+    "c4"
+  ]
 }

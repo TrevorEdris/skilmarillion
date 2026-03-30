@@ -9,32 +9,12 @@
   "homepage": "https://github.com/TrevorEdris/skilmarillion",
   "repository": "https://github.com/TrevorEdris/skilmarillion",
   "license": "MIT",
-  "keywords": ["implementation", "tdd", "debugging", "refactoring", "commit", "workflow"],
-  "commands": {
-    "help": {
-      "description": "Interactive tour of impl capabilities. Detects project state and recommends a starting command.",
-      "file": "commands/help.md"
-    },
-    "tdd": {
-      "description": "Slice-by-slice TDD execution from a spec or impl-details file",
-      "file": "commands/tdd.md"
-    },
-    "debug": {
-      "description": "Structured debugging with mandatory root cause analysis before any fix proposal",
-      "file": "commands/debug.md"
-    },
-    "refactor": {
-      "description": "Phase-gated refactoring with test verification between every transformation step",
-      "argument-hint": "[file-or-directory]",
-      "file": "commands/refactor.md"
-    },
-    "commit": {
-      "description": "Conventional commit from staged changes with breaking change detection",
-      "file": "commands/commit.md"
-    },
-    "pr": {
-      "description": "PR description generation with AC traceability and template detection",
-      "file": "commands/pr.md"
-    }
-  }
+  "keywords": [
+    "implementation",
+    "tdd",
+    "debugging",
+    "refactoring",
+    "commit",
+    "workflow"
+  ]
 }
