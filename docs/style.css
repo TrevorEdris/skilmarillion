@@ -559,42 +559,58 @@ img {
   text-align: right;
 }
 
-/* === Excerpt Showcase === */
+/* === Workflow Showcase === */
 .excerpt-section {
   position: relative;
 }
 
-.excerpt {
-  margin-top: 2.5rem;
+.workflow {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-top: 2rem;
 }
 
-.excerpt + .excerpt {
-  margin-top: 3rem;
-  padding-top: 3rem;
-  border-top: 1px solid var(--color-border);
+.workflow-step {
+  position: relative;
 }
 
-.excerpt-header {
+.workflow-step-header {
   display: flex;
   align-items: baseline;
-  gap: 1rem;
+  gap: 0.75rem;
   margin-bottom: 0.75rem;
   flex-wrap: wrap;
 }
 
-.excerpt-source {
+.workflow-step-number {
   font-family: var(--font-heading);
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
 }
 
-.excerpt-command {
+.workflow-step-phase {
+  font-family: var(--font-heading);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+}
+
+.workflow-step-command {
   font-family: var(--font-mono);
   font-size: 0.8125rem;
-  color: var(--color-accent);
+  color: var(--color-text-muted);
+  margin-left: auto;
+}
+
+@media (max-width: 47.99rem) {
+  .workflow-step-command {
+    margin-left: 0;
+    flex-basis: 100%;
+  }
 }
 
 .excerpt-block {
@@ -626,13 +642,6 @@ img {
 
 .excerpt-block .value {
   color: var(--color-impl);
-}
-
-.excerpt-caption {
-  margin-top: 0.5rem;
-  font-size: 0.8125rem;
-  color: var(--color-text-muted);
-  font-style: italic;
 }
 
 /* === Install === */

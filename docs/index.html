@@ -24,7 +24,7 @@
         <ul class="header-nav">
           <li><a href="#lifecycle">Lifecycle</a></li>
           <li><a href="#plugins">Plugins</a></li>
-          <li><a href="#output">Output</a></li>
+          <li><a href="#output">Workflow</a></li>
           <li><a href="https://github.com/TrevorEdris/skilmarillion">GitHub</a></li>
         </ul>
       </nav>
@@ -145,60 +145,93 @@
       </div>
     </section>
 
-    <!-- Artifact Excerpt Showcase -->
+    <!-- Workflow in Action -->
     <section class="section excerpt-section" id="output" aria-labelledby="output-heading">
       <div class="container">
-        <h2 id="output-heading" class="section-title">What the output looks like</h2>
-        <p class="section-subtitle">Excerpts from plugin runs against a real codebase.</p>
+        <h2 id="output-heading" class="section-title">A task, start to finish</h2>
+        <p class="section-subtitle">One feature, four phases. Each command picks up where the last left off.</p>
 
-        <div class="excerpt">
-          <div class="excerpt-header">
-            <span class="excerpt-source">Spec excerpt</span>
-            <code class="excerpt-command">/plan:sdd</code>
+        <div class="workflow">
+          <div class="workflow-step">
+            <div class="workflow-step-header">
+              <span class="workflow-step-number" style="color: var(--color-plan);">1</span>
+              <span class="workflow-step-phase">Specify</span>
+              <code class="workflow-step-command">/plan:sdd "add user authentication"</code>
+            </div>
+            <pre class="excerpt-block" role="region" aria-label="Spec output from plan:sdd" tabindex="0"><span class="comment"># Triaged as FEATURE, MODERATE risk</span>
+<span class="comment"># 3 vertical slices identified</span>
+
+<span class="heading">### Slice 1: Session Middleware</span>
+<span class="keyword">GIVEN</span> <span class="value">an HTTP request with a valid session cookie</span>
+<span class="keyword">WHEN</span>  <span class="value">the middleware runs</span>
+<span class="keyword">THEN</span>  <span class="value">req.user is populated from the session store</span>
+
+<span class="heading">### Slice 2: Login Endpoint</span>
+<span class="keyword">GIVEN</span> <span class="value">valid credentials</span>
+<span class="keyword">WHEN</span>  <span class="value">POST /auth/login</span>
+<span class="keyword">THEN</span>  <span class="value">a session is created and a cookie is set</span>
+
+<span class="value">Saved to docs/auth/specs/SPEC-001-user-auth.md</span>
+<span class="comment">Next step: /impl:tdd docs/auth/specs/SPEC-001-user-auth.md</span></pre>
           </div>
-          <pre class="excerpt-block" role="region" aria-label="Spec excerpt from plan:sdd" tabindex="0"><span class="heading">## Acceptance Criteria</span>
 
-<span class="heading">### Slice 1: Task Triage</span>
-<span class="keyword">GIVEN</span> <span class="value">a plain-language task description</span>
-<span class="keyword">WHEN</span>  <span class="value">the triage agent receives the input</span>
-<span class="keyword">THEN</span>  <span class="value">it classifies the task as TRIVIAL | SMALL | FEATURE | EPIC</span>
-  <span class="keyword">AND</span>  <span class="value">assigns a risk level of LOW | MODERATE | HIGH</span>
-  <span class="keyword">AND</span>  <span class="value">routes to the appropriate workflow depth</span>
+          <div class="workflow-step">
+            <div class="workflow-step-header">
+              <span class="workflow-step-number" style="color: var(--color-arch);">2</span>
+              <span class="workflow-step-phase">Design</span>
+              <code class="workflow-step-command">/arch:design "session storage"</code>
+            </div>
+            <pre class="excerpt-block" role="region" aria-label="ADR output from arch:design" tabindex="0"><span class="heading">## ADR-003: Session Storage Strategy</span>
 
-<span class="heading">### Slice 2: Context Gathering</span>
-<span class="keyword">GIVEN</span> <span class="value">a triaged FEATURE-size task</span>
-<span class="keyword">WHEN</span>  <span class="value">the context-gatherer agent runs</span>
-<span class="keyword">THEN</span>  <span class="value">it identifies entry points, conventions, and hotspot files</span>
-  <span class="keyword">AND</span>  <span class="value">produces a structured context summary for spec building</span>
+<span class="keyword">Context:</span>  <span class="value">Auth requires server-side sessions. Options: database, Redis, signed cookies.</span>
+<span class="keyword">Decision:</span> <span class="value">Redis-backed sessions. Handles horizontal scaling without sticky sessions.</span>
+<span class="keyword">Trade-off:</span> <span class="value">Adds Redis dependency. Accepted: session TTL and invalidation are simpler.</span>
 
-<span class="heading">## Architecture Recommendation</span>
-<span class="comment"># Pattern: Modular monolith with agent pipeline</span>
-<span class="comment"># Each agent handles one workflow phase</span>
-<span class="comment"># Artifacts flow forward via deterministic file paths</span></pre>
-          <p class="excerpt-caption">Abridged. Full specs include TDD plans, risk assessments, and file path inventories.</p>
-        </div>
-
-        <div class="excerpt">
-          <div class="excerpt-header">
-            <span class="excerpt-source">Review excerpt</span>
-            <code class="excerpt-command">/review:review</code>
+<span class="value">Saved to docs/adrs/003-session-storage.md</span>
+<span class="comment">Next step: /impl:tdd docs/auth/specs/SPEC-001-user-auth.md</span></pre>
           </div>
-          <pre class="excerpt-block" role="region" aria-label="Review report excerpt from review:review" tabindex="0"><span class="heading">## What's Working</span>
-<span class="value">- Clean separation between triage, context, and spec agents</span>
-<span class="value">- Deterministic artifact paths prevent path drift across runs</span>
-<span class="value">- Model tier annotations match task complexity</span>
+
+          <div class="workflow-step">
+            <div class="workflow-step-header">
+              <span class="workflow-step-number" style="color: var(--color-impl);">3</span>
+              <span class="workflow-step-phase">Implement</span>
+              <code class="workflow-step-command">/impl:tdd docs/auth/specs/SPEC-001-user-auth.md</code>
+            </div>
+            <pre class="excerpt-block" role="region" aria-label="TDD output from impl:tdd" tabindex="0"><span class="heading">Slice 1/3: Session Middleware</span>
+
+<span class="keyword">RED</span>   <span class="value">session.test.ts — req.user is undefined without middleware</span>  <span class="keyword">FAIL</span>
+<span class="keyword">GREEN</span> <span class="value">session.ts — attach user from Redis session store</span>          <span class="value">PASS</span>
+<span class="comment">Suite: 14 passed, 0 failed</span>
+
+<span class="heading">Slice 2/3: Login Endpoint</span>
+
+<span class="keyword">RED</span>   <span class="value">login.test.ts — POST /auth/login returns 200 + cookie</span>     <span class="keyword">FAIL</span>
+<span class="keyword">GREEN</span> <span class="value">login.ts — validate credentials, create session</span>           <span class="value">PASS</span>
+<span class="comment">Suite: 16 passed, 0 failed</span>
+
+<span class="value">All 3 slices green. Implementation complete.</span>
+<span class="comment">Next step: /impl:commit</span></pre>
+          </div>
+
+          <div class="workflow-step">
+            <div class="workflow-step-header">
+              <span class="workflow-step-number" style="color: var(--color-review);">4</span>
+              <span class="workflow-step-phase">Review</span>
+              <code class="workflow-step-command">/review:review</code>
+            </div>
+            <pre class="excerpt-block" role="region" aria-label="Review output from review:review" tabindex="0"><span class="heading">## What's Working</span>
+<span class="value">- Each slice has matching test coverage</span>
+<span class="value">- Session TTL prevents unbounded memory growth</span>
+<span class="value">- Redis connection uses pool with health checks</span>
 
 <span class="heading">## Findings</span>
-
-<span class="keyword">| # | Severity | Category     | File                | Finding                          |</span>
-| 1 | HIGH     | Security     | validate.py:42      | User input passed to eval()      |
-| 2 | MEDIUM   | Code Quality | triage-agent.md:18  | Fallback branch unreachable      |
-| 3 | LOW      | Accessibility| help.md:5           | Missing aria-label on nav region |
+<span class="keyword">| # | Severity | File             | Finding                              |</span>
+| 1 | HIGH     | login.ts:28      | Missing rate limit on /auth/login    |
+| 2 | MEDIUM   | session.ts:14    | Session fixation: regenerate on login|
 
 <span class="heading">## Summary</span>
-<span class="comment">3 findings: 1 HIGH, 1 MEDIUM, 1 LOW</span>
-<span class="comment">Overall: PASS with 1 required fix before merge</span></pre>
-          <p class="excerpt-caption">Sorted by impact-to-effort ratio, duplicates removed.</p>
+<span class="comment">2 findings: 1 HIGH, 1 MEDIUM. Fix before merge.</span></pre>
+          </div>
         </div>
       </div>
     </section>
