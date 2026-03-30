@@ -601,16 +601,9 @@ img {
 
 .workflow-step-command {
   font-family: var(--font-mono);
-  font-size: 0.8125rem;
-  color: var(--color-text-muted);
-  margin-left: auto;
-}
-
-@media (max-width: 47.99rem) {
-  .workflow-step-command {
-    margin-left: 0;
-    flex-basis: 100%;
-  }
+  font-size: 0.875rem;
+  color: var(--color-text);
+  flex-basis: 100%;
 }
 
 .excerpt-block {
