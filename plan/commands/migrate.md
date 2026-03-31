@@ -141,7 +141,7 @@ Present the ordered list to the user:
 
 ### 7. Generate Migration Units
 
-For each module in the confirmed order, produce a migration unit. Each unit is an independently shippable spec following the P0-C format (same structure as `/plan:sdd` FEATURE output).
+For each module in the confirmed order, produce a migration unit. Each unit is an independently shippable spec following the FEATURE spec format.
 
 Each migration unit spec contains:
 
@@ -232,8 +232,8 @@ Suggest next steps:
 
 > "Migration plan saved to `docs/{migration-slug}/ROADMAP.md` with {N} specs in `docs/{migration-slug}/specs/`."
 >
-> "To begin migration, run `/plan:sdd` on each spec in order:"
-> 1. `/plan:sdd docs/{migration-slug}/specs/SPEC-001-migrate-{first-module}.md`
+> "To begin migration, run `/impl:tdd` on each spec in order:"
+> 1. `/impl:tdd docs/{migration-slug}/specs/SPEC-001-migrate-{first-module}.md`
 > 2. ...
 
 ---
@@ -247,4 +247,4 @@ Suggest next steps:
 - Do NOT hardcode paths — use the `artifact-paths` skill for all path resolution.
 - Do NOT skip the slug confirmation protocol — always confirm the save path with the user.
 - Do NOT merge migration units — each module is its own independently shippable spec.
-- Do NOT include implementation details (specific code changes, refactoring steps) in the migration plan — that belongs in the individual specs when they are elaborated via `/plan:sdd`.
+- Do NOT include implementation details (specific code changes, refactoring steps) in the migration plan — that belongs in the individual specs.

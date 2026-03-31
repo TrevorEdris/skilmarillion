@@ -95,7 +95,7 @@ Resolve artifact path per `artifact-paths` skill:
 4. **Confirm path with user** per `artifact-paths` slug confirmation protocol. Show full absolute path on first save. User may accept, override the slug, or correct the project root.
 5. **Create directory** if it does not exist: `mkdir -p {project_root}/docs/{feature-slug}`
 6. **Save** PRD using Write tool to the confirmed path.
-7. **Suggest next step:** "PRD saved. To create a roadmap, add `docs/{feature-slug}/ROADMAP.md`. Then run `/plan:sdd [roadmap item]` to spec each item as `docs/{feature-slug}/specs/SPEC-NNN-{slug}.md`."
+7. **Suggest next step:** "PRD saved. Run `/plan:roadmap {prd-path}` to decompose into milestones, then `/plan:specify {roadmap-path}` to generate all specs."
 
 ---
 

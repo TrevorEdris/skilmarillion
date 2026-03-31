@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# update-plan-state.sh — Silent plan state persistence for /plan:sdd
+# update-plan-state.sh — Silent plan state persistence for /plan:specify
 # State files: .plan-state-{slug}.local.yaml (relative to CWD)
 set -euo pipefail
 
