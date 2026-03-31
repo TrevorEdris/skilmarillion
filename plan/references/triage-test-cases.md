@@ -1,6 +1,6 @@
 # Triage Test Cases
 
-Reference inputs for manual verification of the `triage` agent. Run `/plan:sdd "<Input>"` and compare the returned JSON against the expected output. Fields marked in **Pass Criteria** must match exactly; `rationale` is informational and need not match verbatim.
+Reference inputs for manual verification of the `triage` agent. Run the triage agent with `"<Input>"` and compare the returned JSON against the expected output. Fields marked in **Pass Criteria** must match exactly; `rationale` is informational and need not match verbatim.
 
 ---
 

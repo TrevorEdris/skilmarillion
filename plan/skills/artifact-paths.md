@@ -38,7 +38,7 @@ All paths below are relative to the resolved project root.
   PRD.md                           # One per feature (/plan:prd output)
   ROADMAP.md                       # Colocated roadmap (epic decomposition or manual)
   specs/
-    SPEC-{NNN}-{slug}.md           # Auto-incrementing (/plan:sdd output)
+    SPEC-{NNN}-{slug}.md           # Auto-incrementing (/plan:specify output)
   plans/
     PLAN-{NNN}-{slug}.md           # Mirrors spec numbering (future /do output)
 ```
@@ -71,7 +71,7 @@ Determines the `{feature}` segment of the path.
 2. **Triage state** — Read `feature` from `.plan-state-{slug}.local.yaml` if the current session has an active triage state.
 3. **Prompt user** — "Which feature does this belong to?" List existing `{project_root}/docs/*/` directories. User may select one or provide a new feature slug.
 
-For `/plan:prd`, the PRD's feature name becomes the directory name. For `/plan:sdd`, the feature directory should already exist (created by a prior PRD) or be created if this is a standalone spec.
+For `/plan:prd`, the PRD's feature name becomes the directory name. For `/plan:specify`, the feature directory should already exist (created by a prior PRD/roadmap) or be created if needed.
 
 ---
 
@@ -130,6 +130,6 @@ mkdir -p {project_root}/docs/{feature}/plans
 | Command | Artifact | Path |
 |---------|----------|------|
 | `/plan:prd` | PRD | `{project_root}/docs/{feature}/PRD.md` |
-| `/plan:sdd` (FEATURE/SMALL) | Spec | `{project_root}/docs/{feature}/specs/SPEC-{NNN}-{slug}.md` |
+| `/plan:specify` | Specs | `{project_root}/docs/{feature}/specs/SPEC-{NNN}-{slug}.md` |
 | `/plan:roadmap` | Roadmap | `{project_root}/docs/{feature}/ROADMAP.md` |
 | `/impl:tdd` (future) | Plan | `{project_root}/docs/{feature}/plans/PLAN-{NNN}-{slug}.md` |

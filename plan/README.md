@@ -10,8 +10,8 @@ Part of the [Skilmarillion](https://github.com/TrevorEdris/skilmarillion) workfl
 
 `plan` is the first plugin in the Skilmarillion workflow. It has no dependencies — use it with or without `arch`, `impl`, or `review` installed.
 
-**Input:** A task description (plain language), or nothing — `/plan:sdd` will ask.
-**Output:** `docs/{feature}/specs/SPEC-{NNN}-{slug}.md` with testable ACs, vertical slices, architecture recommendation, and TDD plan.
+**Input:** A ROADMAP.md path, or nothing — `/plan:specify` will search for one.
+**Output:** `docs/{feature}/specs/SPEC-{NNN}-{slug}.md` for each milestone, with testable ACs, vertical slices, architecture recommendation, and TDD plan.
 
 ## Installation
 
@@ -25,7 +25,7 @@ Part of the [Skilmarillion](https://github.com/TrevorEdris/skilmarillion) workfl
 | Command | Purpose |
 |---------|---------|
 | `/plan:help` | Interactive, context-aware tour of plan's capabilities. Detects project state and recommends a starting command. |
-| `/plan:sdd [task]` | Full spec-driven workflow. Routes by size (TRIVIAL → quick confirm; FEATURE → full workflow). |
+| `/plan:specify [roadmap-path]` | Generate all specs from a ROADMAP. Launches parallel agents per milestone. |
 | `/plan:prd [feature]` | Client-shareable PRD from a plain-language description. Saves to `docs/{feature}/PRD.md`. |
 | `/plan:roadmap [prd-path]` | Decompose an approved PRD into ordered milestones. Saves to `docs/{feature}/ROADMAP.md`. *(P0-I)* |
 | `/plan:validate [path]` | Score a spec, PRD, or plan (0–100; PASS at ≥70). Auto-detects doc type. Supports `--draft` for relaxed threshold (50). |
@@ -57,7 +57,7 @@ All paths are relative to the target project's git root (resolved automatically 
   PRD.md                           # /plan:prd output
   ROADMAP.md                       # /plan:roadmap output
   specs/
-    SPEC-001-{slug}.md             # /plan:sdd output (auto-incrementing)
+    SPEC-001-{slug}.md             # /plan:specify output (auto-incrementing)
   plans/
     PLAN-001-{slug}.md             # Future /impl output (convention reserved)
 ```
@@ -65,7 +65,7 @@ All paths are relative to the target project's git root (resolved automatically 
 | Command | Artifact | Path |
 |---------|----------|------|
 | `/plan:prd` | PRD | `docs/{feature}/PRD.md` |
-| `/plan:sdd` (FEATURE/SMALL) | Spec | `docs/{feature}/specs/SPEC-{NNN}-{slug}.md` |
+| `/plan:specify` | Specs | `docs/{feature}/specs/SPEC-{NNN}-{slug}.md` |
 | `/plan:roadmap` | Roadmap | `docs/{feature}/ROADMAP.md` |
 | `/plan:migrate` | Migration ROADMAP + Specs | `docs/{migration-slug}/ROADMAP.md` + `docs/{migration-slug}/specs/SPEC-{NNN}-migrate-{module}.md` |
 

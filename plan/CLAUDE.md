@@ -39,19 +39,18 @@ Risk shapes spec depth:
 
 ## Workflow Phases (TRIVIAL/SMALL/FEATURE)
 
-1. **Triage** — Assess size + risk. Route to appropriate workflow. Entry: `/plan:sdd`
-2. **Question** — Surface design decisions before reading code. See `pre-spec-questions` skill. Confirmed answers become constraints for downstream agents.
-3. **Context Gathering** — *(SMALL, FEATURE)* Read entry points and relevant modules. Identify conventions and hotspot files. Agent: `context-gatherer`
-4. **Spec Building** — *(SMALL, FEATURE)* Interview developer → testable ACs (organized as vertical slices for FEATURE). Agent: `spec-builder`
-5. **Architecture Advising** — *(SMALL, FEATURE)* Evaluate spec against codebase. Recommend pattern. Agent: `architecture-advisor`
-6. **TDD Planning** — Convert confirmed spec + architecture into ordered RED→GREEN→REFACTOR steps. Agent: `tdd-planner`
+1. **Extract Milestones** — Parse ROADMAP for milestones with scope estimates. Entry: `/plan:specify`
+2. **Context Gathering** — *(SMALL, FEATURE)* Read entry points and relevant modules. Identify conventions and hotspot files. Agent: `context-gatherer`
+3. **Spec Building** — *(SMALL, FEATURE)* Generate testable ACs (organized as vertical slices for FEATURE). Agent: `spec-builder`
+4. **Architecture Advising** — *(SMALL, FEATURE)* Evaluate spec against codebase. Recommend pattern. Agent: `architecture-advisor`
+5. **TDD Planning** — Convert confirmed spec + architecture into ordered RED→GREEN→REFACTOR steps. Agent: `tdd-planner`
 
 The output is always a spec file at `docs/{feature}/specs/SPEC-{NNN}-{slug}.md` that is sufficient input for `/impl:tdd` with no additional clarification.
 
 ## Commands
 
 - `/plan:help` — interactive, context-aware tour of plan's capabilities. Detects project state and recommends a starting command.
-- `/plan:sdd [task]` — full spec-driven workflow (triage through TDD plan). Main entry point.
+- `/plan:specify [roadmap-path]` — generate all specs from a ROADMAP using parallel agents.
 - `/plan:prd [feature]` — produce a client-shareable PRD from a plain-language description.
 - `/plan:roadmap [prd-path]` — decompose an approved PRD into ordered milestones. Saves to `docs/{feature}/ROADMAP.md`.
 - `/plan:validate [path]` — score a spec, PRD, or plan document (0–100; PASS at ≥70).
@@ -66,7 +65,7 @@ All outputs land at deterministic, feature-grouped paths relative to the target 
   PRD.md                           # /plan:prd output
   ROADMAP.md                       # /plan:roadmap output
   specs/
-    SPEC-001-{slug}.md             # /plan:sdd output (auto-incrementing)
+    SPEC-001-{slug}.md             # /plan:specify output (auto-incrementing)
   plans/
     PLAN-001-{slug}.md             # Future /impl output (convention reserved)
 ```
@@ -74,7 +73,7 @@ All outputs land at deterministic, feature-grouped paths relative to the target 
 | Command | Artifact | Path |
 |---------|----------|------|
 | `/plan:prd` | PRD | `docs/{feature}/PRD.md` |
-| `/plan:sdd` | Spec | `docs/{feature}/specs/SPEC-{NNN}-{slug}.md` |
+| `/plan:specify` | Specs | `docs/{feature}/specs/SPEC-{NNN}-{slug}.md` |
 | `/plan:roadmap` | Roadmap | `docs/{feature}/ROADMAP.md` |
 | `/plan:migrate` | Migration ROADMAP + Specs | `docs/{migration-slug}/ROADMAP.md` + `docs/{migration-slug}/specs/SPEC-{NNN}-migrate-{module}.md` |
 

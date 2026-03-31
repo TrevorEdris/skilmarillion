@@ -81,7 +81,7 @@ Choose one greeting based on the scan results:
 
 ### Active workflow (state files found)
 
-> **Welcome back.** You have {N} active workflow(s) in progress. You can resume those with `/plan:sdd`, or let me walk you through all available commands.
+> **Welcome back.** You have {N} active workflow(s) in progress. You can resume those with `/plan:specify`, or let me walk you through all available commands.
 
 > **Deferred tool note:** Before calling `AskUserQuestion` for the first time, call `ToolSearch` with query `"select:AskUserQuestion"` to load the tool schema.
 
@@ -90,7 +90,7 @@ After displaying the greeting, ask:
 > "Want the full tour, or jump to a specific command?"
 >
 > 1. Full tour
-> 2. Jump to a command: `sdd` | `prd` | `validate` | `roadmap` | `migrate`
+> 2. Jump to a command: `specify` | `prd` | `validate` | `roadmap` | `migrate`
 
 If "Full tour": proceed through all commands in order (COMMAND TOUR section).
 If a specific command is named: jump directly to that command's section in the tour.
@@ -101,33 +101,32 @@ If a specific command is named: jump directly to that command's section in the t
 
 Walk through each command one at a time. After each command description, ask the user how to proceed before moving to the next.
 
-### Command 1: `/plan:sdd`
+### Command 1: `/plan:specify`
 
-> **`/plan:sdd [task]`** — Spec-Driven Development
+> **`/plan:specify [roadmap-path]`** — Spec Generator
 >
-> The main entry point. Describe a task in plain language and `sdd` classifies it by size (TRIVIAL, SMALL, FEATURE, EPIC) and risk, then routes to the right workflow:
+> Takes a ROADMAP and generates a SPEC for each milestone using parallel agents. Milestones are batched by dependency order — independent milestones are processed concurrently.
 >
-> - **TRIVIAL**: Confirm and apply. No spec produced.
-> - **SMALL**: Lightweight spec with acceptance criteria only.
-> - **FEATURE**: Full workflow — context gathering, spec with vertical slices, architecture recommendation, TDD plan.
-> - **EPIC**: Routes to `/plan:prd` and `/plan:roadmap` first.
+> - **TRIVIAL** milestones: Lightweight spec (Problem Statement, happy-path ACs, TDD Plan)
+> - **SMALL** milestones: Spec with risk-scaled ACs, Architecture Recommendation, TDD Plan
+> - **FEATURE** milestones: Full spec with vertical slices, Architecture Recommendation, TDD Plan
 >
-> **Example:** `/plan:sdd Add rate limiting to the /api/users endpoint`
+> **Example:** `/plan:specify docs/auth/ROADMAP.md`
 >
-> **Produces:** `docs/{feature}/specs/SPEC-{NNN}-{slug}.md`
+> **Produces:** `docs/{feature}/specs/SPEC-{NNN}-{slug}.md` for each milestone
 
 Ask (using `AskUserQuestion`):
 
 > "Next command, or want to try this one now?"
 >
 > 1. Next command
-> 2. Tell me more about `sdd`
-> 3. Try `/plan:sdd` now
+> 2. Tell me more about `specify`
+> 3. Try `/plan:specify` now
 > 4. Skip to a specific command
 
 - If "Next command": proceed to Command 2.
-- If "Tell me more": explain the triage engine, state file management, and resume-on-startup behavior. Then re-ask.
-- If "Try it now": tell the user to run `/plan:sdd` with their task description. End the tour.
+- If "Tell me more": explain the parallel agent batching, dependency-aware ordering, and how milestone scope determines spec depth. Then re-ask.
+- If "Try it now": if roadmaps were found in the scan, suggest using one. Otherwise tell the user to create a roadmap first with `/plan:roadmap`. End the tour.
 - If "Skip to": ask which command and jump there.
 
 ### Command 2: `/plan:prd`
@@ -182,7 +181,7 @@ Ask (using `AskUserQuestion`):
 
 > **`/plan:roadmap [prd-path]`** — Roadmap Generator
 >
-> Decomposes an approved PRD into ordered, shippable milestones. Each milestone becomes a candidate for `/plan:sdd`.
+> Decomposes an approved PRD into ordered, shippable milestones. Run `/plan:specify` on the roadmap to generate all specs.
 >
 > **Example:** `/plan:roadmap docs/auth/PRD.md`
 >
@@ -198,7 +197,7 @@ Ask (using `AskUserQuestion`):
 > 4. Skip to a specific command
 
 - If "Next command": proceed to Command 5.
-- If "Tell me more": explain how milestones are ordered by dependency, how each milestone maps to a `/plan:sdd` invocation, and the PRD-to-roadmap-to-spec pipeline. Then re-ask.
+- If "Tell me more": explain how milestones are ordered by dependency, how `/plan:specify` generates all specs in parallel, and the PRD-to-roadmap-to-specify pipeline. Then re-ask.
 - If "Try it now": if PRDs were found in the scan, suggest using one. Otherwise tell the user to create a PRD first with `/plan:prd`. End the tour.
 - If "Skip to": ask which command and jump there.
 
@@ -232,19 +231,19 @@ Based on the project state scan, recommend the best starting command:
 
 ### If active state files exist
 
-> **Recommendation:** You have active workflows. Resume with `/plan:sdd` — it will detect your in-progress state and offer to pick up where you left off.
+> **Recommendation:** You have active workflows. Resume with `/plan:specify` — it will detect your in-progress state and offer to pick up where you left off.
 
 ### If PRDs exist but no specs for those features
 
-> **Recommendation:** You have PRDs but no specs yet. Run `/plan:roadmap {prd-path}` to break them into milestones, then `/plan:sdd` on each milestone.
+> **Recommendation:** You have PRDs but no specs yet. Run `/plan:roadmap {prd-path}` to break them into milestones, then `/plan:specify {roadmap-path}` to generate all specs.
 
 ### If specs exist (project has been through planning before)
 
-> **Recommendation:** This project already has specs. If you have a new task, run `/plan:sdd [task]`. If you want to validate existing specs, run `/plan:validate`.
+> **Recommendation:** This project already has specs. If you have a new task, start with `/plan:prd` to define requirements. If you want to validate existing specs, run `/plan:validate`.
 
 ### If nothing exists (fresh project)
 
-> **Recommendation:** Start with `/plan:sdd [task]` if you have a specific task in mind. For a larger feature, start with `/plan:prd [feature]` to define requirements first.
+> **Recommendation:** Start with `/plan:prd [feature]` to define requirements, then `/plan:roadmap` to decompose into milestones, then `/plan:specify` to generate all specs.
 
 ---
 

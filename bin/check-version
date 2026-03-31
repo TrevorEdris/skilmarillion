@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+# Verify plugin versions are bumped when plugin-included files change.
+# Supports multi-plugin repos — detects which plugin(s) changed and checks each.
+#
+# Usage:
+#   ./bin/check-version              # auto-detects base as origin/main
+#   ./bin/check-version <base-sha>   # explicit base commit
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(dirname "$SCRIPT_DIR")"
+BASE_SHA="${1:-origin/main}"
+
+cd "$REPO_ROOT"
+
+# Discover all plugins by finding .claude-plugin/plugin.json files
+PLUGINS=()
+while IFS= read -r pj; do
+  plugin_dir="$(dirname "$(dirname "$pj")")"
+  plugin_name="$(basename "$plugin_dir")"
+  PLUGINS+=("$plugin_name")
+done < <(find . -path '*/.claude-plugin/plugin.json' -not -path './.git/*' | sort)
+
+if [ ${#PLUGINS[@]} -eq 0 ]; then
+  echo "No plugins found. Skipping version check."
+  exit 0
+fi
+
+FAILED=0
+
+for plugin in "${PLUGINS[@]}"; do
+  PLUGIN_JSON="${plugin}/.claude-plugin/plugin.json"
+
+  # Check if any files under this plugin directory changed
+  CHANGED=$(git diff --name-only "$BASE_SHA"...HEAD -- "$plugin/" 2>/dev/null | grep -v '^\s*$' || true)
+
+  if [ -z "$CHANGED" ]; then
+    continue
+  fi
+
+  echo "=== $plugin ==="
+  echo "Changed files:"
+  echo "$CHANGED"
+  echo ""
+
+  # Get base version
+  BASE_VERSION=$(git show "$BASE_SHA":"$PLUGIN_JSON" 2>/dev/null | python3 -c "import sys,json; print(json.load(sys.stdin)['version'])" 2>/dev/null || echo "")
+
+  if [ -z "$BASE_VERSION" ]; then
+    echo "New plugin (no base version). Skipping version check."
+    echo ""
+    continue
+  fi
+
+  HEAD_VERSION=$(python3 -c "import json; print(json.load(open('$PLUGIN_JSON'))['version'])")
+
+  echo "Base version: $BASE_VERSION"
+  echo "HEAD version: $HEAD_VERSION"
+
+  if [ "$BASE_VERSION" = "$HEAD_VERSION" ]; then
+    echo ""
+    echo "ERROR: $plugin plugin version not bumped. Update 'version' in $PLUGIN_JSON (current: $BASE_VERSION)."
+    echo "Semver guide: patch for fixes, minor for new skills/agents/hooks, major for breaking changes."
+    echo ""
+    FAILED=1
+    continue
+  fi
+
+  HIGHER=$(printf '%s\n%s\n' "$BASE_VERSION" "$HEAD_VERSION" | sort -V | tail -1)
+  if [ "$HIGHER" != "$HEAD_VERSION" ]; then
+    echo ""
+    echo "ERROR: $plugin HEAD version ($HEAD_VERSION) is not greater than base version ($BASE_VERSION). Version must increase."
+    echo ""
+    FAILED=1
+    continue
+  fi
+
+  echo "Version bump OK: $BASE_VERSION -> $HEAD_VERSION"
+  echo ""
+done
+
+if [ "$FAILED" -ne 0 ]; then
+  exit 1
+fi
