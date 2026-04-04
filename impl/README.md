@@ -50,10 +50,10 @@ When Playwright is available, `/impl:tdd` will automatically run browser-based A
 
 ## Artifact Paths
 
-Session-scoped implementation details are saved to:
+Implementation details are saved to:
 
 ```
-${SKILMARILLION_SESSIONS_DIR}/YYYY-MM-DD_<slug>/IMPL_DETAILS.md
+.skilmarillion/projects/{slug}/impl/IMPL_DETAILS.md
 ```
 
 All committed code lands on a feature branch with conventional commits.
@@ -61,7 +61,7 @@ All committed code lands on a feature branch with conventional commits.
 ## Workflow Integration
 
 ```
-plan/  ->  docs/{feature}/specs/SPEC-NNN-{slug}.md
+plan/  ->  .skilmarillion/projects/{slug}/specs/SPEC-NNN-{slug}.md
   |
   v
 impl/  ->  committed branch + open PR

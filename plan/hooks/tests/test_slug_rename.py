@@ -46,7 +46,6 @@ class TestSlugGeneration:
     def test_haiku_slug_used_when_available(self, month_dir, env_file):
         """Uses Haiku-generated slug when CLI is available."""
         pending = next(month_dir.iterdir())
-        sessions_dir = month_dir.parent
 
         with patch(
             "plan.hooks.slug_rename._generate_slug_haiku",
@@ -55,7 +54,6 @@ class TestSlugGeneration:
             handle_slug_rename(
                 {"prompt": "PROJ-123 add user authentication flow"},
                 session_dir=str(pending),
-                sessions_dir=str(sessions_dir),
                 env_file_path=str(env_file),
             )
 
@@ -65,13 +63,11 @@ class TestSlugGeneration:
     def test_falls_back_to_deterministic_on_haiku_failure(self, month_dir, env_file):
         """Falls back to deterministic slug when Haiku fails."""
         pending = next(month_dir.iterdir())
-        sessions_dir = month_dir.parent
 
         # mock_haiku autouse already returns None (simulating failure)
         handle_slug_rename(
             {"prompt": "refactor the error handling"},
             session_dir=str(pending),
-            sessions_dir=str(sessions_dir),
             env_file_path=str(env_file),
         )
 
@@ -109,51 +105,12 @@ class TestFastPath:
         result = handle_slug_rename(
             stdin_payload,
             session_dir="/some/path/28-1430_PROJ-123_Auth-Flow",
-            sessions_dir=str(tmp_path / "sessions"),
             env_file_path=None,
         )
         assert result == {}
 
     def test_noop_when_env_var_is_empty(self, tmp_path, stdin_payload):
         """Slow path activated when env var is empty."""
-        sessions = tmp_path / "sessions"
-        month = sessions / datetime.now().strftime("%Y-%m")
-        pending = month / "28-1430_pending_abc12345"
-        pending.mkdir(parents=True)
-        (pending / "SESSION.md").write_text("---\nstatus: active\n---\n")
-
-        result = handle_slug_rename(
-            stdin_payload,
-            session_dir=None,
-            sessions_dir=str(sessions),
-            env_file_path=None,
-        )
-        # Should have renamed the pending dir
-        assert not pending.exists()
-        remaining = list(month.iterdir())
-        assert len(remaining) == 1
-        assert "_pending_" not in remaining[0].name
-
-
-class TestSlowPath:
-    def test_scans_month_dir_when_env_missing(self, month_dir, env_file, stdin_payload):
-        """Slow path: scans month dir for pending dirs when env var is missing."""
-        sessions_dir = month_dir.parent
-
-        result = handle_slug_rename(
-            stdin_payload,
-            session_dir=None,
-            sessions_dir=str(sessions_dir),
-            env_file_path=str(env_file),
-        )
-
-        assert "systemMessage" in result
-        remaining = list(month_dir.iterdir())
-        assert len(remaining) == 1
-        assert "_pending_" not in remaining[0].name
-
-    def test_falls_back_to_project_dir(self, tmp_path, env_file, stdin_payload):
-        """Falls back to $CLAUDE_PROJECT_DIR/.ai/sessions when sessions_dir is None."""
         project_dir = tmp_path / "project"
         sessions = project_dir / ".ai" / "sessions"
         month = sessions / datetime.now().strftime("%Y-%m")
@@ -164,7 +121,31 @@ class TestSlowPath:
         result = handle_slug_rename(
             stdin_payload,
             session_dir=None,
-            sessions_dir=None,
+            project_dir=str(project_dir),
+            env_file_path=None,
+        )
+        # Should have renamed the pending dir
+        assert not pending.exists()
+        remaining = list(month.iterdir())
+        assert len(remaining) == 1
+        assert "_pending_" not in remaining[0].name
+
+
+class TestSlowPath:
+    def test_scans_month_dir_when_env_missing(self, month_dir, env_file, stdin_payload, tmp_path):
+        """Slow path: scans month dir for pending dirs when env var is missing."""
+        # Reparent month_dir under a project_dir/.ai/sessions structure
+        project_dir = tmp_path / "project"
+        sessions = project_dir / ".ai" / "sessions"
+        sessions.mkdir(parents=True)
+        month = sessions / datetime.now().strftime("%Y-%m")
+        pending = month / "28-1430_pending_abc12345"
+        pending.mkdir(parents=True)
+        (pending / "SESSION.md").write_text("---\nstatus: active\n---\n")
+
+        result = handle_slug_rename(
+            stdin_payload,
+            session_dir=None,
             project_dir=str(project_dir),
             env_file_path=str(env_file),
         )
@@ -179,12 +160,10 @@ class TestRenaming:
     def test_renames_with_slug_from_prompt(self, month_dir, env_file, stdin_payload):
         """Renames pending dir with slug derived from user prompt."""
         pending = next(month_dir.iterdir())
-        sessions_dir = month_dir.parent
 
         handle_slug_rename(
             stdin_payload,
             session_dir=str(pending),
-            sessions_dir=str(sessions_dir),
             env_file_path=str(env_file),
         )
 
@@ -198,13 +177,11 @@ class TestRenaming:
     def test_extracts_ticket_id(self, month_dir, env_file):
         """Extracts ticket ID and uses it as prefix."""
         pending = next(month_dir.iterdir())
-        sessions_dir = month_dir.parent
         payload = {"prompt": "BOP-42 fix the login bug"}
 
         handle_slug_rename(
             payload,
             session_dir=str(pending),
-            sessions_dir=str(sessions_dir),
             env_file_path=str(env_file),
         )
 
@@ -214,13 +191,11 @@ class TestRenaming:
     def test_no_ticket_in_prompt(self, month_dir, env_file):
         """Generates slug without ticket prefix when none found."""
         pending = next(month_dir.iterdir())
-        sessions_dir = month_dir.parent
         payload = {"prompt": "refactor the error handling"}
 
         handle_slug_rename(
             payload,
             session_dir=str(pending),
-            sessions_dir=str(sessions_dir),
             env_file_path=str(env_file),
         )
 
@@ -239,7 +214,6 @@ class TestRenaming:
         result = handle_slug_rename(
             stdin_payload,
             session_dir=str(renamed),
-            sessions_dir=str(sessions),
             env_file_path=None,
         )
         assert result == {}
@@ -250,13 +224,11 @@ class TestEdgeCases:
     def test_special_characters_stripped(self, month_dir, env_file):
         """Handles special characters in prompt."""
         pending = next(month_dir.iterdir())
-        sessions_dir = month_dir.parent
         payload = {"prompt": "fix the @#$% bug with <html> & stuff!!!"}
 
         handle_slug_rename(
             payload,
             session_dir=str(pending),
-            sessions_dir=str(sessions_dir),
             env_file_path=str(env_file),
         )
 
@@ -270,12 +242,10 @@ class TestEdgeCases:
     def test_updates_env_file(self, month_dir, env_file, stdin_payload):
         """Updates CLAUDE_ENV_FILE with new path after rename."""
         pending = next(month_dir.iterdir())
-        sessions_dir = month_dir.parent
 
         handle_slug_rename(
             stdin_payload,
             session_dir=str(pending),
-            sessions_dir=str(sessions_dir),
             env_file_path=str(env_file),
         )
 

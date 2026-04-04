@@ -208,13 +208,13 @@ Sorted by impact-to-effort ratio (HIGH impact, LOW effort first).
 
 ### 6. Save report
 
-Save the report to the active session directory:
+Save the report to the `.skilmarillion/` output directory:
 
 ```
-${SKILMARILLION_SESSIONS_DIR:-.ai/sessions}/YYYY-MM-DD_<slug>/review-<target>.md
+.skilmarillion/projects/{slug}/reviews/review-{target}.md
 ```
 
-Where `<target>` is the PR number, branch name, or file/directory name (sanitized for filenames).
+Where `{target}` is the PR number, branch name, or file/directory name (sanitized for filenames).
 
 ### 7. Clean input handling
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # update-plan-state.sh — Silent plan state persistence for /plan:specify
-# State files: .plan-state-{slug}.local.yaml (relative to CWD)
+# State files: .skilmarillion/projects/{slug}/PROJECT-STATE.yaml
 set -euo pipefail
 
 COMMAND="${1:-}"
@@ -18,7 +18,8 @@ usage() {
 }
 
 state_file() {
-  echo ".plan-state-${1}.local.yaml"
+  local slug="$1"
+  echo ".skilmarillion/projects/${slug}/PROJECT-STATE.yaml"
 }
 
 # Parse key=value args into named vars
@@ -114,6 +115,7 @@ case "$COMMAND" in
     [[ -z "$FEATURE" ]] && { echo "Error: --feature is required" >&2; exit 1; }
     [[ -z "$SLUG"    ]] && { echo "Error: --slug is required"    >&2; exit 1; }
     FILE=$(state_file "$SLUG")
+    mkdir -p "$(dirname "$FILE")"
     CURRENT_PHASE="${CURRENT_PHASE:-initialized}"
     write_state "$FILE"
     ;;
@@ -145,14 +147,15 @@ case "$COMMAND" in
 
   list)
     shopt -s nullglob
-    FILES=(.plan-state-*.local.yaml)
+    FILES=(.skilmarillion/projects/*/PROJECT-STATE.yaml)
     if [[ ${#FILES[@]} -eq 0 ]]; then
       echo "No plan state files found."
       exit 0
     fi
     for f in "${FILES[@]}"; do
-      slug="${f#.plan-state-}"
-      slug="${slug%.local.yaml}"
+      # Extract slug from path: .skilmarillion/projects/{slug}/PROJECT-STATE.yaml
+      rel="${f#.skilmarillion/projects/}"
+      slug="${rel%/PROJECT-STATE.yaml}"
       phase=$(read_field "$f" "current_phase")
       age=$(file_age_days "$f")
       echo "${slug} | phase: ${phase} | age: ${age}d"
@@ -163,7 +166,7 @@ case "$COMMAND" in
     parse_flags "$@"
     if [[ "$ALL" == true ]]; then
       shopt -s nullglob
-      FILES=(.plan-state-*.local.yaml)
+      FILES=(.skilmarillion/projects/*/PROJECT-STATE.yaml)
       for f in "${FILES[@]}"; do
         rm -f "$f"
       done

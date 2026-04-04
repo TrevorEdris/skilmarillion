@@ -15,7 +15,7 @@ model: sonnet
 
 # /arch:api
 
-Design a REST API through a structured interview and produce a complete OpenAPI 3.1 specification saved to `docs/api/[api-name]-openapi.yaml`.
+Design a REST API through a structured interview and produce a complete OpenAPI 3.1 specification saved to `.skilmarillion/projects/{slug}/api/[api-name]-openapi.yaml`.
 
 ---
 
@@ -469,15 +469,21 @@ After generating the spec, verify it:
 
 Save the validated spec to:
 
+Resolve the active project context: check for an existing `.skilmarillion/projects/` structure. If found, use the active `{slug}`. If not found, ask the user for the feature slug.
+
 ```
-docs/api/{api-name}-openapi.yaml
+{project_root}/.skilmarillion/projects/{slug}/api/{api-name}-openapi.yaml
 ```
 
-Create the `docs/api/` directory if it does not exist.
+Create the directory if it does not exist:
+
+```bash
+mkdir -p {project_root}/.skilmarillion/projects/{slug}/api
+```
 
 Confirm the save path with the user before writing:
 
-> Saving OpenAPI spec to `docs/api/{api-name}-openapi.yaml`. Proceed?
+> Saving OpenAPI spec to `.skilmarillion/projects/{slug}/api/{api-name}-openapi.yaml`. Proceed?
 
 ---
 
@@ -497,7 +503,7 @@ Confirm the save path with the user before writing:
 
 After saving the spec:
 
-> API spec saved to `docs/api/{api-name}-openapi.yaml`.
+> API spec saved to `.skilmarillion/projects/{slug}/api/{api-name}-openapi.yaml`.
 >
 > Next steps:
 > - **Implement:** Run `/impl:tdd` to scaffold controllers and tests from this spec.

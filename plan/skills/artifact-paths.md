@@ -25,7 +25,21 @@ Artifacts are always saved relative to the target project's git root — never r
    - Confirm the resolved path with the user before proceeding.
 3. **Ask explicitly** — If no git repo can be determined: "Which project should these artifacts live in? Provide the repo path."
 
-Cache the resolved root in the triage state file as `project_root`. Subsequent artifact saves in the same session reuse this value without re-prompting.
+Cache the resolved root in the project state file as `project_root`. Subsequent artifact saves in the same session reuse this value without re-prompting.
+
+---
+
+## Feature Directory Resolution
+
+Determines the `{feature-slug}` segment of the path.
+
+**Resolution chain** (use the first that succeeds):
+
+1. **Explicit argument** — User provides `--feature add-oauth` or equivalent.
+2. **Project state** — Read `feature` from `.skilmarillion/projects/{slug}/PROJECT-STATE.yaml` if the current session has an active project state.
+3. **Prompt user** — "Which feature does this belong to?" List existing `{project_root}/.skilmarillion/projects/*/` directories. User may select one or provide a new feature slug.
+
+For `/plan:prd`, the PRD's feature name becomes the directory name. For `/plan:specify`, the feature directory should already exist (created by a prior PRD/roadmap) or be created if needed.
 
 ---
 
@@ -34,13 +48,27 @@ Cache the resolved root in the triage state file as `project_root`. Subsequent a
 All paths below are relative to the resolved project root.
 
 ```
-{project_root}/docs/{feature}/
+{project_root}/.skilmarillion/projects/{feature-slug}/
   PRD.md                           # One per feature (/plan:prd output)
   ROADMAP.md                       # Colocated roadmap (epic decomposition or manual)
+  PROJECT-STATE.yaml               # Unified state file (replaces .plan-state-* and .impl-state-*)
   specs/
     SPEC-{NNN}-{slug}.md           # Auto-incrementing (/plan:specify output)
-  plans/
-    PLAN-{NNN}-{slug}.md           # Mirrors spec numbering (future /do output)
+  adrs/
+    {NNN}-{slug}.md                # Auto-incrementing (/arch:design output)
+  api/
+    {name}-openapi.yaml            # /arch:api output
+  schema/
+    {name}-schema.sql              # /arch:schema output
+  diagrams/
+    {name}-{type}.md               # /arch:diagram output
+  impl/
+    IMPL_DETAILS.md                # /impl:tdd output (generated from spec)
+  reviews/
+    review-{target}.md             # /review:review output
+    security-{target}.md           # /review:security output
+    a11y-{target}.md               # /review:a11y output
+    clean-{target}.md              # /review:clean output
 ```
 
 ---
@@ -61,25 +89,11 @@ Canonical slug generation — used by all commands and the triage agent.
 
 ---
 
-## Feature Directory Resolution
-
-Determines the `{feature}` segment of the path.
-
-**Resolution chain** (use the first that succeeds):
-
-1. **Explicit argument** — User provides `--feature add-oauth` or equivalent.
-2. **Triage state** — Read `feature` from `.plan-state-{slug}.local.yaml` if the current session has an active triage state.
-3. **Prompt user** — "Which feature does this belong to?" List existing `{project_root}/docs/*/` directories. User may select one or provide a new feature slug.
-
-For `/plan:prd`, the PRD's feature name becomes the directory name. For `/plan:specify`, the feature directory should already exist (created by a prior PRD/roadmap) or be created if needed.
-
----
-
 ## Spec Numbering
 
 Auto-incrementing, zero-padded to 3 digits.
 
-1. List existing `SPEC-*.md` files in `{project_root}/docs/{feature}/specs/`
+1. List existing `SPEC-*.md` files in `{project_root}/.skilmarillion/projects/{feature-slug}/specs/`
 2. Next number = count + 1
 3. Format: `SPEC-{NNN}-{slug}.md` (e.g., `SPEC-001-auth-flow.md`, `SPEC-002-token-refresh.md`)
 
@@ -92,15 +106,16 @@ If the directory does not exist yet, the next number is `001`.
 Before saving any artifact, present the resolved path to the user for confirmation.
 
 **First save in a session** — show the full absolute path so the user can verify the project root:
-> Save to `/Users/you/src/github.com/org/repo/docs/add-oauth/specs/SPEC-001-auth-flow.md`?
+> Save to `/Users/you/src/github.com/org/repo/.skilmarillion/projects/auth/add-oauth/specs/SPEC-001-auth-flow.md`?
 
 **Subsequent saves** (same session, same project root) — abbreviate:
-> Save to `docs/add-oauth/specs/SPEC-002-token-refresh.md`?
+> Save to `.skilmarillion/projects/auth/add-oauth/specs/SPEC-002-token-refresh.md`?
 
 **User options:**
 - Accept as-is
 - Override the slug (free text → re-apply slug algorithm)
 - Override the feature directory
+- Override the domain
 - Correct the project root (triggers re-resolution and cache update)
 
 ---
@@ -119,8 +134,13 @@ Before saving, check if the target path already exists.
 Before writing any artifact, create the target directory if it does not exist:
 
 ```bash
-mkdir -p {project_root}/docs/{feature}/specs
-mkdir -p {project_root}/docs/{feature}/plans
+mkdir -p {project_root}/.skilmarillion/projects/{feature-slug}/specs
+mkdir -p {project_root}/.skilmarillion/projects/{feature-slug}/adrs
+mkdir -p {project_root}/.skilmarillion/projects/{feature-slug}/api
+mkdir -p {project_root}/.skilmarillion/projects/{feature-slug}/schema
+mkdir -p {project_root}/.skilmarillion/projects/{feature-slug}/diagrams
+mkdir -p {project_root}/.skilmarillion/projects/{feature-slug}/impl
+mkdir -p {project_root}/.skilmarillion/projects/{feature-slug}/reviews
 ```
 
 ---
@@ -129,7 +149,15 @@ mkdir -p {project_root}/docs/{feature}/plans
 
 | Command | Artifact | Path |
 |---------|----------|------|
-| `/plan:prd` | PRD | `{project_root}/docs/{feature}/PRD.md` |
-| `/plan:specify` | Specs | `{project_root}/docs/{feature}/specs/SPEC-{NNN}-{slug}.md` |
-| `/plan:roadmap` | Roadmap | `{project_root}/docs/{feature}/ROADMAP.md` |
-| `/impl:tdd` (future) | Plan | `{project_root}/docs/{feature}/plans/PLAN-{NNN}-{slug}.md` |
+| `/plan:prd` | PRD | `{project_root}/.skilmarillion/projects/{feature-slug}/PRD.md` |
+| `/plan:specify` | Specs | `{project_root}/.skilmarillion/projects/{feature-slug}/specs/SPEC-{NNN}-{slug}.md` |
+| `/plan:roadmap` | Roadmap | `{project_root}/.skilmarillion/projects/{feature-slug}/ROADMAP.md` |
+| `/arch:design` | ADRs | `{project_root}/.skilmarillion/projects/{feature-slug}/adrs/{NNN}-{slug}.md` |
+| `/arch:api` | OpenAPI | `{project_root}/.skilmarillion/projects/{feature-slug}/api/{name}-openapi.yaml` |
+| `/arch:schema` | Schema | `{project_root}/.skilmarillion/projects/{feature-slug}/schema/{name}-schema.sql` |
+| `/arch:diagram` | Diagrams | `{project_root}/.skilmarillion/projects/{feature-slug}/diagrams/{name}-{type}.md` |
+| `/impl:tdd` | Impl details | `{project_root}/.skilmarillion/projects/{feature-slug}/impl/IMPL_DETAILS.md` |
+| `/review:review` | Review | `{project_root}/.skilmarillion/projects/{feature-slug}/reviews/review-{target}.md` |
+| `/review:security` | Security | `{project_root}/.skilmarillion/projects/{feature-slug}/reviews/security-{target}.md` |
+| `/review:a11y` | Accessibility | `{project_root}/.skilmarillion/projects/{feature-slug}/reviews/a11y-{target}.md` |
+| `/review:clean` | Clean code | `{project_root}/.skilmarillion/projects/{feature-slug}/reviews/clean-{target}.md` |

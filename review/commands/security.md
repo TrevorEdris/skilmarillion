@@ -198,10 +198,10 @@ Do NOT invent findings to fill a report. A clean result is a good result.
 
 ### 8. Produce report
 
-Save the report to the active session directory:
+Save the report to the `.skilmarillion/` output directory:
 
 ```
-${SKILMARILLION_SESSIONS_DIR:-.ai/sessions}/YYYY-MM-DD_<slug>/security-<target>.md
+.skilmarillion/projects/{slug}/reviews/security-{target}.md
 ```
 
 Report structure:

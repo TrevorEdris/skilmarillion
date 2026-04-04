@@ -211,14 +211,14 @@ Include a dependency graph (Mermaid or text) showing module migration order and 
 Resolve artifact paths per `artifact-paths` skill:
 
 1. **Resolve project root** — Use the target project's git root as the artifact destination.
-2. **Derive migration directory:** `{project_root}/docs/{migration-slug}/`
-3. **Confirm path with user** per `artifact-paths` slug confirmation protocol: "Save migration plan to `{project_root}/docs/{migration-slug}/ROADMAP.md`?"
-4. **Create directories:**
+2. **Derive migration directory:** `{project_root}/.skilmarillion/projects/{migration-slug}/`
+3. **Confirm path with user** per `artifact-paths` slug confirmation protocol: "Save migration plan to `{project_root}/.skilmarillion/projects/{migration-slug}/ROADMAP.md`?"
+5. **Create directories:**
    ```bash
-   mkdir -p {project_root}/docs/{migration-slug}/specs
+   mkdir -p {project_root}/.skilmarillion/projects/{migration-slug}/specs
    ```
-5. **Save ROADMAP.md:** `{project_root}/docs/{migration-slug}/ROADMAP.md`
-6. **Save individual specs:** `{project_root}/docs/{migration-slug}/specs/SPEC-{NNN}-migrate-{module-slug}.md` for each migration unit.
+6. **Save ROADMAP.md:** `{project_root}/.skilmarillion/projects/{migration-slug}/ROADMAP.md`
+7. **Save individual specs:** `{project_root}/.skilmarillion/projects/{migration-slug}/specs/SPEC-{NNN}-migrate-{module-slug}.md` for each migration unit.
 
 ### 10. Confirm and Suggest Next Steps
 
@@ -230,10 +230,10 @@ Present the migration plan summary:
 
 Suggest next steps:
 
-> "Migration plan saved to `docs/{migration-slug}/ROADMAP.md` with {N} specs in `docs/{migration-slug}/specs/`."
+> "Migration plan saved to `.skilmarillion/projects/{migration-slug}/ROADMAP.md` with {N} specs in `.skilmarillion/projects/{migration-slug}/specs/`."
 >
 > "To begin migration, run `/impl:tdd` on each spec in order:"
-> 1. `/impl:tdd docs/{migration-slug}/specs/SPEC-001-migrate-{first-module}.md`
+> 1. `/impl:tdd .skilmarillion/projects/{migration-slug}/specs/SPEC-001-migrate-{first-module}.md`
 > 2. ...
 
 ---

@@ -62,7 +62,11 @@ ACCEPT_WITH_DEBT produces a structured gap record appended to the spec file. Dow
 
 ## State Persistence
 
-Track TDD progress in `.impl-state-{slug}.local.yaml`. On startup, check for in-progress work and offer to resume.
+Track TDD progress in `.skilmarillion/projects/{slug}/PROJECT-STATE.yaml` (the `impl` section). On startup, check for in-progress work and offer to resume.
+
+## Git Exclusion Policy
+
+`.skilmarillion/` files are never auto-committed. The user decides whether to track these artifacts in git. Do not stage, commit, or include `.skilmarillion/` paths in diffs unless the user explicitly asks.
 
 ## Personality
 

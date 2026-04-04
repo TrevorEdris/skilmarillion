@@ -121,10 +121,10 @@ Do NOT invent problems to fill a report.
 
 ### 7. Produce report
 
-Save the report to the active session directory:
+Save the report to the `.skilmarillion/` output directory:
 
 ```
-${SKILMARILLION_SESSIONS_DIR:-.ai/sessions}/YYYY-MM-DD_<slug>/clean-<target>.md
+.skilmarillion/projects/{slug}/reviews/clean-{target}.md
 ```
 
 Report structure:

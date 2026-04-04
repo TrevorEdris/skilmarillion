@@ -63,9 +63,9 @@ Use the first match found. If a template is detected, log: "Found PR template at
 
 Search for a spec or impl-details file related to this branch:
 
-1. Check for `.impl-state-*.local.yaml` — extract the spec path if present
+1. Check for `.skilmarillion/projects/*/*/PROJECT-STATE.yaml` — extract the spec path from the `impl` section if present
 2. Search `docs/` for spec files matching the branch slug
-3. Check the active session directory for `IMPL_DETAILS.md`
+3. Check `.skilmarillion/projects/*/*/impl/IMPL_DETAILS.md` for implementation details
 
 If found, extract acceptance criteria for traceability mapping.
 
@@ -138,6 +138,12 @@ gh pr create --base <base-branch> --title "<pr-title>" --body "<approved-body>"
 Report the PR URL after creation.
 
 **Suggest next step:** "Consider running `/review:review` on this PR before requesting human review."
+
+---
+
+## .skilmarillion/ Exclusion
+
+When summarizing the PR diff, exclude any changes under `.skilmarillion/` from the diff summary. These are local workflow artifacts and should not appear in the PR description. If `.skilmarillion/` paths appear in the diff, silently skip them.
 
 ---
 

@@ -122,7 +122,7 @@ Skilmarillion addresses this gap: a curated, published collection of five Claude
 - [ ] When Playwright MCP is available (bundled via the plugin's `.mcp.json`), the a11y command performs live browser rendering — navigating to the running app, interacting with elements, and verifying WCAG criteria against real DOM state — rather than static code analysis alone
 - [ ] The a11y command degrades gracefully when no dev server is running or Playwright MCP fails to connect — falls back to static analysis and notes the limitation in the report
 - [ ] `review` produces no code changes — findings only
-- [ ] Review reports are saved to the active session directory (`$SKILMARILLION_SESSIONS_DIR/YYYY-MM-DD_<slug>/review-<target>.md`)
+- [ ] Review reports are saved to the active project directory (`.skilmarillion/projects/{domain}/{slug}/reviews/review-<target>.md`)
 
 ---
 
@@ -150,7 +150,7 @@ Skilmarillion addresses this gap: a curated, published collection of five Claude
 
 **Acceptance Criteria:**
 - [ ] `plan`'s README documents the exact `settings.json` hook configuration required [MODIFIED]
-- [ ] The hook uses `${SKILMARILLION_SESSIONS_DIR:-.ai/sessions}` so users can redirect session docs to any directory (e.g., an Obsidian vault)
+- [ ] The hook writes session artifacts to `.skilmarillion/projects/{domain}/{slug}/` so all output is colocated under a single convention
 - [ ] A session start creates `YYYY-MM-DD_<slug>/SESSION.md` automatically without user action
 - [ ] A session end appends a one-line entry to `INDEX.md`
 

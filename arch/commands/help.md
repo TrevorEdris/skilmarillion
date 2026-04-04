@@ -24,7 +24,7 @@ Before presenting anything, scan for existing design artifacts to determine cont
 ### 1. Scan for ADRs
 
 ```
-Glob: docs/adrs/*.md
+Glob: .skilmarillion/projects/*/adrs/*.md
 ```
 
 Store the count and paths as `{adrs}`.
@@ -32,7 +32,7 @@ Store the count and paths as `{adrs}`.
 ### 2. Scan for OpenAPI specs
 
 ```
-Glob: docs/api/*-openapi.yaml
+Glob: .skilmarillion/projects/*/api/*-openapi.yaml
 ```
 
 Store the count and paths as `{api_specs}`.
@@ -40,7 +40,7 @@ Store the count and paths as `{api_specs}`.
 ### 3. Scan for schemas
 
 ```
-Glob: docs/schema/*-schema.sql
+Glob: .skilmarillion/projects/*/schema/*-schema.sql
 ```
 
 Store the count and paths as `{schemas}`.
@@ -48,7 +48,7 @@ Store the count and paths as `{schemas}`.
 ### 4. Scan for diagrams
 
 ```
-Glob: docs/diagrams/*.md
+Glob: .skilmarillion/projects/*/diagrams/*.md
 ```
 
 Store the count and paths as `{diagrams}`.
@@ -122,7 +122,7 @@ Walk through each command one at a time. After each command description, ask the
 >
 > **Example:** `/arch:design payment-service`
 >
-> **Produces:** `docs/adrs/[NNN]-[title].md` + C4 context diagram
+> **Produces:** `.skilmarillion/projects/{slug}/adrs/[NNN]-[title].md` + C4 context diagram
 
 Ask (using `AskUserQuestion`):
 
@@ -152,7 +152,7 @@ Ask (using `AskUserQuestion`):
 >
 > **Example:** `/arch:api user-management`
 >
-> **Produces:** `docs/api/[api-name]-openapi.yaml`
+> **Produces:** `.skilmarillion/projects/{slug}/api/[api-name]-openapi.yaml`
 
 Ask (using `AskUserQuestion`):
 
@@ -182,7 +182,7 @@ Ask (using `AskUserQuestion`):
 >
 > **Example:** `/arch:schema user-profiles`
 >
-> **Produces:** `docs/schema/[name]-schema.sql` + `docs/schema/[name]-migration.md`
+> **Produces:** `.skilmarillion/projects/{slug}/schema/[name]-schema.sql` + `.skilmarillion/projects/{slug}/schema/[name]-migration.md`
 
 Ask (using `AskUserQuestion`):
 
@@ -211,7 +211,7 @@ Ask (using `AskUserQuestion`):
 >
 > **Example:** `/arch:diagram sequence diagram for the checkout flow`
 >
-> **Produces:** `docs/diagrams/[name]-[type].md`
+> **Produces:** `.skilmarillion/projects/{slug}/diagrams/[name]-[type].md`
 
 Ask (using `AskUserQuestion`):
 

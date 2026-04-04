@@ -16,7 +16,7 @@ model: sonnet
 
 Run a structured design session for a system or subsystem. Produces two artifacts:
 
-1. **ADR** (Architecture Decision Record) -- saved to `docs/adrs/[NNN]-[title].md`
+1. **ADR** (Architecture Decision Record) -- saved to `.skilmarillion/projects/{slug}/adrs/[NNN]-[title].md`
 2. **C4 Context Diagram** in Mermaid -- embedded in the ADR
 
 ---
@@ -155,23 +155,24 @@ C4Context
 Resolve the artifact path:
 
 1. Determine the project root (git root of the target project).
-2. Look for existing ADRs in `{project_root}/docs/adrs/` to determine the next number.
-3. Auto-increment: if highest existing ADR is `003-*.md`, next is `004`.
-4. If no ADRs exist, start at `001`.
-5. Derive slug from system name: lowercase, hyphens, no special characters.
-6. Final path: `{project_root}/docs/adrs/{NNN}-{slug}.md`
+2. Resolve the active project context: check for an existing `.skilmarillion/projects/` structure. If found, use the active `{slug}`. If not found, ask the user for the feature slug.
+3. Look for existing ADRs in `{project_root}/.skilmarillion/projects/{slug}/adrs/` to determine the next number.
+4. Auto-increment: if highest existing ADR is `003-*.md`, next is `004`.
+5. If no ADRs exist, start at `001`.
+6. Derive ADR slug from system name: lowercase, hyphens, no special characters.
+7. Final path: `{project_root}/.skilmarillion/projects/{slug}/adrs/{NNN}-{adr-slug}.md`
 
 Create the directory if it does not exist:
 
 ```bash
-mkdir -p {project_root}/docs/adrs
+mkdir -p {project_root}/.skilmarillion/projects/{slug}/adrs
 ```
 
 Save the ADR using Write tool.
 
 Present the saved path to the user:
 
-> **ADR saved:** `docs/adrs/{NNN}-{slug}.md`
+> **ADR saved:** `.skilmarillion/projects/{slug}/adrs/{NNN}-{adr-slug}.md`
 
 ### 7. Validation
 
@@ -191,7 +192,7 @@ Verify the output:
 After saving, display:
 
 > **Design session complete.**
-> - ADR: `docs/adrs/{NNN}-{slug}.md`
+> - ADR: `.skilmarillion/projects/{slug}/adrs/{NNN}-{adr-slug}.md`
 > - Contains: Architecture decision record with C4 context diagram
 >
 > **Next steps:**

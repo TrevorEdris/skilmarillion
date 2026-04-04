@@ -11,7 +11,7 @@ Part of the [Skilmarillion](https://github.com/TrevorEdris/skilmarillion) workfl
 `arch` is independently usable. It has no dependencies -- use it with or without `plan`, `impl`, or `review` installed.
 
 **Input:** A system name, API name, schema name, or diagram description (plain language), or nothing -- each command will ask.
-**Output:** Design artifacts saved to `docs/adrs/`, `docs/api/`, `docs/schema/`, or `docs/diagrams/`.
+**Output:** Design artifacts saved to `.skilmarillion/projects/{slug}/adrs/`, `api/`, `schema/`, or `diagrams/`.
 
 ## Installation
 
@@ -24,10 +24,10 @@ Part of the [Skilmarillion](https://github.com/TrevorEdris/skilmarillion) workfl
 
 | Command | Purpose |
 |---------|---------|
-| `/arch:design [system]` | Structured design session producing an ADR and C4 context diagram. Saves to `docs/adrs/`. |
-| `/arch:api [api-name]` | Guided API design producing an OpenAPI 3.1 spec. Saves to `docs/api/`. |
-| `/arch:schema [name]` | Database schema design with zero-downtime migration plan. Saves to `docs/schema/`. |
-| `/arch:diagram [description]` | General-purpose Mermaid diagram (flowchart, sequence, ERD, C4). Saves to `docs/diagrams/`. |
+| `/arch:design [system]` | Structured design session producing an ADR and C4 context diagram. Saves to `.skilmarillion/projects/{slug}/adrs/`. |
+| `/arch:api [api-name]` | Guided API design producing an OpenAPI 3.1 spec. Saves to `.skilmarillion/projects/{slug}/api/`. |
+| `/arch:schema [name]` | Database schema design with zero-downtime migration plan. Saves to `.skilmarillion/projects/{slug}/schema/`. |
+| `/arch:diagram [description]` | General-purpose Mermaid diagram (flowchart, sequence, ERD, C4). Saves to `.skilmarillion/projects/{slug}/diagrams/`. |
 | `/arch:help` | Interactive tour of capabilities. Detects existing design artifacts to tailor guidance. |
 
 ## Artifact Paths
@@ -35,7 +35,7 @@ Part of the [Skilmarillion](https://github.com/TrevorEdris/skilmarillion) workfl
 All paths are relative to the target project's git root.
 
 ```
-{project_root}/docs/
+{project_root}/.skilmarillion/projects/{slug}/
   adrs/
     [NNN]-[title].md              # /arch:design output (auto-incrementing)
   api/
@@ -47,12 +47,14 @@ All paths are relative to the target project's git root.
     [name]-[type].md              # /arch:diagram output
 ```
 
+> **Project context resolution:** arch commands resolve `{slug}` from the active `.skilmarillion/projects/` structure. If no active project context exists, the command will ask the user for the feature slug before saving artifacts.
+
 ## Workflow Integration
 
 ```
-plan/  -->  docs/{feature}/specs/SPEC-NNN-{slug}.md
+plan/  -->  .skilmarillion/projects/{slug}/specs/SPEC-NNN-{slug}.md
   |
-arch/  -->  docs/adrs/, docs/api/, docs/schema/, docs/diagrams/
+arch/  -->  .skilmarillion/projects/{slug}/adrs/, api/, schema/, diagrams/
   |
 impl/  -->  committed branch + open PR
   |

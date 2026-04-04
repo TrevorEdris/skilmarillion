@@ -11,7 +11,7 @@ Part of the [Skilmarillion](https://github.com/TrevorEdris/skilmarillion) workfl
 `plan` is the first plugin in the Skilmarillion workflow. It has no dependencies — use it with or without `arch`, `impl`, or `review` installed.
 
 **Input:** A ROADMAP.md path, or nothing — `/plan:specify` will search for one.
-**Output:** `docs/{feature}/specs/SPEC-{NNN}-{slug}.md` for each milestone, with testable ACs, vertical slices, architecture recommendation, and TDD plan.
+**Output:** `.skilmarillion/projects/{slug}/specs/SPEC-{NNN}-{slug}.md` for each milestone, with testable ACs, vertical slices, architecture recommendation, and TDD plan.
 
 ## Installation
 
@@ -26,10 +26,10 @@ Part of the [Skilmarillion](https://github.com/TrevorEdris/skilmarillion) workfl
 |---------|---------|
 | `/plan:help` | Interactive, context-aware tour of plan's capabilities. Detects project state and recommends a starting command. |
 | `/plan:specify [roadmap-path]` | Generate all specs from a ROADMAP. Launches parallel agents per milestone. |
-| `/plan:prd [feature]` | Client-shareable PRD from a plain-language description. Saves to `docs/{feature}/PRD.md`. |
-| `/plan:roadmap [prd-path]` | Decompose an approved PRD into ordered milestones. Saves to `docs/{feature}/ROADMAP.md`. *(P0-I)* |
+| `/plan:prd [feature]` | Client-shareable PRD from a plain-language description. Saves to `.skilmarillion/projects/{slug}/PRD.md`. |
+| `/plan:roadmap [prd-path]` | Decompose an approved PRD into ordered milestones. Saves to `.skilmarillion/projects/{slug}/ROADMAP.md`. *(P0-I)* |
 | `/plan:validate [path]` | Score a spec, PRD, or plan (0–100; PASS at ≥70). Auto-detects doc type. Supports `--draft` for relaxed threshold (50). |
-| `/plan:migrate [legacy] [target]` | Prioritized migration plan as independent specs. Orders by coupling analysis (fan-in) and git hotspot data. Saves to `docs/{migration-slug}/ROADMAP.md`. |
+| `/plan:migrate [legacy] [target]` | Prioritized migration plan as independent specs. Orders by coupling analysis (fan-in) and git hotspot data. Saves to `.skilmarillion/projects/{migration-slug}/ROADMAP.md`. |
 
 ### Standalone validation script
 
@@ -37,13 +37,13 @@ The validate command wraps `plan/scripts/validate.py`, which can also be run dir
 
 ```bash
 # Auto-detect doc type
-python plan/scripts/validate.py docs/my-feature/specs/SPEC-001-auth-flow.md --verbose
+python plan/scripts/validate.py .skilmarillion/projects/auth/my-feature/specs/SPEC-001-auth-flow.md --verbose
 
 # Explicit type + JSON output
-python plan/scripts/validate.py docs/my-feature/PRD.md --type prd --json
+python plan/scripts/validate.py .skilmarillion/projects/auth/my-feature/PRD.md --type prd --json
 
 # Draft mode (relaxed threshold: 50)
-python plan/scripts/validate.py docs/my-feature/specs/SPEC-001-wip.md --draft
+python plan/scripts/validate.py .skilmarillion/projects/auth/my-feature/specs/SPEC-001-wip.md --draft
 ```
 
 Requires Python 3.10+ (stdlib only, no external dependencies).
@@ -53,9 +53,10 @@ Requires Python 3.10+ (stdlib only, no external dependencies).
 All paths are relative to the target project's git root (resolved automatically — see `artifact-paths` skill). Slugs are confirmed with the user before save.
 
 ```
-{project_root}/docs/{feature}/
+{project_root}/.skilmarillion/projects/{slug}/
   PRD.md                           # /plan:prd output
   ROADMAP.md                       # /plan:roadmap output
+  PROJECT-STATE.yaml               # workflow state
   specs/
     SPEC-001-{slug}.md             # /plan:specify output (auto-incrementing)
   plans/
@@ -64,10 +65,10 @@ All paths are relative to the target project's git root (resolved automatically 
 
 | Command | Artifact | Path |
 |---------|----------|------|
-| `/plan:prd` | PRD | `docs/{feature}/PRD.md` |
-| `/plan:specify` | Specs | `docs/{feature}/specs/SPEC-{NNN}-{slug}.md` |
-| `/plan:roadmap` | Roadmap | `docs/{feature}/ROADMAP.md` |
-| `/plan:migrate` | Migration ROADMAP + Specs | `docs/{migration-slug}/ROADMAP.md` + `docs/{migration-slug}/specs/SPEC-{NNN}-migrate-{module}.md` |
+| `/plan:prd` | PRD | `.skilmarillion/projects/{slug}/PRD.md` |
+| `/plan:specify` | Specs | `.skilmarillion/projects/{slug}/specs/SPEC-{NNN}-{slug}.md` |
+| `/plan:roadmap` | Roadmap | `.skilmarillion/projects/{slug}/ROADMAP.md` |
+| `/plan:migrate` | Migration ROADMAP + Specs | `.skilmarillion/projects/{migration-slug}/ROADMAP.md` + `.skilmarillion/projects/{migration-slug}/specs/SPEC-{NNN}-migrate-{module}.md` |
 
 ## Session Documentation Hooks
 
@@ -88,15 +89,6 @@ Or merge `plan/hooks/hooks.json` into `.claude/settings.local.json` manually, re
 
 Sessions are organized into monthly subdirectories (`YYYY-MM/`) to keep the sessions root clean.
 
-### Configuration
-
-Set `SKILMARILLION_SESSIONS_DIR` to override the default sessions root (`$CLAUDE_PROJECT_DIR/.ai/sessions`):
-
-```bash
-# In your shell or .env
-export SKILMARILLION_SESSIONS_DIR="/path/to/your/vault/sessions"
-```
-
 ### INDEX.md format
 
 A global `INDEX.md` at the sessions root tracks all sessions:
@@ -110,7 +102,7 @@ A global `INDEX.md` at the sessions root tracks all sessions:
 ## Workflow Integration
 
 ```
-plan/  →  docs/{feature}/specs/SPEC-NNN-{slug}.md
+plan/  →  .skilmarillion/projects/{slug}/specs/SPEC-NNN-{slug}.md
    ↓
 impl/     →  committed branch + open PR
    ↓

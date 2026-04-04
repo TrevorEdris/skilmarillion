@@ -38,8 +38,8 @@ Part of the [Skilmarillion](https://github.com/TrevorEdris/skilmarillion) workfl
 ```
 skil  -->  routes to the right plugin
   |
-  +--> plan/   -->  docs/{feature}/specs/SPEC-NNN-{slug}.md
-  +--> arch/   -->  docs/{feature}/ADR-NNN-{slug}.md
+  +--> plan/   -->  .skilmarillion/projects/{slug}/specs/SPEC-NNN-{slug}.md
+  +--> arch/   -->  .skilmarillion/projects/{slug}/adrs/NNN-{slug}.md
   +--> impl/   -->  committed branch + open PR
   +--> review/ -->  review report
 ```

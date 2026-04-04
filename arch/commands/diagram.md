@@ -13,7 +13,7 @@ model: sonnet
 
 # /arch:diagram
 
-Generate a syntactically valid Mermaid diagram from a plain-language description. Save it to `docs/diagrams/[name]-[type].md`.
+Generate a syntactically valid Mermaid diagram from a plain-language description. Save it to `.skilmarillion/projects/{slug}/diagrams/[name]-[type].md`.
 
 ---
 
@@ -52,7 +52,7 @@ If the description matches multiple types, present the options:
 
 Extract a short kebab-case name from the description for the filename. Confirm with the user:
 
-> I'll save this as `docs/diagrams/{name}-{type}.md`. Sound right?
+> I'll save this as `.skilmarillion/projects/{slug}/diagrams/{name}-{type}.md`. Sound right?
 
 ### 4. Diagram Generation
 
@@ -209,7 +209,9 @@ If validation finds issues, fix them before presenting.
 
 ### 6. Output
 
-Write the diagram to `docs/diagrams/{name}-{type}.md` using this template:
+Resolve the active project context: check for an existing `.skilmarillion/projects/` structure. If found, use the active `{slug}`. If not found, ask the user for the feature slug.
+
+Write the diagram to `.skilmarillion/projects/{slug}/diagrams/{name}-{type}.md` using this template:
 
 ```markdown
 # {Title}
@@ -225,19 +227,23 @@ Write the diagram to `docs/diagrams/{name}-{type}.md` using this template:
 {Brief explanation of key elements, only if the diagram has non-obvious conventions.}
 ```
 
-Create the `docs/diagrams/` directory if it does not exist.
+Create the directory if it does not exist:
+
+```bash
+mkdir -p {project_root}/.skilmarillion/projects/{slug}/diagrams
+```
 
 ### 7. Follow-up
 
 After saving, present:
 
-> Diagram saved to `docs/diagrams/{name}-{type}.md`.
+> Diagram saved to `.skilmarillion/projects/{slug}/diagrams/{name}-{type}.md`.
 >
 > Paste into [mermaid.live](https://mermaid.live) to verify rendering.
 
 If related design artifacts exist (ADRs, specs), mention them:
 
-> Related: `docs/adrs/NNN-title.md` covers the architecture decision behind this design.
+> Related: `.skilmarillion/projects/{slug}/adrs/NNN-title.md` covers the architecture decision behind this design.
 
 If `impl` is installed, suggest:
 

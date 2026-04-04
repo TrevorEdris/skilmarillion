@@ -1,7 +1,7 @@
 {
   "name": "plan",
-  "description": "Spec-driven planning navigator. Turns a task description into testable acceptance criteria, a vertical slice spec, and a TDD plan — before any code is written.",
-  "version": "0.6.0",
+  "description": "Spec-driven planning navigator. Turns a task description into testable acceptance criteria, a vertical slice spec, and a TDD plan \u2014 before any code is written.",
+  "version": "0.6.1",
   "author": {
     "name": "TrevorEdris",
     "url": "https://github.com/TrevorEdris"
@@ -9,5 +9,11 @@
   "homepage": "https://github.com/TrevorEdris/skilmarillion",
   "repository": "https://github.com/TrevorEdris/skilmarillion",
   "license": "MIT",
-  "keywords": ["planning", "spec-driven", "tdd", "acceptance-criteria", "workflow"]
+  "keywords": [
+    "planning",
+    "spec-driven",
+    "tdd",
+    "acceptance-criteria",
+    "workflow"
+  ]
 }

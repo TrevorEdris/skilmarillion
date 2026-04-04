@@ -5,7 +5,7 @@ Primary: uses claude CLI + Haiku to generate a concise 3-4 word slug.
 Fallback: deterministic extraction if CLI is unavailable.
 
 Fast path: if $SKILMARILLION_SESSION_DIR doesn't contain '_pending_', exits immediately.
-Slow path: scans the current month's subdir for pending dirs.
+Slow path: scans the current month's subdir for pending dirs via $CLAUDE_PROJECT_DIR.
 """
 
 import json
@@ -94,12 +94,8 @@ def _find_pending_dir(month_dir: Path) -> Path | None:
     return None
 
 
-def _resolve_sessions_dir(
-    sessions_dir: str | None, project_dir: str | None
-) -> Path | None:
+def _resolve_sessions_dir(project_dir: str | None) -> Path | None:
     """Resolve the sessions root directory."""
-    if sessions_dir:
-        return Path(sessions_dir)
     if project_dir:
         return Path(project_dir) / ".ai" / "sessions"
     return None
@@ -109,7 +105,6 @@ def handle_slug_rename(
     payload: dict,
     *,
     session_dir: str | None = None,
-    sessions_dir: str | None = None,
     project_dir: str | None = None,
     env_file_path: str | None = None,
 ) -> dict:
@@ -126,7 +121,7 @@ def handle_slug_rename(
         if candidate.is_dir():
             pending = candidate
     else:
-        root = _resolve_sessions_dir(sessions_dir, project_dir)
+        root = _resolve_sessions_dir(project_dir)
         if root:
             now = datetime.now()
             month_dir = root / now.strftime("%Y-%m")
@@ -186,7 +181,6 @@ def main() -> None:
     result = handle_slug_rename(
         payload,
         session_dir=os.environ.get("SKILMARILLION_SESSION_DIR") or None,
-        sessions_dir=os.environ.get("SKILMARILLION_SESSIONS_DIR") or None,
         project_dir=os.environ.get("CLAUDE_PROJECT_DIR") or None,
         env_file_path=os.environ.get("CLAUDE_ENV_FILE") or None,
     )

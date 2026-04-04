@@ -91,11 +91,11 @@ Resolve artifact path per `artifact-paths` skill:
 
 1. **Resolve project root** — determine which git repo this PRD targets (git root of target project, not necessarily CWD). See `artifact-paths` skill for the resolution chain.
 2. **Derive feature slug** using the canonical slug algorithm from `artifact-paths` skill (lowercase, replace specials with hyphens, collapse, truncate to 40 chars, strip trailing hyphens).
-3. **Derive PRD path:** `{project_root}/docs/{feature-slug}/PRD.md`
+3. **Derive PRD path:** `{project_root}/.skilmarillion/projects/{feature-slug}/PRD.md`
 4. **Confirm path with user** per `artifact-paths` slug confirmation protocol. Show full absolute path on first save. User may accept, override the slug, or correct the project root.
-5. **Create directory** if it does not exist: `mkdir -p {project_root}/docs/{feature-slug}`
-6. **Save** PRD using Write tool to the confirmed path.
-7. **Suggest next step:** "PRD saved. Run `/plan:roadmap {prd-path}` to decompose into milestones, then `/plan:specify {roadmap-path}` to generate all specs."
+6. **Create directory** if it does not exist: `mkdir -p {project_root}/.skilmarillion/projects/{feature-slug}`
+7. **Save** PRD using Write tool to the confirmed path.
+8. **Suggest next step:** "PRD saved. Run `/plan:roadmap {prd-path}` to decompose into milestones, then `/plan:specify {roadmap-path}` to generate all specs."
 
 ---
 

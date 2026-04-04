@@ -34,10 +34,10 @@ Store the count and list as `{open_prs}`.
 ### 2. Scan for existing review reports
 
 ```
-Glob: .ai/sessions/*/review-*.md
-Glob: .ai/sessions/*/security-*.md
-Glob: .ai/sessions/*/a11y-*.md
-Glob: .ai/sessions/*/clean-*.md
+Glob: .skilmarillion/projects/*/reviews/review-*.md
+Glob: .skilmarillion/projects/*/reviews/security-*.md
+Glob: .skilmarillion/projects/*/reviews/a11y-*.md
+Glob: .skilmarillion/projects/*/reviews/clean-*.md
 ```
 
 Store the combined count and paths as `{review_reports}`.
