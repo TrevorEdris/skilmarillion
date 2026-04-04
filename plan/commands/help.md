@@ -24,7 +24,7 @@ Before presenting anything, scan for existing project artifacts to determine con
 ### 1. Scan for specs
 
 ```
-Glob: docs/*/specs/SPEC-*.md
+Glob: .skilmarillion/projects/*/*/specs/SPEC-*.md
 ```
 
 Store the count and paths as `{specs}`.
@@ -32,7 +32,7 @@ Store the count and paths as `{specs}`.
 ### 2. Scan for active state files
 
 ```
-Glob: .plan-state-*.local.yaml
+Glob: .skilmarillion/projects/*/*/PROJECT-STATE.yaml
 ```
 
 Store the count and paths as `{state_files}`.
@@ -40,7 +40,7 @@ Store the count and paths as `{state_files}`.
 ### 3. Scan for PRDs
 
 ```
-Glob: docs/*/PRD.md
+Glob: .skilmarillion/projects/*/*/PRD.md
 ```
 
 Store the count and paths as `{prds}`.
@@ -48,7 +48,7 @@ Store the count and paths as `{prds}`.
 ### 4. Scan for roadmaps
 
 ```
-Glob: docs/*/ROADMAP.md
+Glob: .skilmarillion/projects/*/*/ROADMAP.md
 ```
 
 Store the count and paths as `{roadmaps}`.
@@ -111,9 +111,9 @@ Walk through each command one at a time. After each command description, ask the
 > - **SMALL** milestones: Spec with risk-scaled ACs, Architecture Recommendation, TDD Plan
 > - **FEATURE** milestones: Full spec with vertical slices, Architecture Recommendation, TDD Plan
 >
-> **Example:** `/plan:specify docs/auth/ROADMAP.md`
+> **Example:** `/plan:specify .skilmarillion/projects/auth/oauth-flow/ROADMAP.md`
 >
-> **Produces:** `docs/{feature}/specs/SPEC-{NNN}-{slug}.md` for each milestone
+> **Produces:** `.skilmarillion/projects/{slug}/specs/SPEC-{NNN}-{slug}.md` for each milestone
 
 Ask (using `AskUserQuestion`):
 
@@ -137,7 +137,7 @@ Ask (using `AskUserQuestion`):
 >
 > **Example:** `/plan:prd User authentication with OAuth2 and MFA`
 >
-> **Produces:** `docs/{feature}/PRD.md`
+> **Produces:** `.skilmarillion/projects/{slug}/PRD.md`
 
 Ask (using `AskUserQuestion`):
 
@@ -159,7 +159,7 @@ Ask (using `AskUserQuestion`):
 >
 > Scores a spec, PRD, or plan document for structural completeness (0-100). PASS at 70 or above. Auto-detects document type. Supports `--draft` for a relaxed threshold of 50.
 >
-> **Example:** `/plan:validate docs/auth/specs/SPEC-001-oauth-flow.md`
+> **Example:** `/plan:validate .skilmarillion/projects/auth/oauth-flow/specs/SPEC-001-oauth-flow.md`
 >
 > **Produces:** Score report with actionable findings (no file output).
 
@@ -183,9 +183,9 @@ Ask (using `AskUserQuestion`):
 >
 > Decomposes an approved PRD into ordered, shippable milestones. Run `/plan:specify` on the roadmap to generate all specs.
 >
-> **Example:** `/plan:roadmap docs/auth/PRD.md`
+> **Example:** `/plan:roadmap .skilmarillion/projects/auth/oauth-flow/PRD.md`
 >
-> **Produces:** `docs/{feature}/ROADMAP.md`
+> **Produces:** `.skilmarillion/projects/{slug}/ROADMAP.md`
 
 Ask (using `AskUserQuestion`):
 
@@ -209,7 +209,7 @@ Ask (using `AskUserQuestion`):
 >
 > **Example:** `/plan:migrate express fastify`
 >
-> **Produces:** Migration roadmap with ordered specs in `docs/{migration-slug}/`
+> **Produces:** Migration roadmap with ordered specs in `.skilmarillion/projects/{migration-slug}/`
 
 Ask (using `AskUserQuestion`):
 

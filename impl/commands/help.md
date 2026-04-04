@@ -32,18 +32,18 @@ Store the count and paths as `{specs}`.
 ### 2. Scan for active impl state files
 
 ```
-Glob: .impl-state-*.local.yaml
+Glob: .skilmarillion/projects/*/*/PROJECT-STATE.yaml
 ```
 
-Store the count and paths as `{impl_state_files}`.
+Filter to files whose `impl` section exists. Store the count and paths as `{impl_state_files}`.
 
 ### 3. Scan for active plan state files
 
 ```
-Glob: .plan-state-*.local.yaml
+Glob: .skilmarillion/projects/*/*/PROJECT-STATE.yaml
 ```
 
-Store the count and paths as `{plan_state_files}`.
+Filter to files whose `plan` section exists. Store the count and paths as `{plan_state_files}`.
 
 ### 4. Scan for staged changes
 
@@ -111,7 +111,7 @@ Walk through each command one at a time. After each command description, ask the
 > - **GREEN**: Write the minimal production code to make it pass.
 > - **REFACTOR**: Clean up without adding behavior. Full suite stays green.
 >
-> Tracks progress in `.impl-state-{slug}.local.yaml` so you can resume if interrupted.
+> Tracks progress in `.skilmarillion/projects/{slug}/PROJECT-STATE.yaml` so you can resume if interrupted.
 >
 > **Example:** `/impl:tdd docs/auth/specs/SPEC-001-oauth-flow.md`
 >

@@ -27,7 +27,7 @@ Generate spec documents from a ROADMAP. Reads the roadmap, extracts milestones, 
 Resolve the ROADMAP to decompose into specs:
 
 - **Argument provided** — If the argument is a file path ending in `.md`, use it directly.
-- **No argument, feature directory context** — Search for `docs/*/ROADMAP.md` in the resolved project root:
+- **No argument, feature directory context** — Search for `.skilmarillion/projects/*/*/ROADMAP.md` in the resolved project root:
   - If exactly one ROADMAP found, use it.
   - If multiple found, present a numbered list and ask the user to select one.
   - If none found, ask the user for a ROADMAP path or suggest running `/plan:roadmap` first.
@@ -87,13 +87,13 @@ Present the extracted milestones to the user:
 Before generating specs, resolve the output paths:
 
 1. **Resolve project root** per `artifact-paths` skill.
-2. **Derive feature directory** from the roadmap's parent: `{project_root}/docs/{feature}/specs/`
+2. **Derive feature directory** from the roadmap's parent: `{project_root}/.skilmarillion/projects/{slug}/specs/`
 3. **Count existing specs** to determine the starting SPEC number.
 4. **Confirm base path with user** per `artifact-paths` slug confirmation protocol:
-   > "Specs will be saved to `{project_root}/docs/{feature}/specs/SPEC-{NNN}-{slug}.md`. Confirm?"
+   > "Specs will be saved to `{project_root}/.skilmarillion/projects/{slug}/specs/SPEC-{NNN}-{slug}.md`. Confirm?"
 5. **Create directory** if it does not exist:
    ```bash
-   mkdir -p {project_root}/docs/{feature}/specs
+   mkdir -p {project_root}/.skilmarillion/projects/{slug}/specs
    ```
 
 ### 5. Generate Specs in Parallel
@@ -178,7 +178,7 @@ For each generated spec:
 
 1. Derive the slug from the milestone name using the `artifact-paths` slug algorithm.
 2. Assign the next auto-incrementing SPEC number.
-3. Save the spec to `{project_root}/docs/{feature}/specs/SPEC-{NNN}-{slug}.md` using the Write tool.
+3. Save the spec to `{project_root}/.skilmarillion/projects/{slug}/specs/SPEC-{NNN}-{slug}.md` using the Write tool.
 4. **Validation gate:** Run the validation script:
    ```bash
    python ${CLAUDE_PLUGIN_ROOT}/scripts/validate.py {spec_path} --type spec --json
@@ -224,8 +224,8 @@ After all specs are generated, display:
 >
 > Suggested commands (in dependency order):
 > ```
-> /impl:tdd docs/{feature}/specs/SPEC-001-{slug}.md
-> /impl:tdd docs/{feature}/specs/SPEC-002-{slug}.md
+> /impl:tdd .skilmarillion/projects/{slug}/specs/SPEC-001-{slug}.md
+> /impl:tdd .skilmarillion/projects/{slug}/specs/SPEC-002-{slug}.md
 > ...
 > ```
 

@@ -36,12 +36,22 @@ def stdin_payload():
 
 class TestCreatesSessionDir:
     def test_creates_month_subdir_and_session_dir(
-        self, tmp_sessions, env_file, stdin_payload
+        self, tmp_sessions, env_file, stdin_payload, tmp_path
     ):
         """Creates YYYY-MM/DD-HHMM_pending_xxx/ with SESSION.md when none exists."""
+        # Create a project dir whose .ai/sessions points to tmp_sessions
+        project_dir = tmp_path / "project"
+        ai_sessions = project_dir / ".ai" / "sessions"
+        ai_sessions.mkdir(parents=True)
+        # Symlink so _resolve_sessions_dir finds it
+        import shutil
+        shutil.rmtree(str(ai_sessions))
+        ai_sessions.symlink_to(tmp_sessions)
+        tmp_sessions.mkdir(parents=True, exist_ok=True)
+
         result = handle_session_start(
             stdin_payload,
-            sessions_dir=str(tmp_sessions),
+            project_dir=str(project_dir),
             env_file_path=str(env_file),
         )
 
@@ -67,16 +77,19 @@ class TestCreatesSessionDir:
         assert "date:" in content
 
     def test_session_md_has_prompts_section(
-        self, tmp_sessions, env_file, stdin_payload
+        self, tmp_path, env_file, stdin_payload
     ):
         """SESSION.md contains an empty Prompts & Responses section."""
+        project_dir = tmp_path / "project"
+        project_dir.mkdir()
         handle_session_start(
             stdin_payload,
-            sessions_dir=str(tmp_sessions),
+            project_dir=str(project_dir),
             env_file_path=str(env_file),
         )
 
-        month_dir = next(tmp_sessions.iterdir())
+        sessions_dir = project_dir / ".ai" / "sessions"
+        month_dir = next(sessions_dir.iterdir())
         session_dir = next(month_dir.iterdir())
         content = (session_dir / "SESSION.md").read_text()
         assert "## Prompts & Responses" in content
@@ -84,17 +97,20 @@ class TestCreatesSessionDir:
 
 class TestIdempotent:
     def test_reuses_existing_pending_dir(
-        self, tmp_sessions, env_file, stdin_payload
+        self, tmp_path, env_file, stdin_payload
     ):
         """If a pending dir already exists in current month, reuses it."""
+        project_dir = tmp_path / "project"
+        project_dir.mkdir()
         # First call creates the dir
         handle_session_start(
             stdin_payload,
-            sessions_dir=str(tmp_sessions),
+            project_dir=str(project_dir),
             env_file_path=str(env_file),
         )
 
-        month_dir = next(tmp_sessions.iterdir())
+        sessions_dir = project_dir / ".ai" / "sessions"
+        month_dir = next(sessions_dir.iterdir())
         first_dirs = list(month_dir.iterdir())
         assert len(first_dirs) == 1
         first_session_md_content = (first_dirs[0] / "SESSION.md").read_text()
@@ -102,7 +118,7 @@ class TestIdempotent:
         # Second call should reuse, not create a new dir
         handle_session_start(
             stdin_payload,
-            sessions_dir=str(tmp_sessions),
+            project_dir=str(project_dir),
             env_file_path=str(env_file),
         )
 
@@ -113,31 +129,14 @@ class TestIdempotent:
 
 
 class TestEnvVarRouting:
-    def test_uses_skilmarillion_sessions_dir(
-        self, tmp_sessions, env_file, stdin_payload
-    ):
-        """Uses $SKILMARILLION_SESSIONS_DIR when set."""
-        custom_dir = tmp_sessions / "custom"
-        result = handle_session_start(
-            stdin_payload,
-            sessions_dir=str(custom_dir),
-            env_file_path=str(env_file),
-        )
-
-        assert "systemMessage" in result
-        assert custom_dir.exists()
-        month_dirs = list(custom_dir.iterdir())
-        assert len(month_dirs) == 1
-
     def test_falls_back_to_project_dir(self, tmp_path, env_file, stdin_payload):
-        """Falls back to $CLAUDE_PROJECT_DIR/.ai/sessions when env var unset."""
+        """Uses $CLAUDE_PROJECT_DIR/.ai/sessions to resolve sessions root."""
         project_dir = tmp_path / "project"
         project_dir.mkdir()
         stdin_payload["cwd"] = str(project_dir)
 
         result = handle_session_start(
             stdin_payload,
-            sessions_dir=None,
             project_dir=str(project_dir),
             env_file_path=str(env_file),
         )
@@ -149,12 +148,14 @@ class TestEnvVarRouting:
 
 class TestEnvFile:
     def test_writes_session_dir_to_env_file(
-        self, tmp_sessions, env_file, stdin_payload
+        self, tmp_path, env_file, stdin_payload
     ):
         """Writes SKILMARILLION_SESSION_DIR=<path> to $CLAUDE_ENV_FILE."""
+        project_dir = tmp_path / "project"
+        project_dir.mkdir()
         handle_session_start(
             stdin_payload,
-            sessions_dir=str(tmp_sessions),
+            project_dir=str(project_dir),
             env_file_path=str(env_file),
         )
 
@@ -167,11 +168,10 @@ class TestEnvFile:
 
 
 class TestGracefulDegradation:
-    def test_no_project_dir_no_sessions_dir(self, env_file, stdin_payload):
-        """Exits 0 with no dir created when neither env var is set."""
+    def test_no_project_dir(self, env_file, stdin_payload):
+        """Exits 0 with no dir created when project dir is not set."""
         result = handle_session_start(
             stdin_payload,
-            sessions_dir=None,
             project_dir=None,
             env_file_path=str(env_file),
         )
@@ -181,16 +181,19 @@ class TestGracefulDegradation:
         assert not env_file.exists()
 
     def test_unwritable_env_file_does_not_crash(
-        self, tmp_sessions, stdin_payload
+        self, tmp_path, stdin_payload
     ):
         """Handles missing/unwritable CLAUDE_ENV_FILE gracefully."""
+        project_dir = tmp_path / "project"
+        project_dir.mkdir()
         result = handle_session_start(
             stdin_payload,
-            sessions_dir=str(tmp_sessions),
+            project_dir=str(project_dir),
             env_file_path=None,
         )
 
         assert "systemMessage" in result
         # Session dir should still be created
-        month_dirs = list(tmp_sessions.iterdir())
+        sessions_dir = project_dir / ".ai" / "sessions"
+        month_dirs = list(sessions_dir.iterdir())
         assert len(month_dirs) == 1

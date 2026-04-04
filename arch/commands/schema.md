@@ -241,17 +241,23 @@ If any item fails, fix the artifact before saving.
 
 Resolve the target project root (git root of the project being designed for).
 
+Resolve the active project context: check for an existing `.skilmarillion/projects/` structure. If found, use the active `{slug}`. If not found, ask the user for the feature slug.
+
 Save the schema DDL to:
 ```
-{project_root}/docs/schema/{name}-schema.sql
+{project_root}/.skilmarillion/projects/{slug}/schema/{name}-schema.sql
 ```
 
 Save the migration plan to:
 ```
-{project_root}/docs/schema/{name}-migration.md
+{project_root}/.skilmarillion/projects/{slug}/schema/{name}-migration.md
 ```
 
-Create the `docs/schema/` directory if it does not exist.
+Create the directory if it does not exist:
+
+```bash
+mkdir -p {project_root}/.skilmarillion/projects/{slug}/schema
+```
 
 Confirm the file paths with the user before writing. The user may override the name or directory.
 

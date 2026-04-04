@@ -99,7 +99,7 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
   - [x] **SMALL mode (QRSPI):** Implement Research phase — targeted codebase reading to answer each question with file:line evidence [ADDED]
   - [x] **SMALL mode (QRSPI):** Implement Structure phase — phase breakdown with dependencies (usually 1-2 phases for SMALL tasks) [ADDED]
   - [x] **SMALL mode (QRSPI):** Implement Plan phase — produce IMPL_DETAILS.md with: target files, ordered steps (each with exact file path + verification action), risks, git strategy (branch, commit checkpoints, PR title) [ADDED]
-  - [x] **SMALL mode (QRSPI):** Save IMPL_DETAILS.md to active session directory (`${SKILMARILLION_SESSIONS_DIR}/YYYY-MM-DD_<slug>/IMPL_DETAILS.md`), not `docs/` [ADDED]
+  - [x] **SMALL mode (QRSPI):** Save IMPL_DETAILS.md to active project directory (`.skilmarillion/projects/{domain}/{slug}/impl/IMPL_DETAILS.md`), not `docs/` [ADDED]
   - [x] **SMALL mode (QRSPI):** Run plan through `validate.py --type plan` before presenting; re-draft if score < 70 [ADDED]
   - [x] **SMALL mode (QRSPI):** After plan approval, offer: "Execute now or hand to `/impl:tdd`?" — if execute, run implementation steps in-place within the same session [ADDED]
   - [x] **Risk promotion:** When a SMALL task has HIGH risk, prompt user: "This task is small but high-risk. Promote to FEATURE workflow for full spec coverage?" [ADDED]
@@ -133,7 +133,7 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 
 ### P0-F: Session Documentation Hooks
 
-- **What:** Auto-registering hooks that create a dated session directory and `SESSION.md` on session start, rename the directory with an LLM-generated slug on the first user prompt, and append a deterministic INDEX.md entry on session end. Sessions organized into `YYYY-MM/` monthly subdirs. Path configurable via `$SKILMARILLION_SESSIONS_DIR`, defaulting to `$CLAUDE_PROJECT_DIR/.ai/sessions`.
+- **What:** Auto-registering hooks that create a dated session directory and `SESSION.md` on session start, rename the directory with an LLM-generated slug on the first user prompt, and append a deterministic INDEX.md entry on session end. Sessions organized into `YYYY-MM/` monthly subdirs. Output writes to `.skilmarillion/projects/{domain}/{slug}/`.
 - **Depends on:** P0-A
 - **Risk:** Hooks auto-register via `hooks/hooks.json` — no manual `settings.json` editing needed.
 - **Checklist:**
@@ -141,7 +141,7 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
   - [x] Write `hooks/slug_rename.py`: renames pending dir with slug from first user prompt (extracts ticket IDs)
   - [x] Write `hooks/session_end.py`: marks session completed, appends deterministic row to `INDEX.md`
   - [x] Write `hooks/hooks.json` for auto-registration (SessionStart, UserPromptSubmit, SessionEnd)
-  - [x] Verify `SKILMARILLION_SESSIONS_DIR` override redirects session docs correctly
+  - [x] Verify `.skilmarillion/` output convention writes session docs to the correct project directory
   - [x] Test: 27 unit tests covering creation, idempotency, slug generation, INDEX.md dedup, graceful degradation
 - **Future:**
   - [ ] LLM-generated INDEX.md summaries (deterministic entry shipped first)
@@ -316,7 +316,7 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 - **Model tier:** Sonnet — coding requires codebase judgment, context synthesis, and slice-by-slice decision-making
 - **Checklist:**
   - [x] Implement input detection: distinguish spec files (contain `## Acceptance Criteria`, `## Vertical Slices`) from impl details files (contain `## Implementation Steps`, `## Target Files`) [ADDED]
-  - [x] **Spec input path:** Generate a session-scoped IMPL_DETAILS.md from the spec — translating ACs into implementation steps with target files, verification actions, and git strategy. Save to `${SKILMARILLION_SESSIONS_DIR}/YYYY-MM-DD_<slug>/IMPL_DETAILS.md` [ADDED]
+  - [x] **Spec input path:** Generate a session-scoped IMPL_DETAILS.md from the spec — translating ACs into implementation steps with target files, verification actions, and git strategy. Save to `.skilmarillion/projects/{domain}/{slug}/impl/IMPL_DETAILS.md` [ADDED]
   - [x] **Impl details input path:** Read the impl details steps directly — no additional generation needed [ADDED]
   - [x] Implement spec parser: read slices and their ACs from a `plan`-generated spec
   - [x] Inject spec slices and any `arch` design artifacts (ADR, OpenAPI spec, schema) as structured context at session start — do not re-read files per slice iteration; pass already-loaded artifacts as typed inputs
@@ -561,7 +561,7 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
   - [ ] Implement a deduplication synthesizer as a separate, tool-free step: receives structured output from all three agents, collapses near-duplicates, attributes to all sources; model tier: Haiku — no codebase access needed, pure aggregation of structured inputs
   - [ ] Sort findings by impact-to-effort ratio (HIGH impact, LOW effort first)
   - [ ] Lead report with "What's Working" section before surfacing issues
-  - [ ] Save report to `${SKILMARILLION_SESSIONS_DIR:-.ai/sessions}/YYYY-MM-DD_<slug>/review-<target>.md`
+  - [ ] Save report to `.skilmarillion/projects/{domain}/{slug}/reviews/review-<target>.md`
   - [ ] Verify: run on a PR with known issues; confirm findings are deduplicated and no code edits are made
 
 ### P3-D: Clean Command

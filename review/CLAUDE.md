@@ -38,15 +38,19 @@ After all specialists report, a Haiku-tier synthesizer (tool-free) collapses nea
 
 ## Artifact Paths
 
-Reports are saved to the active session directory:
+Reports are saved to the `.skilmarillion/` output directory:
 
 ```
-${SKILMARILLION_SESSIONS_DIR:-.ai/sessions}/YYYY-MM-DD_<slug>/
-  review-<target>.md              # /review:review output
-  security-<target>.md            # /review:security output
-  a11y-<target>.md                # /review:a11y output
-  clean-<target>.md               # /review:clean output
+.skilmarillion/projects/{slug}/reviews/
+  review-{target}.md              # /review:review output
+  security-{target}.md            # /review:security output
+  a11y-{target}.md                # /review:a11y output
+  clean-{target}.md               # /review:clean output
 ```
+
+## Git Exclusion Policy
+
+Review reports are written to `.skilmarillion/` but never staged or committed automatically. The user decides whether to track review artifacts in git.
 
 ## Standalone Entry Conditions
 

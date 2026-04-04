@@ -217,6 +217,12 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 
 ---
 
+## .skilmarillion/ Exclusion
+
+When scanning staged files, explicitly skip paths under `.skilmarillion/`. Do not stage `.skilmarillion/` files unless the user explicitly asks. If `.skilmarillion/` files are already staged, warn the user: "`.skilmarillion/` files are staged. These are local workflow artifacts — unstage them? (yes / no)"
+
+---
+
 ## Edge Cases
 
 - **Mixed changes** (feat + fix in same commit): prefer the higher-impact type. If a new feature also fixes a bug, use `feat`. If the fix is the primary intent and the new code is incidental, use `fix`.

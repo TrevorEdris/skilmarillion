@@ -57,21 +57,19 @@ Store count and paths as `{prds}`.
 ### 4. Scan for active state files
 
 ```
-Glob: .plan-state-*.local.yaml
+Glob: .skilmarillion/projects/*/PROJECT-STATE.yaml
 ```
 
 Store count and paths as `{plan_state_files}`.
 
-```
-Glob: .impl-state-*.local.yaml
-```
+For each file found, check if it contains an `impl:` section. If so, also count it as an impl state entry.
 
-Store count and paths as `{impl_state_files}`.
+Store impl entries as `{impl_state_files}`.
 
 ### 5. Scan for review reports
 
 ```
-Glob: .ai/sessions/*/REVIEW-*.md
+Glob: .skilmarillion/projects/*/reviews/*.md
 ```
 
 Store count as `{review_reports}`.
@@ -134,7 +132,7 @@ Walk through each lifecycle phase one at a time. After each phase description, a
 > - `/plan:migrate [legacy] [target]` -- Produces a prioritized migration plan.
 > - `/plan:help` -- Deep-dive tour of plan commands.
 >
-> **Artifact produced:** `docs/{feature}/specs/SPEC-{NNN}-{slug}.md`
+> **Artifact produced:** `.skilmarillion/projects/{slug}/specs/SPEC-{NNN}-{slug}.md`
 >
 > Run `/plan:help` for a detailed walkthrough of each command.
 
@@ -171,7 +169,7 @@ Ask (using `AskUserQuestion`):
 >
 > **Key commands:** Run `/arch:help` for the full command list.
 >
-> **Artifact produced:** `docs/{feature}/ADR-{NNN}-{slug}.md`
+> **Artifact produced:** `.skilmarillion/projects/{slug}/adrs/{NNN}-{slug}.md`
 
 #### If `arch` is NOT installed:
 

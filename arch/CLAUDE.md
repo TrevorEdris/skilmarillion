@@ -30,7 +30,7 @@ Facilitator, not dictator. Present trade-offs with evidence. The developer makes
 All outputs land at deterministic paths relative to the target project's git root.
 
 ```
-{project_root}/docs/
+{project_root}/.skilmarillion/projects/{slug}/
   adrs/
     [NNN]-[title].md              # /arch:design output (auto-incrementing)
   api/
@@ -41,6 +41,8 @@ All outputs land at deterministic paths relative to the target project's git roo
   diagrams/
     [name]-[type].md              # /arch:diagram output
 ```
+
+> **Project context resolution:** arch commands resolve `{slug}` from the active `.skilmarillion/projects/` structure. If no active project context exists, the command will ask the user for the feature slug before saving artifacts.
 
 ## Design Session Structure
 

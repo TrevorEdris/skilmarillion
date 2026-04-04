@@ -12,8 +12,8 @@ Skilmarillion is a Claude Code plugin system organized as a lifecycle: `plan` (s
 - `review/` — The review and quality plugin (code quality, security, accessibility)
 - `skil/` — Workflow router and discovery layer (meta-plugin, no agents or skills)
 - `impl/` — The implementation executor plugin (TDD, debugging, refactoring, commits)
-- `docs/planning/` — Project PRD and roadmap
-- `docs/{feature}/` — Feature-grouped artifacts: PRD, roadmap, specs, plans (see `plan/skills/artifact-paths.md`)
+- `docs/planning/` — Skilmarillion's own project PRD and roadmap
+- `.skilmarillion/` — Output convention for target projects: all artifacts land under `.skilmarillion/projects/{slug}/` (see `plan/skills/artifact-paths.md`)
 - `test-fixtures/` — Sample app used for testing plugin commands
 
 ## Build & Test Commands
@@ -48,5 +48,5 @@ Do not merge a roadmap-item PR without this update.
 
 - **Versioning:** Semver for `plugin.json` — patch for fixes, minor for new commands, major for breaking changes.
 - **Command files:** YAML frontmatter (`description`, `argument-hint`, `allowed-tools`, `model`) + markdown body.
-- **Artifact paths:** Deterministic, feature-grouped — `docs/{feature}/PRD.md`, `docs/{feature}/specs/SPEC-NNN-{slug}.md`. Slug confirmed with user before save. See `plan/skills/artifact-paths.md`.
+- **Artifact paths:** Deterministic, feature-grouped under `.skilmarillion/projects/{slug}/` — e.g. `PRD.md`, `specs/SPEC-NNN-{slug}.md`, `adrs/NNN-{slug}.md`. Domain and slug confirmed with user before save. See `plan/skills/artifact-paths.md`.
 - **Model tiering:** Use the minimum model that handles the task reliably. Haiku for deterministic/structured output. Sonnet for judgment and context. Opus for security/quality-critical roles.

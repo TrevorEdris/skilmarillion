@@ -25,7 +25,7 @@ Decompose an approved PRD into a phased, ordered roadmap with shippable mileston
 Resolve the PRD to decompose:
 
 - **Argument provided** — If the argument is a file path ending in `.md`, use it directly.
-- **No argument, feature directory context** — Search for `docs/*/PRD.md` in the resolved project root:
+- **No argument, feature directory context** — Search for `.skilmarillion/projects/*/*/PRD.md` in the resolved project root:
   - If exactly one PRD found, use it.
   - If multiple found, present a numbered list and ask the user to select one.
   - If none found, ask the user for a PRD path or suggest running `/plan:prd` first.
@@ -101,7 +101,7 @@ Include a dependency graph as either a text list or Mermaid diagram showing mile
 
 Include a `/plan:specify` invocation hint for the roadmap as a whole:
 ```
-- [ ] Generate all specs: `/plan:specify {roadmap-path}` → `docs/{feature}/specs/SPEC-NNN-{slug}.md`
+- [ ] Generate all specs: `/plan:specify {roadmap-path}` → `.skilmarillion/projects/{slug}/specs/SPEC-NNN-{slug}.md`
 ```
 
 ### 8. Save
@@ -110,10 +110,11 @@ Resolve artifact path per `artifact-paths` skill:
 
 1. **Resolve project root** — determine which git repo this roadmap targets (git root of target project, not necessarily CWD). See `artifact-paths` skill for the resolution chain.
 2. **Derive feature slug** from the PRD's feature name using the canonical slug algorithm from `artifact-paths` skill.
-3. **Derive roadmap path:** `{project_root}/docs/{feature-slug}/ROADMAP.md`
-4. **Confirm path with user** per `artifact-paths` slug confirmation protocol. Show full absolute path on first save. User may accept, override the slug, or correct the project root.
-5. **Create directory** if it does not exist: `mkdir -p {project_root}/docs/{feature-slug}`
-6. **Save** roadmap using Write tool to the confirmed path.
+3. **Derive domain** from the feature context (e.g., `auth`, `billing`, `core`). Present for user confirmation.
+4. **Derive roadmap path:** `{project_root}/.skilmarillion/projects/{feature-slug}/ROADMAP.md`
+5. **Confirm path with user** per `artifact-paths` slug confirmation protocol. Show full absolute path on first save. User may accept, override the slug/domain, or correct the project root.
+6. **Create directory** if it does not exist: `mkdir -p {project_root}/.skilmarillion/projects/{feature-slug}`
+7. **Save** roadmap using Write tool to the confirmed path.
 
 ### 9. Confirm and Suggest Next Step
 
@@ -147,4 +148,4 @@ After the roadmap is saved successfully, display:
 > ```
 > /plan:specify {roadmap-path}
 > ```
-> This generates a spec for each milestone at `docs/{feature}/specs/SPEC-NNN-{slug}.md`.
+> This generates a spec for each milestone at `.skilmarillion/projects/{slug}/specs/SPEC-NNN-{slug}.md`.

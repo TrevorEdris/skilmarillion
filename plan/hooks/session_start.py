@@ -36,12 +36,8 @@ status: active
 """
 
 
-def _resolve_sessions_dir(
-    sessions_dir: str | None, project_dir: str | None
-) -> Path | None:
+def _resolve_sessions_dir(project_dir: str | None) -> Path | None:
     """Resolve the sessions root directory."""
-    if sessions_dir:
-        return Path(sessions_dir)
     if project_dir:
         return Path(project_dir) / ".ai" / "sessions"
     return None
@@ -50,12 +46,11 @@ def _resolve_sessions_dir(
 def handle_session_start(
     payload: dict,
     *,
-    sessions_dir: str | None = None,
     project_dir: str | None = None,
     env_file_path: str | None = None,
 ) -> dict:
     """Handle a SessionStart event. Returns JSON-serializable dict for stdout."""
-    root = _resolve_sessions_dir(sessions_dir, project_dir)
+    root = _resolve_sessions_dir(project_dir)
     if root is None:
         return {}
 
@@ -102,7 +97,6 @@ def main() -> None:
 
     result = handle_session_start(
         payload,
-        sessions_dir=os.environ.get("SKILMARILLION_SESSIONS_DIR") or None,
         project_dir=os.environ.get("CLAUDE_PROJECT_DIR") or None,
         env_file_path=os.environ.get("CLAUDE_ENV_FILE") or None,
     )

@@ -35,14 +35,16 @@ Glob: review/.claude-plugin/plugin.json
 
 Store results as `{installed_plugins}` — a list of which plugins are present.
 
-### 2. Read `plan` state files
+### 2. Read project state files
 
 ```
-Glob: .plan-state-*.local.yaml
+Glob: .skilmarillion/projects/*/PROJECT-STATE.yaml
 ```
 
 For each file found, read it and extract:
-- `slug` (from filename: `.plan-state-{slug}.local.yaml`)
+
+**Plan section** (under `plan:` key):
+- `slug` (from directory name)
 - `feature` field
 - `size` field
 - `risk` field
@@ -52,14 +54,8 @@ For each file found, read it and extract:
 
 Store as `{plan_states}`.
 
-### 3. Read `impl` state files
-
-```
-Glob: .impl-state-*.local.yaml
-```
-
-For each file found, read it and extract:
-- `slug` (from filename: `.impl-state-{slug}.local.yaml`)
+**Impl section** (under `impl:` key, if present):
+- `slug` (from directory name)
 - Any fields present (slice progress, current step, etc.)
 - File modification time
 
@@ -75,16 +71,10 @@ Glob: docs/*/ROADMAP.md
 
 Count and store paths as `{specs}`, `{prds}`, `{roadmaps}`.
 
-### 5. Scan for session directories
+### 5. Scan for project session logs
 
 ```
-Glob: .ai/sessions/*/SESSION.md
-```
-
-Or if `SKILMARILLION_SESSIONS_DIR` is set:
-
-```
-Glob: ${SKILMARILLION_SESSIONS_DIR}/*/SESSION.md
+Glob: .skilmarillion/projects/*/SESSION.md
 ```
 
 Count recent sessions (modified in last 7 days) as `{recent_sessions}`.

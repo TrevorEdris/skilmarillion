@@ -119,10 +119,10 @@ class TestIndexMd:
         self, session_dir, sessions_root, stdin_payload
     ):
         """Creates INDEX.md with header row if it doesn't exist."""
+        # session_dir.parent.parent == sessions_root, so derive works
         handle_session_end(
             stdin_payload,
             session_dir=str(session_dir),
-            sessions_root=str(sessions_root),
         )
 
         index_md = sessions_root / "INDEX.md"
@@ -141,7 +141,6 @@ class TestIndexMd:
         handle_session_end(
             stdin_payload,
             session_dir=str(session_dir),
-            sessions_root=str(sessions_root),
         )
 
         content = (sessions_root / "INDEX.md").read_text()
@@ -160,12 +159,10 @@ class TestIndexMd:
         handle_session_end(
             stdin_payload,
             session_dir=str(session_dir),
-            sessions_root=str(sessions_root),
         )
         handle_session_end(
             stdin_payload,
             session_dir=str(session_dir),
-            sessions_root=str(sessions_root),
         )
 
         content = (sessions_root / "INDEX.md").read_text()
@@ -173,11 +170,10 @@ class TestIndexMd:
         assert len(data_lines) == 1
 
     def test_derives_root_from_session_dir(self, session_dir, sessions_root, stdin_payload):
-        """Derives sessions root from session dir path when sessions_root is None."""
+        """Derives sessions root from session dir path when project_dir is None."""
         handle_session_end(
             stdin_payload,
             session_dir=str(session_dir),
-            sessions_root=None,
         )
         # Should derive root as session_dir.parent.parent and create INDEX.md there
         index_md = sessions_root / "INDEX.md"
@@ -197,7 +193,6 @@ class TestIndexMd:
         handle_session_end(
             stdin_payload,
             session_dir=str(sdir),
-            sessions_root=None,
             project_dir=str(project_dir),
         )
 

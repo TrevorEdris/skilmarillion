@@ -112,7 +112,6 @@ def handle_session_end(
     payload: dict,
     *,
     session_dir: str | None = None,
-    sessions_root: str | None = None,
     project_dir: str | None = None,
 ) -> dict:
     """Handle a SessionEnd event. Returns JSON-serializable dict for stdout."""
@@ -121,9 +120,7 @@ def handle_session_end(
     # If session_dir not provided, scan for the most recent one
     if sdir is None or not sdir.is_dir():
         root = None
-        if sessions_root:
-            root = Path(sessions_root)
-        elif project_dir:
+        if project_dir:
             root = Path(project_dir) / ".ai" / "sessions"
         if root:
             sdir = _find_most_recent_session(root)
@@ -143,9 +140,7 @@ def handle_session_end(
 
     # Resolve sessions root for INDEX.md
     root = None
-    if sessions_root:
-        root = Path(sessions_root)
-    elif project_dir:
+    if project_dir:
         root = Path(project_dir) / ".ai" / "sessions"
     elif sdir.parent.parent.is_dir():
         # Derive from session dir: session_dir → month_dir → sessions_root
@@ -173,7 +168,6 @@ def main() -> None:
     result = handle_session_end(
         payload,
         session_dir=os.environ.get("SKILMARILLION_SESSION_DIR") or None,
-        sessions_root=os.environ.get("SKILMARILLION_SESSIONS_DIR") or None,
         project_dir=os.environ.get("CLAUDE_PROJECT_DIR") or None,
     )
     print(json.dumps(result))

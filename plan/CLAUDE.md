@@ -32,9 +32,9 @@ Risk shapes spec depth:
 
 ## Navigation by Size
 
-- **TRIVIAL**: Triage → Question → draft spec directly → TDD plan. Lightweight spec saved to `docs/{feature}/specs/`.
-- **SMALL**: Triage → Question → context gather → spec build → architecture → TDD plan. Spec saved to `docs/{feature}/specs/`.
-- **FEATURE**: Triage → Question → context gather → spec build (with vertical slices) → architecture → TDD plan. Spec saved to `docs/{feature}/specs/`.
+- **TRIVIAL**: Triage → Question → draft spec directly → TDD plan. Lightweight spec saved to `.skilmarillion/projects/{slug}/specs/`.
+- **SMALL**: Triage → Question → context gather → spec build → architecture → TDD plan. Spec saved to `.skilmarillion/projects/{slug}/specs/`.
+- **FEATURE**: Triage → Question → context gather → spec build (with vertical slices) → architecture → TDD plan. Spec saved to `.skilmarillion/projects/{slug}/specs/`.
 - **EPIC**: "This needs a PRD and roadmap first." Route to `/plan:prd` and `/plan:roadmap`, then spec each milestone independently.
 
 ## Workflow Phases (TRIVIAL/SMALL/FEATURE)
@@ -45,14 +45,14 @@ Risk shapes spec depth:
 4. **Architecture Advising** — *(SMALL, FEATURE)* Evaluate spec against codebase. Recommend pattern. Agent: `architecture-advisor`
 5. **TDD Planning** — Convert confirmed spec + architecture into ordered RED→GREEN→REFACTOR steps. Agent: `tdd-planner`
 
-The output is always a spec file at `docs/{feature}/specs/SPEC-{NNN}-{slug}.md` that is sufficient input for `/impl:tdd` with no additional clarification.
+The output is always a spec file at `.skilmarillion/projects/{slug}/specs/SPEC-{NNN}-{slug}.md` that is sufficient input for `/impl:tdd` with no additional clarification.
 
 ## Commands
 
 - `/plan:help` — interactive, context-aware tour of plan's capabilities. Detects project state and recommends a starting command.
 - `/plan:specify [roadmap-path]` — generate all specs from a ROADMAP using parallel agents.
 - `/plan:prd [feature]` — produce a client-shareable PRD from a plain-language description.
-- `/plan:roadmap [prd-path]` — decompose an approved PRD into ordered milestones. Saves to `docs/{feature}/ROADMAP.md`.
+- `/plan:roadmap [prd-path]` — decompose an approved PRD into ordered milestones. Saves to `.skilmarillion/projects/{slug}/ROADMAP.md`.
 - `/plan:validate [path]` — score a spec, PRD, or plan document (0–100; PASS at ≥70).
 - `/plan:migrate [legacy] [target]` — produce a prioritized migration plan as independently shippable specs. *(Should priority; added in P0-H)*
 
@@ -61,9 +61,10 @@ The output is always a spec file at `docs/{feature}/specs/SPEC-{NNN}-{slug}.md` 
 All outputs land at deterministic, feature-grouped paths relative to the target project's git root. Slugs are confirmed with the user before save. See `artifact-paths` skill for full resolution rules.
 
 ```
-{project_root}/docs/{feature}/
+{project_root}/.skilmarillion/projects/{slug}/
   PRD.md                           # /plan:prd output
   ROADMAP.md                       # /plan:roadmap output
+  PROJECT-STATE.yaml               # workflow state (replaces .plan-state-*.local.yaml)
   specs/
     SPEC-001-{slug}.md             # /plan:specify output (auto-incrementing)
   plans/
@@ -72,16 +73,16 @@ All outputs land at deterministic, feature-grouped paths relative to the target 
 
 | Command | Artifact | Path |
 |---------|----------|------|
-| `/plan:prd` | PRD | `docs/{feature}/PRD.md` |
-| `/plan:specify` | Specs | `docs/{feature}/specs/SPEC-{NNN}-{slug}.md` |
-| `/plan:roadmap` | Roadmap | `docs/{feature}/ROADMAP.md` |
-| `/plan:migrate` | Migration ROADMAP + Specs | `docs/{migration-slug}/ROADMAP.md` + `docs/{migration-slug}/specs/SPEC-{NNN}-migrate-{module}.md` |
+| `/plan:prd` | PRD | `.skilmarillion/projects/{slug}/PRD.md` |
+| `/plan:specify` | Specs | `.skilmarillion/projects/{slug}/specs/SPEC-{NNN}-{slug}.md` |
+| `/plan:roadmap` | Roadmap | `.skilmarillion/projects/{slug}/ROADMAP.md` |
+| `/plan:migrate` | Migration ROADMAP + Specs | `.skilmarillion/projects/{migration-slug}/ROADMAP.md` + `.skilmarillion/projects/{migration-slug}/specs/SPEC-{NNN}-migrate-{module}.md` |
 
 Directories are created if they do not exist.
 
 ## State Persistence
 
-Track workflow progress in `.plan-state-{slug}.local.yaml`. This file is written via Bash (not Write/Edit tools) to avoid permission prompts. On startup, check for in-progress work and offer to resume.
+Track workflow progress in `.skilmarillion/projects/{slug}/PROJECT-STATE.yaml`. This file is written via Bash (not Write/Edit tools) to avoid permission prompts. On startup, check for in-progress work and offer to resume.
 
 ## Personality
 

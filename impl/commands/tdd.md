@@ -24,7 +24,7 @@ Execute slice-by-slice TDD from a spec or impl-details file. The primary `impl` 
 
 ### 1. Check for In-Progress State
 
-Look for `.impl-state-*.local.yaml` files in the current directory.
+Look for `.skilmarillion/projects/*/*/PROJECT-STATE.yaml` files that contain an `impl` section.
 
 If found:
 - Parse each file for `slug`, `current_slice`, `total_slices`, `phase` (red/green/refactor)
@@ -78,7 +78,7 @@ If the spec has no slices (SMALL spec with ACs only), treat the entire AC list a
 ### A2. Load Arch Artifacts
 
 Check for architecture artifacts in the target project:
-- `docs/{feature}/` — look for ADR files, OpenAPI specs, schema files
+- `.skilmarillion/projects/{slug}/` — look for ADR files, OpenAPI specs, schema files
 - Load any found artifacts as structured context. Do NOT re-read these per slice — cache them at session start.
 
 ### A3. Generate IMPL_DETAILS.md
@@ -96,12 +96,10 @@ Input: {
 
 The agent returns an IMPL_DETAILS.md with implementation steps grouped by slice.
 
-Save the result to the active session directory:
+Save the result to the project output directory:
 ```
-${SKILMARILLION_SESSIONS_DIR}/YYYY-MM-DD_<slug>/IMPL_DETAILS.md
+.skilmarillion/projects/{slug}/impl/IMPL_DETAILS.md
 ```
-
-If `SKILMARILLION_SESSIONS_DIR` is not set, save to `.ai/sessions/YYYY-MM-DD_<slug>/IMPL_DETAILS.md` relative to the project root.
 
 Display to the user:
 > "Generated implementation details from spec. {N} slices, {M} total steps."
@@ -154,7 +152,7 @@ For each slice, in order:
 
 ### Step 2: Initialize State
 
-Write state file `.impl-state-{slug}.local.yaml`:
+Write state to `.skilmarillion/projects/{slug}/PROJECT-STATE.yaml` (under the `impl` key):
 ```yaml
 slug: {slug}
 current_slice: {N}
@@ -340,7 +338,7 @@ If any ACCEPT_WITH_DEBT gaps exist:
 
 ### 3. State Cleanup
 
-Delete `.impl-state-{slug}.local.yaml`.
+Remove the `impl` section from `.skilmarillion/projects/{slug}/PROJECT-STATE.yaml`. If no other sections remain, delete the file.
 
 ### 4. Next Step Breadcrumb
 
