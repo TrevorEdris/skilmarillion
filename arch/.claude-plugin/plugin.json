@@ -1,7 +1,7 @@
 {
   "name": "arch",
   "description": "Architecture and design navigator. Produces ADRs, OpenAPI specs, database schemas, and Mermaid diagrams from structured design sessions.",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "author": {
     "name": "TrevorEdris",
     "url": "https://github.com/TrevorEdris"
