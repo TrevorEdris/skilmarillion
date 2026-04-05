@@ -32,8 +32,12 @@ FAILED=0
 for plugin in "${PLUGINS[@]}"; do
   PLUGIN_JSON="${plugin}/.claude-plugin/plugin.json"
 
-  # Check if any files under this plugin directory changed
-  CHANGED=$(git diff --name-only "$BASE_SHA"...HEAD -- "$plugin/" 2>/dev/null | grep -v '^\s*$' || true)
+  # Check if any plugin-relevant files changed (exclude site docs and workflow artifacts)
+  CHANGED=$(git diff --name-only "$BASE_SHA"...HEAD -- "$plugin/" 2>/dev/null \
+    | grep -v '^docs/' \
+    | grep -v '^\.ai/' \
+    | grep -v '^\.skilmarillion/' \
+    | grep -v '^\s*$' || true)
 
   if [ -z "$CHANGED" ]; then
     continue
