@@ -1,6 +1,6 @@
 # ROADMAP.md Template
 
-Unified roadmap document merging feature descriptions (product-readable) with implementation checklists (engineering-readable). Produced from an approved PRD via `/plan:roadmap`.
+Unified roadmap document merging feature descriptions (product-readable) with implementation checklists (engineering-readable). Produced from an approved PRD via `/fellowship:plan --roadmap`.
 
 ---
 
