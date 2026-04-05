@@ -538,7 +538,7 @@ img {
 .plugin-card--review { border-left: 3px solid var(--color-review); }
 .plugin-card--ship   { border-left: 3px solid var(--color-impl); }
 .plugin-card--status { border-left: 3px solid var(--color-text-muted); }
-.plugin-card--help   { border-left: 3px solid var(--color-skil); grid-column: 1 / -1; }
+.plugin-card--help   { border-left: 3px solid var(--color-skil); }
 
 .plugin-card--plan h3   { color: var(--color-plan); }
 .plugin-card--build h3  { color: var(--color-arch); }

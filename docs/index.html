@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&display=swap">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
   <a href="#main" class="skip-link">Skip to main content</a>
@@ -23,7 +23,7 @@
       <nav aria-label="Primary navigation">
         <ul class="header-nav">
           <li><a href="#lifecycle">Lifecycle</a></li>
-          <li><a href="#plugins">Plugins</a></li>
+          <li><a href="#plugins">Commands</a></li>
           <li><a href="#workflow">Workflow</a></li>
           <li><a href="https://github.com/TrevorEdris/skilmarillion">GitHub</a></li>
         </ul>
@@ -97,7 +97,7 @@
         <div class="entry-point">
           <span class="entry-point-label">Start here:</span>
           <code class="entry-point-command">/fellowship:help</code>
-          <span class="entry-point-desc">The workflow router detects installed plugins and recommends where to begin based on your project state.</span>
+          <span class="entry-point-desc">Recommends where to begin based on your project state.</span>
         </div>
       </div>
     </section>
@@ -105,8 +105,8 @@
     <!-- Plugins -->
     <section class="section section--alt" id="plugins" aria-labelledby="plugins-heading">
       <div class="container">
-        <h2 id="plugins-heading" class="section-title">The fellowship plugin</h2>
-        <p class="section-subtitle">Install once. Six commands covering the full development lifecycle.</p>
+        <h2 id="plugins-heading" class="section-title">Commands</h2>
+        <p class="section-subtitle">Six commands covering the full development lifecycle.</p>
 
         <div class="plugin-grid">
           <div class="plugin-card plugin-card--plan">
@@ -117,7 +117,7 @@
           </div>
           <div class="plugin-card plugin-card--build">
             <h3>build</h3>
-            <p>Slice-by-slice TDD execution. Red, green, refactor &mdash; one slice at a time. Debug and refactor modes included.</p>
+            <p>Slice-by-slice TDD execution. Red, green, refactor &mdash; one slice at a time. Use <code>--refactor</code> for phase-gated refactoring or <code>--debug</code> for structured root cause analysis.</p>
             <div class="artifact-label">Produces</div>
             <div class="artifact-value">tested, committed code</div>
           </div>
@@ -135,21 +135,15 @@
           </div>
           <div class="plugin-card plugin-card--status">
             <h3>status</h3>
-            <p>Read-only dashboard of active work. Shows current phase, open specs, and last review findings.</p>
+            <p>Read-only terminal report of active work. Shows current phase, open specs, and last review findings across all projects.</p>
             <div class="artifact-label">Produces</div>
-            <div class="artifact-value">dashboard output</div>
+            <div class="artifact-value">terminal report</div>
           </div>
           <div class="plugin-card plugin-card--help">
-            <div class="plugin-card-help-body">
-              <div>
-                <h3>help</h3>
-                <p>Context-aware tour of available commands. Describe your task and get a recommendation for where to start.</p>
-              </div>
-              <div class="artifact-group">
-                <div class="artifact-label">Start here</div>
-                <div class="artifact-value">/fellowship:help</div>
-              </div>
-            </div>
+            <h3>help</h3>
+            <p>Context-aware tour of available commands. Describe your task and get a recommendation for where to start.</p>
+            <div class="artifact-label">Start here</div>
+            <div class="artifact-value">/fellowship:help</div>
           </div>
         </div>
       </div>
@@ -167,71 +161,70 @@
             <div class="workflow-step-header">
               <span class="workflow-step-number">1</span>
               <span class="workflow-step-phase">Plan</span>
-              <span class="workflow-step-command">/fellowship:plan</span>
+              <code class="workflow-step-command">/fellowship:plan</code>
             </div>
             <pre class="excerpt-block" role="region" aria-label="Spec output from fellowship:plan" tabindex="0"><span class="heading">## Acceptance Criteria</span>
 
-<span class="heading">### Slice 1: Add rate limiting to /api/ingest</span>
-<span class="keyword">GIVEN</span> <span class="value">a request arrives at /api/ingest</span>
-<span class="keyword">WHEN</span>  <span class="value">the caller has exceeded 100 req/min</span>
-<span class="keyword">THEN</span>  <span class="value">the endpoint returns HTTP 429 with Retry-After header</span>
-  <span class="keyword">AND</span>  <span class="value">the request is not processed</span>
+<span class="heading">### Slice 1: Remove old command syntax</span>
+<span class="keyword">GIVEN</span> <span class="value">docs/index.html</span>
+<span class="keyword">WHEN</span>  <span class="value">a text search is run for `/plan:sdd`</span>
+<span class="keyword">THEN</span>  <span class="value">zero matches are found</span>
 
-<span class="heading">### Slice 2: Allow-list bypass</span>
-<span class="keyword">GIVEN</span> <span class="value">the caller IP is in the allow-list</span>
-<span class="keyword">WHEN</span>  <span class="value">the rate limit would otherwise be exceeded</span>
-<span class="keyword">THEN</span>  <span class="value">the request is processed normally</span></pre>
+<span class="heading">### Slice 2: Remove five-plugin framing</span>
+<span class="keyword">GIVEN</span> <span class="value">the OG meta tags are inspected</span>
+<span class="keyword">WHEN</span>  <span class="value">og:title is read</span>
+<span class="keyword">THEN</span>  <span class="value">it does not contain "Lifecycle Plugins for Claude Code"</span></pre>
           </div>
 
           <div class="workflow-step">
             <div class="workflow-step-header">
               <span class="workflow-step-number">2</span>
               <span class="workflow-step-phase">Build</span>
-              <span class="workflow-step-command">/fellowship:build</span>
+              <code class="workflow-step-command">/fellowship:build</code>
             </div>
-            <pre class="excerpt-block" role="region" aria-label="TDD output from fellowship:build" tabindex="0"><span class="heading">Slice 1/2: Rate limiting</span>
-<span class="comment">RED confirmed: test_rate_limit_exceeded fails — handler returns 200, not 429</span>
-<span class="value">Writing minimal handler: check Redis counter, return 429 if exceeded</span>
-<span class="heading">GREEN confirmed: 4 tests pass.</span>
-<span class="comment">No refactoring needed. Suite green.</span>
+            <pre class="excerpt-block" role="region" aria-label="TDD output from fellowship:build" tabindex="0"><span class="heading">Slice 1/2: Remove old command syntax</span>
+<span class="comment">RED confirmed: 11 matches for plan:sdd|arch:design|impl:tdd|review:review|skil:help</span>
+<span class="value">Replacing superseded commands with fellowship equivalents across all sections</span>
+<span class="heading">GREEN confirmed: 0 matches. Suite green.</span>
 
-<span class="heading">Slice 2/2: Allow-list bypass</span>
-<span class="comment">RED confirmed: test_allowlist_bypass fails — allow-list not checked</span>
-<span class="value">Writing allow-list lookup before rate check</span>
-<span class="heading">GREEN confirmed: 6 tests pass.</span></pre>
+<span class="heading">Slice 2/2: Remove five-plugin framing</span>
+<span class="comment">RED confirmed: "Five Claude Code plugins" found in title, meta, hero, heading</span>
+<span class="value">Updating meta tags, hero subtitle, section heading, og:description</span>
+<span class="heading">GREEN confirmed: 0 matches. Suite green.</span></pre>
           </div>
 
           <div class="workflow-step">
             <div class="workflow-step-header">
               <span class="workflow-step-number">3</span>
               <span class="workflow-step-phase">Review</span>
-              <span class="workflow-step-command">/fellowship:review</span>
+              <code class="workflow-step-command">/fellowship:review</code>
             </div>
             <pre class="excerpt-block" role="region" aria-label="Review findings from fellowship:review" tabindex="0"><span class="heading">## Findings</span>
 
-<span class="keyword">| # | Severity | Category     | File              | Finding                             |</span>
-| 1 | MEDIUM   | Security     | rate_limit.py:14  | Redis key not namespaced per-tenant |
-| 2 | LOW      | Code Quality | rate_limit.py:22  | Magic number 100 should be config   |
+<span class="keyword">| # | Severity | Category      | Location         | Finding                               |</span>
+| 1 | HIGH     | Accessibility | style.css:627    | .excerpt-block missing :focus-visible |
+| 2 | HIGH     | Accessibility | index.html:24    | Nav links fail 24&times;24 target size|
+| 3 | MEDIUM   | Correctness   | index.html:109   | Subtitle says "Seven", grid has six   |
 
 <span class="heading">## Summary</span>
-<span class="comment">2 findings: 0 HIGH, 1 MEDIUM, 1 LOW</span>
-<span class="comment">PASS — address MEDIUM before merge</span></pre>
+<span class="comment">0 CRITICAL, 2 HIGH, 6 MEDIUM, 6 LOW</span>
+<span class="comment">PASS — address HIGH findings before ship</span></pre>
           </div>
 
           <div class="workflow-step">
             <div class="workflow-step-header">
               <span class="workflow-step-number">4</span>
               <span class="workflow-step-phase">Ship</span>
-              <span class="workflow-step-command">/fellowship:ship</span>
+              <code class="workflow-step-command">/fellowship:ship</code>
             </div>
-            <pre class="excerpt-block" role="region" aria-label="Commit output from fellowship:ship" tabindex="0"><span class="heading">feat(api): add per-caller rate limiting to /api/ingest</span>
+            <pre class="excerpt-block" role="region" aria-label="Commit output from fellowship:ship" tabindex="0"><span class="heading">refactor(site): improve accessibility and maintainability of marketing site</span>
 
-<span class="value">- Returns HTTP 429 with Retry-After header when limit exceeded</span>
-<span class="value">- Allow-listed IPs bypass rate check</span>
-<span class="value">- Redis key namespaced per tenant (addresses review finding #1)</span>
-<span class="value">- Limit configurable via RATE_LIMIT_RPM env var</span>
+<span class="value">- Add :focus-visible outlines to .excerpt-block, .install-block (WCAG 2.4.7)</span>
+<span class="value">- Increase header-nav padding to meet 24&times;24 minimum target size (WCAG 2.5.8)</span>
+<span class="value">- Fix subtitle "Seven commands" &rarr; "Six commands"</span>
+<span class="value">- Rename section id #output &rarr; #workflow for semantic alignment</span>
 
-<span class="comment">Closes #412</span></pre>
+<span class="comment">[main ab23599] 2 files changed, 304 insertions(+), 144 deletions(-)</span></pre>
           </div>
 
         </div>
