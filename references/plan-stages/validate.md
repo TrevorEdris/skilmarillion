@@ -37,7 +37,7 @@ If the user passed `--draft`, include `--draft` in the command.
 
 ### 3. Parse and display results
 
-Parse the JSON output from the script. The `threshold` field tells you the PASS bar (85 for spec/prd, 70 for plan, 50 with `--draft`).
+Parse the JSON output from the script. The `threshold` field tells you the PASS bar (85 for all types, 50 with `--draft`).
 
 **If score >= threshold (PASS):**
 

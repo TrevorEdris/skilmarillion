@@ -19,7 +19,7 @@ Spec-driven development from discovery through TDD to review.
 | `/fellowship:status` | Read-only dashboard of active work | haiku |
 | `/fellowship:help` | Context-aware tour; recommends a command from a task description | haiku |
 
-## Core Conventions
+## Artifacts
 
 ### Output Paths
 
@@ -52,7 +52,7 @@ Match model to task:
 
 ### Validation Gate
 
-Specs, PRDs, and plans are scored 0–100 by `scripts/validate.py`. PASS threshold: ≥85 for PRDs/ROADMAPs/SPECs, ≥70 for plans. Draft threshold: 50.
+Specs, PRDs, and plans are scored 0–100 by `scripts/validate.py`. PASS threshold: ≥85 for all document types. Draft threshold: 50.
 
 ## Recommended .gitignore
 
@@ -80,7 +80,7 @@ Commit the design artifacts the team agrees on. Keep per-engineer working state 
 
 Rationale: specs, ADRs, and API/schema contracts are the team's *durable agreement*. Plans get actively rewritten during `/fellowship:build` (debt notes, slice status, attempt counts) — they're the working document for whoever picks up the spec. Reviews are findings-only and feed the PR's review thread, not the repo.
 
-## Personas & Flows
+## Usage By Role
 
 Who runs which command depends on your role. Full playbook: [HOW_TO_USE.md](HOW_TO_USE.md).
 
@@ -91,26 +91,6 @@ Who runs which command depends on your role. Full playbook: [HOW_TO_USE.md](HOW_
 | **Individual Engineer** | `/fellowship:build` → `/fellowship:review` → `/fellowship:ship --pr` | `plans/PLAN-NNN-*.md` (paired with SPEC), code + tests, PR with AC traceability |
 
 Handoff: PM writes the PRD → Lead decomposes into roadmap + specs → Engineer picks a spec and ships it.
-
-## Repository Layout
-
-```
-.claude-plugin/
-  plugin.json               # fellowship manifest
-  marketplace.json          # skilmarillion marketplace → fellowship
-commands/                   # 7 flat commands
-  init.md  plan.md  build.md  review.md  ship.md  status.md  help.md
-agents/                     # specialist sub-agents
-skills/                     # reusable skills
-references/                 # templates, rubrics, stage playbooks
-  plan-stages/              # /fellowship:plan flag bodies
-  build-stages/             # /fellowship:build flag bodies
-  review-stages/            # /fellowship:review flag bodies
-scripts/                    # validate.py, update-state.sh
-hooks/                      # session lifecycle hooks
-docs/planning/              # skilmarillion's own PRD + ROADMAP
-test-fixtures/              # sample project for end-to-end testing
-```
 
 ## License
 
