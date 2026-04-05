@@ -5,29 +5,9 @@
   },
   "plugins": [
     {
-      "name": "plan",
-      "source": "./plan",
-      "description": "Spec-driven planning: triage, spec, architecture, TDD plan."
-    },
-    {
-      "name": "arch",
-      "source": "./arch",
-      "description": "Architecture & design: ADRs, OpenAPI specs, database schemas, Mermaid diagrams."
-    },
-    {
-      "name": "impl",
-      "source": "./impl",
-      "description": "Implementation executor: slice-by-slice TDD, debugging, refactoring, commits."
-    },
-    {
-      "name": "review",
-      "source": "./review",
-      "description": "Review & quality: parallel code, security, and a11y review with deduplicated findings."
-    },
-    {
-      "name": "skil",
-      "source": "./skil",
-      "description": "Workflow router and discovery layer for the Skilmarillion suite."
+      "name": "fellowship",
+      "source": ".",
+      "description": "Spec-driven development workflow from discovery to review -- one plugin, seven commands."
     }
   ]
 }

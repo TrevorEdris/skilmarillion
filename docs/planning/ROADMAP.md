@@ -1,9 +1,11 @@
 # Skilmarillion — Roadmap
 
+> **2026-04-05 — Architecture Pivot:** The five-plugin architecture (`skil` / `plan` / `arch` / `impl` / `review`) has been consolidated into a single plugin, **`fellowship`**, with seven flag-dispatched commands. The skilmarillion marketplace now ships fellowship as its only plugin. All planning items below that reference old namespaces (`/plan:*`, `/arch:*`, `/impl:*`, `/review:*`, `/skil:*`) are historical — see the top-level `README.md` and `CLAUDE.md` for the current command surface. Future roadmap entries should target `/fellowship:*` commands and flags.
+
 ## Current Status
 
-**Phase:** 0 — In Progress
-**Last Updated:** 2026-03-29
+**Phase:** fellowship v0.1.0 — Consolidation complete
+**Last Updated:** 2026-04-05
 
 ### Completed
 - [x] PLAN-001: Plugin Scaffold (P0-A) — merged PR #1
