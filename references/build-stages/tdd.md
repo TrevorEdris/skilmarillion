@@ -65,7 +65,7 @@ Check for architecture artifacts in the target project:
 - `.skilmarillion/projects/{slug}/` — look for ADR files, OpenAPI specs, schema files
 - Load any found artifacts as structured context. Do NOT re-read these per slice — cache them at session start.
 
-### A3. Generate IMPL_DETAILS.md
+### A3. Generate PLAN-NNN-{slug}.md
 
 Delegate to the `spec-to-impl` agent via Task:
 
@@ -78,25 +78,29 @@ Input: {
 }
 ```
 
-The agent returns an IMPL_DETAILS.md with implementation steps grouped by slice.
+The agent returns a plan document with implementation steps grouped by slice.
 
-Save the result to the project output directory:
+**Naming — mirror the spec.** If the input spec is `specs/SPEC-NNN-{slug}.md`, save the plan to `plans/PLAN-NNN-{slug}.md` with matching `NNN` and `{slug}`. One spec → one plan, paired by number.
+
+Save the result to:
 ```
-.skilmarillion/projects/{slug}/impl/IMPL_DETAILS.md
+.skilmarillion/projects/{project-slug}/plans/PLAN-NNN-{spec-slug}.md
 ```
+
+If the input is a spec without a SPEC number (e.g. a loose spec file), assign the next available `NNN` by scanning `plans/` for existing `PLAN-NNN-*.md` files.
 
 Display to the user:
-> "Generated implementation details from spec. {N} slices, {M} total steps."
+> "Generated PLAN-{NNN}-{slug}.md from spec. {N} slices, {M} total steps."
 > "Review the plan at: {path}"
 
 Ask: "Proceed with TDD execution? (yes / review first / abort)"
-- **review first:** Display the full IMPL_DETAILS.md content. Ask again.
+- **review first:** Display the full plan content. Ask again.
 - **abort:** Exit.
 - **yes:** Proceed to Slice Execution.
 
 ### A4. Proceed to Slice Execution
 
-Use the generated IMPL_DETAILS.md as input for the execution loop (same as Path B).
+Use the generated plan as input for the execution loop (same as Path B).
 
 ---
 
@@ -224,7 +228,7 @@ After each slice GREEN, check for browser-based acceptance criteria verification
 
 **5a. Availability Detection**
 
-Check if Playwright MCP is available by looking for `impl/.mcp.json` and attempting a `ToolSearch` for `mcp__playwright__browser_navigate`.
+Check if Playwright MCP is available by looking for `.mcp.json` at the plugin root or attempting a `ToolSearch` for `mcp__playwright__browser_navigate`.
 
 If not available: skip silently and continue to next slice.
 

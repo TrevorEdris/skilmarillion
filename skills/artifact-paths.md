@@ -62,8 +62,8 @@ All paths below are relative to the resolved project root.
     {name}-schema.sql              # /fellowship:plan --arch schema output
   diagrams/
     {name}-{type}.md               # /fellowship:plan --arch diagram output
-  impl/
-    IMPL_DETAILS.md                # /fellowship:build output (generated from spec)
+  plans/
+    PLAN-{NNN}-{slug}.md           # /fellowship:build output (generated from paired SPEC-{NNN})
   reviews/
     review-{target}.md             # /fellowship:review output
     security-{target}.md           # /fellowship:review --security output
@@ -89,15 +89,23 @@ Canonical slug generation — used by all commands and the triage agent.
 
 ---
 
-## Spec Numbering
+## Spec and Plan Numbering
 
-Auto-incrementing, zero-padded to 3 digits.
+Auto-incrementing, zero-padded to 3 digits. **Plans mirror specs** — a spec and its implementation plan share the same `NNN` and `{slug}`.
+
+**Spec numbering:**
 
 1. List existing `SPEC-*.md` files in `{project_root}/.skilmarillion/projects/{feature-slug}/specs/`
 2. Next number = count + 1
 3. Format: `SPEC-{NNN}-{slug}.md` (e.g., `SPEC-001-auth-flow.md`, `SPEC-002-token-refresh.md`)
 
 If the directory does not exist yet, the next number is `001`.
+
+**Plan numbering (paired with spec):**
+
+When `/fellowship:build` translates `specs/SPEC-NNN-{slug}.md` into an implementation plan, save it to `plans/PLAN-NNN-{slug}.md` with matching `NNN` and `{slug}`. One spec → one plan, paired by number.
+
+If the build input is a loose spec without a `SPEC-NNN` prefix, assign the next available `NNN` by scanning `plans/` for existing `PLAN-*.md` files.
 
 ---
 
@@ -139,7 +147,7 @@ mkdir -p {project_root}/.skilmarillion/projects/{feature-slug}/adrs
 mkdir -p {project_root}/.skilmarillion/projects/{feature-slug}/api
 mkdir -p {project_root}/.skilmarillion/projects/{feature-slug}/schema
 mkdir -p {project_root}/.skilmarillion/projects/{feature-slug}/diagrams
-mkdir -p {project_root}/.skilmarillion/projects/{feature-slug}/impl
+mkdir -p {project_root}/.skilmarillion/projects/{feature-slug}/plans
 mkdir -p {project_root}/.skilmarillion/projects/{feature-slug}/reviews
 ```
 
@@ -156,7 +164,7 @@ mkdir -p {project_root}/.skilmarillion/projects/{feature-slug}/reviews
 | `/fellowship:plan --arch api` | OpenAPI | `{project_root}/.skilmarillion/projects/{feature-slug}/api/{name}-openapi.yaml` |
 | `/fellowship:plan --arch schema` | Schema | `{project_root}/.skilmarillion/projects/{feature-slug}/schema/{name}-schema.sql` |
 | `/fellowship:plan --arch diagram` | Diagrams | `{project_root}/.skilmarillion/projects/{feature-slug}/diagrams/{name}-{type}.md` |
-| `/fellowship:build` | Impl details | `{project_root}/.skilmarillion/projects/{feature-slug}/impl/IMPL_DETAILS.md` |
+| `/fellowship:build` | Implementation plan | `{project_root}/.skilmarillion/projects/{feature-slug}/plans/PLAN-{NNN}-{slug}.md` |
 | `/fellowship:review` | Review | `{project_root}/.skilmarillion/projects/{feature-slug}/reviews/review-{target}.md` |
 | `/fellowship:review --security` | Security | `{project_root}/.skilmarillion/projects/{feature-slug}/reviews/security-{target}.md` |
 | `/fellowship:review --a11y` | Accessibility | `{project_root}/.skilmarillion/projects/{feature-slug}/reviews/a11y-{target}.md` |

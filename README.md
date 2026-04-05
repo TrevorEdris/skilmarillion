@@ -75,13 +75,12 @@ Specs, PRDs, and plans are scored 0–100 by `scripts/validate.py`. PASS thresho
 .skilmarillion/
 ```
 
-### Strategy B — Track specs and ADRs, ignore ephemeral
+### Strategy B — Track specs, plans, and ADRs, ignore ephemeral
 
 ```gitignore
 .skilmarillion/projects/*/PROJECT-STATE.yaml
 .skilmarillion/projects/*/SESSION.md
 .skilmarillion/projects/*/reviews/
-.skilmarillion/projects/*/impl/
 ```
 
 ## Workflow Examples

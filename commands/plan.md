@@ -95,7 +95,7 @@ After each stage, update `.skilmarillion/projects/{slug}/PROJECT-STATE.yaml` via
 
 Every artifact produced by this command must be scored by `scripts/validate.py` before being presented as finished.
 
-- **PASS threshold:** score ≥ 70
+- **PASS threshold:** score ≥ 85
 - **Draft threshold:** score ≥ 50 (`--draft` flag)
 - Never present an artifact below threshold as complete. Iterate until PASS, or tell the user explicitly that it's a draft.
 
@@ -126,6 +126,6 @@ All artifacts land under the **target project's** git root:
 
 - Do NOT skip the stage file. `plan.md` is a dispatcher; the stage files hold the actual playbooks.
 - Do NOT write production code. This command produces specs, not implementations.
-- Do NOT present any artifact that scores below 70 as finished.
+- Do NOT present any artifact that scores below 85 as finished.
 - Do NOT auto-run the next stage without user confirmation at each checkpoint.
 - Do NOT commit `.skilmarillion/` files automatically.

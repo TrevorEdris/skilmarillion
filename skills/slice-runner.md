@@ -101,7 +101,7 @@ Severity guide:
 - **medium:** Functional gap; workaround exists; should be addressed before production
 - **high:** Core behavior missing; no workaround; must be addressed before merge
 
-Downstream notification: Append a note to the IMPL_DETAILS.md:
+Downstream notification: Append a note to the plan file (`plans/PLAN-NNN-{slug}.md`):
 ```markdown
 > **Debt note from Slice {N}:** {missing_behavior}. Downstream slices should {workaround or constraint}.
 ```

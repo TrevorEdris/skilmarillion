@@ -213,14 +213,7 @@ After all specs are generated, display:
 > ...
 > ```
 
-**If the `impl` plugin is not installed:** Check whether `/fellowship:build` is available by looking for `impl/` in the plugin directory or checking plugin manifest. If not found, display instead:
-
-> **All specs generated.** Next step: run `/fellowship:build {spec-path}` on each spec to begin implementation.
->
-> The `impl` plugin is not yet installed. Install it with:
-> ```
-> claude plugin add impl
-> ```
+> `/fellowship:build` is part of this plugin — no additional install needed.
 
 ---
 

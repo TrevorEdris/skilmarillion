@@ -282,15 +282,6 @@ After artifacts are saved, display:
 
 > These artifacts can be passed to `/fellowship:build` as structured context for implementation.
 
-If `impl` is not installed (check for `impl/` in the plugin directory), display instead:
-
-> These artifacts can be passed to `/fellowship:build` as structured context for implementation.
->
-> The `impl` plugin is not yet installed. Install it with:
-> ```
-> claude plugin add impl
-> ```
-
 **Spec-exists hint:** After displaying the breadcrumb, check for existing specs in `docs/` (glob for `docs/**/specs/SPEC-*.md` or `docs/**/SDD-*.md`). If a spec is found for a related feature, append:
 
 > A spec exists at `{spec-path}` -- `/fellowship:build {spec-path}` will pick up both the spec and these design artifacts.

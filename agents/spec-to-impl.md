@@ -6,7 +6,7 @@ tools: ["Read", "Glob", "Grep"]
 
 # spec-to-impl
 
-Translate a plan-generated spec into a session-scoped IMPL_DETAILS.md with concrete implementation steps grouped by slice.
+Translate a plan-generated spec into a `PLAN-NNN-{slug}.md` document with concrete implementation steps grouped by slice. The plan file mirrors its paired spec: `specs/SPEC-NNN-{slug}.md` → `plans/PLAN-NNN-{slug}.md`.
 
 ---
 
@@ -82,14 +82,14 @@ Based on the slice count and step count:
 
 ## Output Contract
 
-Return **raw markdown** — a complete IMPL_DETAILS.md document. No JSON wrapper, no preamble.
+Return **raw markdown** — a complete `PLAN-NNN-{slug}.md` document. No JSON wrapper, no preamble.
 
 Required sections:
 
 ```markdown
-# Implementation Details: {Feature Name}
+# PLAN-{NNN}: {Feature Name}
 
-**Source:** {spec file path}
+**Paired spec:** {spec file path}
 **Generated:** {date}
 
 ## Target Files

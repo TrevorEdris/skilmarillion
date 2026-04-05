@@ -62,7 +62,7 @@ All artifacts land under the **target project's** git root at:
   api/{name}-openapi.yaml      # /fellowship:plan --arch api
   schema/{name}-schema.sql     # /fellowship:plan --arch schema
   diagrams/{name}-{type}.md    # /fellowship:plan --arch diagram
-  plans/PLAN-NNN-{slug}.md     # implementation plans
+  plans/PLAN-NNN-{slug}.md     # /fellowship:build (paired with SPEC-NNN)
   reviews/review-{target}.md   # /fellowship:review
 ```
 
