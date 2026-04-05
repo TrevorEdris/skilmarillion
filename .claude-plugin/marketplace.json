@@ -6,7 +6,7 @@
   "plugins": [
     {
       "name": "fellowship",
-      "source": ".",
+      "source": "./",
       "description": "Spec-driven development workflow from discovery to review -- one plugin, seven commands."
     }
   ]
