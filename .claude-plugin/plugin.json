@@ -1,7 +1,7 @@
 {
   "name": "fellowship",
   "description": "Spec-driven development workflow: one plugin, seven commands, carrying work from discovery through TDD to review. PRD and roadmap; spec and architecture; slice-by-slice TDD; parallel code/security/a11y review; conventional commits; PR generation.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": {
     "name": "TrevorEdris",
     "url": "https://github.com/TrevorEdris"
