@@ -106,9 +106,15 @@
     <section class="section section--alt" id="plugins" aria-labelledby="plugins-heading">
       <div class="container">
         <h2 id="plugins-heading" class="section-title">Commands</h2>
-        <p class="section-subtitle">Six commands covering the full development lifecycle.</p>
+        <p class="section-subtitle">Seven commands covering the full development lifecycle.</p>
 
         <div class="plugin-grid">
+          <div class="plugin-card plugin-card--init">
+            <h3>init</h3>
+            <p>Bootstrap `.skilmarillion/projects/{slug}/` scaffolding for a new project. Run once before planning.</p>
+            <div class="artifact-label">Produces</div>
+            <div class="artifact-value">project scaffold</div>
+          </div>
           <div class="plugin-card plugin-card--plan">
             <h3>plan</h3>
             <p>Spec-driven planning. Turns a task description into testable acceptance criteria, vertical slices, and a TDD plan.</p>
@@ -204,7 +210,7 @@
 <span class="keyword">| # | Severity | Category      | Location         | Finding                               |</span>
 | 1 | HIGH     | Accessibility | style.css:627    | .excerpt-block missing :focus-visible |
 | 2 | HIGH     | Accessibility | index.html:24    | Nav links fail 24&times;24 target size|
-| 3 | MEDIUM   | Correctness   | index.html:109   | Subtitle says "Seven", grid has six   |
+| 3 | MEDIUM   | Correctness   | index.html:111   | Commands grid missing /fellowship:init |
 
 <span class="heading">## Summary</span>
 <span class="comment">0 CRITICAL, 2 HIGH, 6 MEDIUM, 6 LOW</span>
@@ -221,7 +227,7 @@
 
 <span class="value">- Add :focus-visible outlines to .excerpt-block, .install-block (WCAG 2.4.7)</span>
 <span class="value">- Increase header-nav padding to meet 24&times;24 minimum target size (WCAG 2.5.8)</span>
-<span class="value">- Fix subtitle "Seven commands" &rarr; "Six commands"</span>
+<span class="value">- Add missing /fellowship:init card to commands grid</span>
 <span class="value">- Rename section id #output &rarr; #workflow for semantic alignment</span>
 
 <span class="comment">[main ab23599] 2 files changed, 304 insertions(+), 144 deletions(-)</span></pre>

@@ -1,6 +1,6 @@
-# skilmarillion · fellowship
+# Skilmarillion
 
-Spec-driven development from discovery through TDD to review — one Claude Code plugin, seven commands.
+Spec-driven development from discovery through TDD to review.
 
 ```
 /plugin marketplace add TrevorEdris/skilmarillion
@@ -8,11 +8,6 @@ Spec-driven development from discovery through TDD to review — one Claude Code
 ```
 
 ## The Seven Commands
-
-```
-init  →  plan  →  build  →  review  →  ship
-                                 status  |  help
-```
 
 | Command | Purpose | Model |
 |---------|---------|-------|
@@ -23,15 +18,6 @@ init  →  plan  →  build  →  review  →  ship
 | `/fellowship:ship` | Conventional commit; `--pr` opens a PR | haiku |
 | `/fellowship:status` | Read-only dashboard of active work | haiku |
 | `/fellowship:help` | Context-aware tour; recommends a command from a task description | haiku |
-
-## Phase Vocabulary (Internal Metaphor)
-
-```
-Palantír (Discover)  →  Council (Plan)  →  Journey (Build)  →  Rivendell (Review)
-     scout                  spec               TDD                findings
-```
-
-Command names stay flat. The metaphor is for framing, not routing.
 
 ## Core Conventions
 
@@ -93,35 +79,6 @@ Commit the design artifacts the team agrees on. Keep per-engineer working state 
 | `adrs/`, `api/`, `schema/`, `diagrams/` | `reviews/review-*.md` (per-engineer findings) |
 
 Rationale: specs, ADRs, and API/schema contracts are the team's *durable agreement*. Plans get actively rewritten during `/fellowship:build` (debt notes, slice status, attempt counts) — they're the working document for whoever picks up the spec. Reviews are findings-only and feed the PR's review thread, not the repo.
-
-## Workflow Examples
-
-**Greenfield feature:**
-```
-/fellowship:plan "order cancellation with refund window"
-  → PRD.md → ROADMAP.md → specs/SPEC-001-...md
-/fellowship:build specs/SPEC-001-order-cancellation.md
-  → plans/PLAN-001-order-cancellation.md → RED → GREEN → REFACTOR, slice by slice
-/fellowship:review
-  → findings sorted by impact-to-effort
-/fellowship:ship --pr
-  → conventional commit, PR opened with AC traceability
-```
-
-**Bug fix:**
-```
-/fellowship:build --debug "users can create orders without auth"
-  → reproduce → isolate → root cause → fix proposal
-/fellowship:ship
-```
-
-**Refactoring:**
-```
-/fellowship:build --refactor src/checkout/
-  → baseline green → smell detection → plan → transform loop
-/fellowship:review
-/fellowship:ship
-```
 
 ## Personas & Flows
 

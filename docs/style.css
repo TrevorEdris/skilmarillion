@@ -533,6 +533,7 @@ img {
   color: var(--color-text);
 }
 
+.plugin-card--init   { border-left: 3px solid var(--color-text-muted); }
 .plugin-card--plan   { border-left: 3px solid var(--color-plan); }
 .plugin-card--build  { border-left: 3px solid var(--color-arch); }
 .plugin-card--review { border-left: 3px solid var(--color-review); }
@@ -540,6 +541,7 @@ img {
 .plugin-card--status { border-left: 3px solid var(--color-text-muted); }
 .plugin-card--help   { border-left: 3px solid var(--color-skil); }
 
+.plugin-card--init h3   { color: var(--color-text-muted); }
 .plugin-card--plan h3   { color: var(--color-plan); }
 .plugin-card--build h3  { color: var(--color-arch); }
 .plugin-card--review h3 { color: var(--color-review); }
