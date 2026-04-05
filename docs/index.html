@@ -3,12 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Skilmarillion — Lifecycle Plugins for Claude Code</title>
-  <meta name="description" content="Five Claude Code plugins that turn fragmented AI dev workflows into a coherent lifecycle: plan, architect, implement, review.">
-  <meta property="og:title" content="Skilmarillion — Lifecycle Plugins for Claude Code">
-  <meta property="og:description" content="Five Claude Code plugins that turn fragmented AI dev workflows into a coherent lifecycle: plan, architect, implement, review.">
+  <title>Skilmarillion — fellowship for Claude Code</title>
+  <meta name="description" content="The fellowship plugin for Claude Code: spec-driven development from discovery through TDD to review, as one cohesive command surface.">
+  <meta property="og:title" content="Skilmarillion — fellowship for Claude Code">
+  <meta property="og:description" content="The fellowship plugin for Claude Code: spec-driven development from discovery through TDD to review, as one cohesive command surface.">
   <meta property="og:type" content="website">
   <meta name="theme-color" content="#6c8cff">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&display=swap">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -21,7 +24,7 @@
         <ul class="header-nav">
           <li><a href="#lifecycle">Lifecycle</a></li>
           <li><a href="#plugins">Plugins</a></li>
-          <li><a href="#output">Output</a></li>
+          <li><a href="#workflow">Workflow</a></li>
           <li><a href="https://github.com/TrevorEdris/skilmarillion">GitHub</a></li>
         </ul>
       </nav>
@@ -33,7 +36,7 @@
     <section class="hero" aria-labelledby="hero-heading">
       <div class="container">
         <h1 id="hero-heading">A <span class="highlight">coherent lifecycle</span> for AI-assisted development</h1>
-        <p class="hero-subtitle">Five Claude Code plugins that replace ad-hoc prompting with structured workflows. Specify, design, implement, review &mdash; each step produces a real artifact, not just conversation.</p>
+        <p class="hero-subtitle">One Claude Code plugin that replaces ad-hoc prompting with structured workflows. Specify, design, implement, review &mdash; each step produces a real artifact, not just conversation.</p>
         <div class="hero-actions">
           <a href="https://github.com/TrevorEdris/skilmarillion" class="btn btn-primary">View on GitHub</a>
           <a href="#lifecycle" class="btn btn-secondary">See the lifecycle</a>
@@ -48,11 +51,11 @@
         <div class="problem-solution">
           <div class="ps-card ps-card--problem">
             <h3>The problem</h3>
-            <p>AI coding assistants are powerful but unstructured. Each prompt starts from scratch. There is no shared context between planning and implementation, no design record, no review gate. Teams end up with code that works but was never specified, never architected, and never systematically reviewed.</p>
+            <p>Each AI prompt starts from scratch. No shared context between planning and implementation. No design record. No review gate. Code ships without ever being specified, architected, or systematically reviewed.</p>
           </div>
           <div class="ps-card ps-card--solution">
             <h3>The solution</h3>
-            <p>Skilmarillion organizes AI-assisted work into a repeatable lifecycle. Each plugin handles one phase and produces a concrete artifact &mdash; a spec, an ADR, tested code, a findings report. Artifacts flow forward: specs feed implementation, implementations feed review. Nothing is lost between steps.</p>
+            <p>fellowship produces artifacts that flow forward. Specs feed implementation. Implementations feed review. Every phase leaves a record. Nothing gets lost between steps.</p>
           </div>
         </div>
       </div>
@@ -62,38 +65,38 @@
     <section class="section" id="lifecycle" aria-labelledby="lifecycle-heading">
       <div class="container">
         <h2 id="lifecycle-heading" class="section-title">The lifecycle</h2>
-        <p class="section-subtitle">Four phases, connected by artifacts. Each phase is a standalone plugin you can use independently.</p>
+        <p class="section-subtitle">Four phases, connected by artifacts. Each phase produces a concrete output that feeds the next.</p>
 
         <div class="lifecycle" role="list" aria-label="Development lifecycle phases">
           <div class="lifecycle-step lifecycle-step--plan" role="listitem">
-            <span class="lifecycle-phase">Specify</span>
-            <code class="lifecycle-command">/plan:sdd</code>
+            <span class="lifecycle-phase">Plan</span>
+            <code class="lifecycle-command">/fellowship:plan</code>
             <p class="lifecycle-desc">Turn a task description into testable acceptance criteria, vertical slices, and a TDD plan.</p>
-            <span class="lifecycle-artifact">specs/SPEC-001-*.md</span>
+            <span class="lifecycle-artifact">PRD.md / SPEC.md</span>
           </div>
-          <div class="lifecycle-step lifecycle-step--arch" role="listitem">
-            <span class="lifecycle-phase">Design</span>
-            <code class="lifecycle-command">/arch:design</code>
-            <p class="lifecycle-desc">Structured design sessions producing ADRs, OpenAPI specs, database schemas, and C4 diagrams.</p>
-            <span class="lifecycle-artifact">adrs/001-*.md</span>
-          </div>
-          <div class="lifecycle-step lifecycle-step--impl" role="listitem">
-            <span class="lifecycle-phase">Implement</span>
-            <code class="lifecycle-command">/impl:tdd</code>
+          <div class="lifecycle-step lifecycle-step--build" role="listitem">
+            <span class="lifecycle-phase">Build</span>
+            <code class="lifecycle-command">/fellowship:build</code>
             <p class="lifecycle-desc">Slice-by-slice TDD execution from a spec. Red, green, refactor &mdash; one slice at a time.</p>
             <span class="lifecycle-artifact">tested, committed code</span>
           </div>
           <div class="lifecycle-step lifecycle-step--review" role="listitem">
             <span class="lifecycle-phase">Review</span>
-            <code class="lifecycle-command">/review:review</code>
+            <code class="lifecycle-command">/fellowship:review</code>
             <p class="lifecycle-desc">Parallel specialist reviewers for code quality, security, and accessibility. Findings only, no edits.</p>
-            <span class="lifecycle-artifact">review-report.md</span>
+            <span class="lifecycle-artifact">findings-report.md</span>
+          </div>
+          <div class="lifecycle-step lifecycle-step--ship" role="listitem">
+            <span class="lifecycle-phase">Ship</span>
+            <code class="lifecycle-command">/fellowship:ship</code>
+            <p class="lifecycle-desc">Generate a conventional commit from staged changes. Optionally open a pull request.</p>
+            <span class="lifecycle-artifact">git commit</span>
           </div>
         </div>
 
         <div class="entry-point">
           <span class="entry-point-label">Start here:</span>
-          <code class="entry-point-command">/skil:help</code>
+          <code class="entry-point-command">/fellowship:help</code>
           <span class="entry-point-desc">The workflow router detects installed plugins and recommends where to begin based on your project state.</span>
         </div>
       </div>
@@ -102,98 +105,135 @@
     <!-- Plugins -->
     <section class="section section--alt" id="plugins" aria-labelledby="plugins-heading">
       <div class="container">
-        <h2 id="plugins-heading" class="section-title">Five plugins, one suite</h2>
-        <p class="section-subtitle">Install any plugin independently. Each works standalone; together they form the full lifecycle.</p>
+        <h2 id="plugins-heading" class="section-title">The fellowship plugin</h2>
+        <p class="section-subtitle">Install once. Six commands covering the full development lifecycle.</p>
 
         <div class="plugin-grid">
           <div class="plugin-card plugin-card--plan">
             <h3>plan</h3>
-            <p>Spec-driven planning. Turns a task description into testable acceptance criteria, a vertical slice spec, and a TDD plan.</p>
+            <p>Spec-driven planning. Turns a task description into testable acceptance criteria, vertical slices, and a TDD plan.</p>
             <div class="artifact-label">Produces</div>
-            <div class="artifact-value">SPEC-NNN-slug.md</div>
+            <div class="artifact-value">PRD.md / SPEC.md</div>
           </div>
-          <div class="plugin-card plugin-card--arch">
-            <h3>arch</h3>
-            <p>Architecture and design sessions. Produces ADRs, OpenAPI specs, database schemas, and Mermaid diagrams.</p>
+          <div class="plugin-card plugin-card--build">
+            <h3>build</h3>
+            <p>Slice-by-slice TDD execution. Red, green, refactor &mdash; one slice at a time. Debug and refactor modes included.</p>
             <div class="artifact-label">Produces</div>
-            <div class="artifact-value">ADR, OpenAPI YAML, DDL</div>
-          </div>
-          <div class="plugin-card plugin-card--impl">
-            <h3>impl</h3>
-            <p>Implementation executor. Drives slice-by-slice TDD, structured debugging, refactoring, and conventional commits.</p>
-            <div class="artifact-label">Produces</div>
-            <div class="artifact-value">Tested, committed code</div>
+            <div class="artifact-value">tested, committed code</div>
           </div>
           <div class="plugin-card plugin-card--review">
             <h3>review</h3>
-            <p>Parallel specialist reviewers for code quality, security, and accessibility. Produces a unified, deduplicated findings report.</p>
+            <p>Parallel specialist reviewers for code quality, security, and accessibility. Findings only &mdash; no edits made.</p>
             <div class="artifact-label">Produces</div>
-            <div class="artifact-value">review-report.md</div>
+            <div class="artifact-value">findings-report.md</div>
           </div>
-          <div class="plugin-card plugin-card--skil">
-            <h3>skil</h3>
-            <p>Workflow router and discovery layer. Routes tasks to the right plugin and provides guided tours of available commands.</p>
-            <div class="artifact-label">Entry point</div>
-            <div class="artifact-value">/skil:help</div>
+          <div class="plugin-card plugin-card--ship">
+            <h3>ship</h3>
+            <p>Generate a conventional commit from staged changes. Use <code>--pr</code> to open a pull request.</p>
+            <div class="artifact-label">Produces</div>
+            <div class="artifact-value">git commit</div>
+          </div>
+          <div class="plugin-card plugin-card--status">
+            <h3>status</h3>
+            <p>Read-only dashboard of active work. Shows current phase, open specs, and last review findings.</p>
+            <div class="artifact-label">Produces</div>
+            <div class="artifact-value">dashboard output</div>
+          </div>
+          <div class="plugin-card plugin-card--help">
+            <div class="plugin-card-help-body">
+              <div>
+                <h3>help</h3>
+                <p>Context-aware tour of available commands. Describe your task and get a recommendation for where to start.</p>
+              </div>
+              <div class="artifact-group">
+                <div class="artifact-label">Start here</div>
+                <div class="artifact-value">/fellowship:help</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
     <!-- Artifact Excerpt Showcase -->
-    <section class="section" id="output" aria-labelledby="output-heading">
+    <section class="section" id="workflow" aria-labelledby="workflow-heading">
       <div class="container">
-        <h2 id="output-heading" class="section-title">What the output looks like</h2>
-        <p class="section-subtitle">Real artifact excerpts from actual plugin runs. This is what Skilmarillion produces.</p>
+        <h2 id="workflow-heading" class="section-title">A task, start to finish</h2>
+        <p class="section-subtitle">One example task carried through all four phases. This is what fellowship produces.</p>
 
-        <div class="excerpt">
-          <div class="excerpt-header">
-            <span class="excerpt-source">Spec excerpt</span>
-            <code class="excerpt-command">/plan:sdd</code>
+        <div class="workflow">
+
+          <div class="workflow-step">
+            <div class="workflow-step-header">
+              <span class="workflow-step-number">1</span>
+              <span class="workflow-step-phase">Plan</span>
+              <span class="workflow-step-command">/fellowship:plan</span>
+            </div>
+            <pre class="excerpt-block" role="region" aria-label="Spec output from fellowship:plan" tabindex="0"><span class="heading">## Acceptance Criteria</span>
+
+<span class="heading">### Slice 1: Add rate limiting to /api/ingest</span>
+<span class="keyword">GIVEN</span> <span class="value">a request arrives at /api/ingest</span>
+<span class="keyword">WHEN</span>  <span class="value">the caller has exceeded 100 req/min</span>
+<span class="keyword">THEN</span>  <span class="value">the endpoint returns HTTP 429 with Retry-After header</span>
+  <span class="keyword">AND</span>  <span class="value">the request is not processed</span>
+
+<span class="heading">### Slice 2: Allow-list bypass</span>
+<span class="keyword">GIVEN</span> <span class="value">the caller IP is in the allow-list</span>
+<span class="keyword">WHEN</span>  <span class="value">the rate limit would otherwise be exceeded</span>
+<span class="keyword">THEN</span>  <span class="value">the request is processed normally</span></pre>
           </div>
-          <pre class="excerpt-block" role="region" aria-label="Spec excerpt from plan:sdd" tabindex="0"><span class="heading">## Acceptance Criteria</span>
 
-<span class="heading">### Slice 1: Task Triage</span>
-<span class="keyword">GIVEN</span> <span class="value">a plain-language task description</span>
-<span class="keyword">WHEN</span>  <span class="value">the triage agent receives the input</span>
-<span class="keyword">THEN</span>  <span class="value">it classifies the task as TRIVIAL | SMALL | FEATURE | EPIC</span>
-  <span class="keyword">AND</span>  <span class="value">assigns a risk level of LOW | MODERATE | HIGH</span>
-  <span class="keyword">AND</span>  <span class="value">routes to the appropriate workflow depth</span>
+          <div class="workflow-step">
+            <div class="workflow-step-header">
+              <span class="workflow-step-number">2</span>
+              <span class="workflow-step-phase">Build</span>
+              <span class="workflow-step-command">/fellowship:build</span>
+            </div>
+            <pre class="excerpt-block" role="region" aria-label="TDD output from fellowship:build" tabindex="0"><span class="heading">Slice 1/2: Rate limiting</span>
+<span class="comment">RED confirmed: test_rate_limit_exceeded fails — handler returns 200, not 429</span>
+<span class="value">Writing minimal handler: check Redis counter, return 429 if exceeded</span>
+<span class="heading">GREEN confirmed: 4 tests pass.</span>
+<span class="comment">No refactoring needed. Suite green.</span>
 
-<span class="heading">### Slice 2: Context Gathering</span>
-<span class="keyword">GIVEN</span> <span class="value">a triaged FEATURE-size task</span>
-<span class="keyword">WHEN</span>  <span class="value">the context-gatherer agent runs</span>
-<span class="keyword">THEN</span>  <span class="value">it identifies entry points, conventions, and hotspot files</span>
-  <span class="keyword">AND</span>  <span class="value">produces a structured context summary for spec building</span>
-
-<span class="heading">## Architecture Recommendation</span>
-<span class="comment"># Pattern: Modular monolith with agent pipeline</span>
-<span class="comment"># Each agent handles one workflow phase</span>
-<span class="comment"># Artifacts flow forward via deterministic file paths</span></pre>
-          <p class="excerpt-caption">Abridged output from /plan:sdd running against a real task. Full specs include TDD plans, risk assessments, and file path inventories.</p>
-        </div>
-
-        <div class="excerpt">
-          <div class="excerpt-header">
-            <span class="excerpt-source">Review excerpt</span>
-            <code class="excerpt-command">/review:review</code>
+<span class="heading">Slice 2/2: Allow-list bypass</span>
+<span class="comment">RED confirmed: test_allowlist_bypass fails — allow-list not checked</span>
+<span class="value">Writing allow-list lookup before rate check</span>
+<span class="heading">GREEN confirmed: 6 tests pass.</span></pre>
           </div>
-          <pre class="excerpt-block" role="region" aria-label="Review report excerpt from review:review" tabindex="0"><span class="heading">## What's Working</span>
-<span class="value">- Clean separation between triage, context, and spec agents</span>
-<span class="value">- Deterministic artifact paths prevent path drift across runs</span>
-<span class="value">- Model tier annotations match task complexity</span>
 
-<span class="heading">## Findings</span>
+          <div class="workflow-step">
+            <div class="workflow-step-header">
+              <span class="workflow-step-number">3</span>
+              <span class="workflow-step-phase">Review</span>
+              <span class="workflow-step-command">/fellowship:review</span>
+            </div>
+            <pre class="excerpt-block" role="region" aria-label="Review findings from fellowship:review" tabindex="0"><span class="heading">## Findings</span>
 
-<span class="keyword">| # | Severity | Category     | File                | Finding                          |</span>
-| 1 | HIGH     | Security     | validate.py:42      | User input passed to eval()      |
-| 2 | MEDIUM   | Code Quality | triage-agent.md:18  | Fallback branch unreachable      |
-| 3 | LOW      | Accessibility| help.md:5           | Missing aria-label on nav region |
+<span class="keyword">| # | Severity | Category     | File              | Finding                             |</span>
+| 1 | MEDIUM   | Security     | rate_limit.py:14  | Redis key not namespaced per-tenant |
+| 2 | LOW      | Code Quality | rate_limit.py:22  | Magic number 100 should be config   |
 
 <span class="heading">## Summary</span>
-<span class="comment">3 findings: 1 HIGH, 1 MEDIUM, 1 LOW</span>
-<span class="comment">Overall: PASS with 1 required fix before merge</span></pre>
-          <p class="excerpt-caption">Representative output from /review:review. Parallel specialists (code quality, security, accessibility) produce findings that are deduplicated and sorted by impact-to-effort ratio.</p>
+<span class="comment">2 findings: 0 HIGH, 1 MEDIUM, 1 LOW</span>
+<span class="comment">PASS — address MEDIUM before merge</span></pre>
+          </div>
+
+          <div class="workflow-step">
+            <div class="workflow-step-header">
+              <span class="workflow-step-number">4</span>
+              <span class="workflow-step-phase">Ship</span>
+              <span class="workflow-step-command">/fellowship:ship</span>
+            </div>
+            <pre class="excerpt-block" role="region" aria-label="Commit output from fellowship:ship" tabindex="0"><span class="heading">feat(api): add per-caller rate limiting to /api/ingest</span>
+
+<span class="value">- Returns HTTP 429 with Retry-After header when limit exceeded</span>
+<span class="value">- Allow-listed IPs bypass rate check</span>
+<span class="value">- Redis key namespaced per tenant (addresses review finding #1)</span>
+<span class="value">- Limit configurable via RATE_LIMIT_RPM env var</span>
+
+<span class="comment">Closes #412</span></pre>
+          </div>
+
         </div>
       </div>
     </section>
@@ -203,8 +243,9 @@
       <div class="container">
         <h2 id="install-heading" class="section-title">Get started</h2>
         <p class="section-subtitle">Install the full suite or any individual plugin.</p>
-        <pre class="install-block" role="region" aria-label="Installation command" tabindex="0">/install-plugin https://github.com/TrevorEdris/skilmarillion</pre>
-        <p style="margin-top: 1rem; color: var(--color-text-muted); font-size: 0.875rem;">Then run <code>/skil:help</code> to see what is available and where to start.</p>
+        <pre class="install-block" role="region" aria-label="Installation commands" tabindex="0">/plugin marketplace add TrevorEdris/skilmarillion
+/plugin install fellowship@skilmarillion</pre>
+        <p class="install-note">Then run <code>/fellowship:help</code> to see what is available and where to start.</p>
       </div>
     </section>
   </main>
