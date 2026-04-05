@@ -1,6 +1,6 @@
-# skilmarillion · fellowship
+# Skilmarillion
 
-Spec-driven development from discovery through TDD to review — one Claude Code plugin, seven commands.
+Spec-driven development from discovery through TDD to review.
 
 ```
 /plugin marketplace add TrevorEdris/skilmarillion
@@ -8,11 +8,6 @@ Spec-driven development from discovery through TDD to review — one Claude Code
 ```
 
 ## The Seven Commands
-
-```
-init  →  plan  →  build  →  review  →  ship
-                                 status  |  help
-```
 
 | Command | Purpose | Model |
 |---------|---------|-------|
@@ -24,16 +19,7 @@ init  →  plan  →  build  →  review  →  ship
 | `/fellowship:status` | Read-only dashboard of active work | haiku |
 | `/fellowship:help` | Context-aware tour; recommends a command from a task description | haiku |
 
-## Phase Vocabulary (Internal Metaphor)
-
-```
-Palantír (Discover)  →  Council (Plan)  →  Journey (Build)  →  Rivendell (Review)
-     scout                  spec               TDD                findings
-```
-
-Command names stay flat. The metaphor is for framing, not routing.
-
-## Core Conventions
+## Artifacts
 
 ### Output Paths
 
@@ -66,7 +52,7 @@ Match model to task:
 
 ### Validation Gate
 
-Specs, PRDs, and plans are scored 0–100 by `scripts/validate.py`. PASS threshold: ≥85 for PRDs/ROADMAPs/SPECs, ≥70 for plans. Draft threshold: 50.
+Specs, PRDs, and plans are scored 0–100 by `scripts/validate.py`. PASS threshold: ≥85 for all document types. Draft threshold: 50.
 
 ## Recommended .gitignore
 
@@ -94,36 +80,7 @@ Commit the design artifacts the team agrees on. Keep per-engineer working state 
 
 Rationale: specs, ADRs, and API/schema contracts are the team's *durable agreement*. Plans get actively rewritten during `/fellowship:build` (debt notes, slice status, attempt counts) — they're the working document for whoever picks up the spec. Reviews are findings-only and feed the PR's review thread, not the repo.
 
-## Workflow Examples
-
-**Greenfield feature:**
-```
-/fellowship:plan "order cancellation with refund window"
-  → PRD.md → ROADMAP.md → specs/SPEC-001-...md
-/fellowship:build specs/SPEC-001-order-cancellation.md
-  → plans/PLAN-001-order-cancellation.md → RED → GREEN → REFACTOR, slice by slice
-/fellowship:review
-  → findings sorted by impact-to-effort
-/fellowship:ship --pr
-  → conventional commit, PR opened with AC traceability
-```
-
-**Bug fix:**
-```
-/fellowship:build --debug "users can create orders without auth"
-  → reproduce → isolate → root cause → fix proposal
-/fellowship:ship
-```
-
-**Refactoring:**
-```
-/fellowship:build --refactor src/checkout/
-  → baseline green → smell detection → plan → transform loop
-/fellowship:review
-/fellowship:ship
-```
-
-## Personas & Flows
+## Usage By Role
 
 Who runs which command depends on your role. Full playbook: [HOW_TO_USE.md](HOW_TO_USE.md).
 
@@ -134,26 +91,6 @@ Who runs which command depends on your role. Full playbook: [HOW_TO_USE.md](HOW_
 | **Individual Engineer** | `/fellowship:build` → `/fellowship:review` → `/fellowship:ship --pr` | `plans/PLAN-NNN-*.md` (paired with SPEC), code + tests, PR with AC traceability |
 
 Handoff: PM writes the PRD → Lead decomposes into roadmap + specs → Engineer picks a spec and ships it.
-
-## Repository Layout
-
-```
-.claude-plugin/
-  plugin.json               # fellowship manifest
-  marketplace.json          # skilmarillion marketplace → fellowship
-commands/                   # 7 flat commands
-  init.md  plan.md  build.md  review.md  ship.md  status.md  help.md
-agents/                     # specialist sub-agents
-skills/                     # reusable skills
-references/                 # templates, rubrics, stage playbooks
-  plan-stages/              # /fellowship:plan flag bodies
-  build-stages/             # /fellowship:build flag bodies
-  review-stages/            # /fellowship:review flag bodies
-scripts/                    # validate.py, update-state.sh
-hooks/                      # session lifecycle hooks
-docs/planning/              # skilmarillion's own PRD + ROADMAP
-test-fixtures/              # sample project for end-to-end testing
-```
 
 ## License
 

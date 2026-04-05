@@ -39,6 +39,7 @@ All artifacts land under `{target_project}/.skilmarillion/projects/{slug}/`. Val
 2. **Answer interview questions** — the command walks through discovery one question at a time (problem, users, success criteria, scope boundaries, constraints).
 3. **Review the draft** — the plugin presents the PRD inline before saving. PM edits any section that's wrong.
 4. **Confirm save path** — PM approves or overrides the suggested `{slug}`.
+5. **Commit and push** — `git add .skilmarillion/projects/{slug}/PRD.md && git commit -m "docs: add PRD for {slug}"` and push so engineering can access it directly.
 
 ### Verification
 
@@ -55,11 +56,10 @@ If score <85: the command surfaces findings and re-drafts until passing. PM does
 
 - Does NOT run `--roadmap` or `--specify` — those are engineering decomposition tasks.
 - Does NOT invoke `/fellowship:build`, `/fellowship:review`, or `/fellowship:ship`.
-- Does NOT commit the PRD — `.skilmarillion/` is local workflow state by default.
 
 ### Handoff
 
-PM signals the lead engineer: "PRD.md is ready at `.skilmarillion/projects/order-cancellation/PRD.md` — please decompose."
+PM pushes the PRD commit, then signals the lead: "PRD is in `main` under `.skilmarillion/projects/{slug}/PRD.md` — please decompose."
 
 ---
 
@@ -112,6 +112,7 @@ PM signals the lead engineer: "PRD.md is ready at `.skilmarillion/projects/order
    - `diagram` — complex flows worth visualizing
 4. **Run `--specify`** — reads ROADMAP, extracts milestones, launches parallel spec generation (context-gatherer → spec-builder → architecture-advisor → tdd-planner). Dependency-aware batching: milestones with no unmet deps run in parallel; dependent ones wait.
 5. **Review specs** — the command presents a table of generated specs with validation scores. Lead reads each, requests re-drafts for weak ones.
+6. **Commit and push** — `git add .skilmarillion/projects/{slug}/` and commit all design artifacts (ROADMAP, specs, ADRs, API, schema, diagrams) so engineers can pull and reference them directly.
 
 ### Verification
 
@@ -128,11 +129,10 @@ PM signals the lead engineer: "PRD.md is ready at `.skilmarillion/projects/order
 
 - Does NOT write PLANs — the individual engineer owns implementation-level decomposition.
 - Does NOT invoke `/fellowship:build`, `/fellowship:review`, or `/fellowship:ship` for feature work — those belong to the implementing engineer.
-- Does NOT ship specs — lead ensures they're ready for pickup, then hands off.
 
 ### Handoff
 
-Lead signals the team in Slack/PR: "ROADMAP.md is locked. P0-A through P0-C are unblocked. Pick a SPEC, run `/fellowship:build specs/SPEC-NNN-{slug}.md`."
+Lead pushes the design artifacts commit, then signals the team: "ROADMAP and specs are in `main` under `.skilmarillion/projects/{slug}/`. P0-A through P0-C are unblocked — pull and run `/fellowship:build specs/SPEC-NNN-{slug}.md`."
 
 ---
 
@@ -213,7 +213,6 @@ Lead signals the team in Slack/PR: "ROADMAP.md is locked. P0-A through P0-C are 
 ### What The Engineer Does NOT Do
 
 - Does NOT skip RED — no production code before a failing test (config/docs/generated code exempt).
-- Does NOT modify the SPEC — if the spec is wrong, escalate to lead to regenerate via `/fellowship:plan --specify`.
 - Does NOT bypass review findings — high-severity items block ship; engineer fixes or documents why they're accepted.
 - Does NOT auto-commit `.skilmarillion/` files — git exclusion is enforced by `/fellowship:ship`.
 

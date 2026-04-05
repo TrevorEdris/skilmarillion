@@ -121,7 +121,7 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
 
 ### P0-E: Validate Command
 
-- **What:** A validation command that accepts any spec, PRD, or plan document and returns a scored quality report (pass/fail at threshold 70/100) with specific, actionable findings for any gaps.
+- **What:** A validation command that accepts any spec, PRD, or plan document and returns a scored quality report (pass/fail at threshold 85/100) with specific, actionable findings for any gaps.
 - **Depends on:** P0-A
 - **Note:** This is the internal gate used by P0-C to validate specs before presenting them. Also exposed as a standalone command users can run on any document.
 - **Model tier:** Sonnet — judging AC testability ("is this criterion independently verifiable?") and specificity requires understanding what makes a good acceptance criterion, not just pattern matching; this is an internal quality gate and a wrong pass propagates to implementation
@@ -130,7 +130,7 @@ Build the lifecycle vertically, one plugin at a time, with each phase delivering
   - [x] Support spec, PRD, and plan document types (detect from frontmatter or structure)
   - [x] Produce scored report: section coverage, AC testability, specificity of steps, missing sections
   - [x] Return machine-readable score for use as internal gate in P0-C
-  - [x] Verify threshold: score >= 70 = PASS; score < 70 = NEEDS WORK with specific findings
+  - [x] Verify threshold: score >= 85 = PASS; score < 85 = NEEDS WORK with specific findings
   - [x] Test: run against a deliberately incomplete spec; confirm findings are actionable
 
 ### P0-F: Session Documentation Hooks

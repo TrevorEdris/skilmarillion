@@ -139,7 +139,7 @@ Walk through each phase one at a time. After each, ask whether to continue.
 > - `--roadmap <prd-path>` — decompose an approved PRD into ordered milestones
 > - `--specify <roadmap-path>` — generate SPEC files from a roadmap (parallel agents)
 > - `--migrate <legacy> <target>` — prioritized migration plan
-> - `--validate <path>` — score a PRD/spec/plan (0-100; PASS at ≥85 for PRD/spec, ≥70 for plan)
+> - `--validate <path>` — score a PRD/spec/plan (0-100; PASS at ≥85 for all types)
 > - `--arch <adr|api|schema|diagram>` — design-session artifacts
 >
 > **Default (no flag):** runs the guided PRD → ROADMAP → specs flow end to end.

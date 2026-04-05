@@ -33,7 +33,7 @@ Parse `$ARGUMENTS` for a leading flag:
 | `--roadmap` | `references/plan-stages/roadmap.md` | Decompose an approved PRD into ordered milestones |
 | `--specify` | `references/plan-stages/specify.md` | Generate SPEC files from a ROADMAP (parallel agents) |
 | `--migrate` | `references/plan-stages/migrate.md` | Prioritized migration plan from legacy → target |
-| `--validate` | `references/plan-stages/validate.md` | Score a PRD / spec / plan (0-100; PASS ≥85 for PRD/spec, ≥70 for plan) |
+| `--validate` | `references/plan-stages/validate.md` | Score a PRD / spec / plan (0-100; PASS ≥85 for all types) |
 | `--arch adr` | `references/plan-stages/arch-adr.md` | Architecture Decision Record + C4 diagram |
 | `--arch api` | `references/plan-stages/arch-api.md` | OpenAPI 3.0 spec |
 | `--arch schema` | `references/plan-stages/arch-schema.md` | Database schema DDL |

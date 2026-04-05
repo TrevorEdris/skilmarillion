@@ -12,7 +12,7 @@ Exit codes:
     1 — NEEDS WORK (score < threshold)
 
 Thresholds:
-    Default: 85 for spec/prd, 70 for plan
+    Default: 85 for spec/prd/plan
     --draft:  50
 """
 
@@ -971,8 +971,9 @@ def plan_check_git_commit_plan(lines: list[str], report: ValidationReport) -> No
         report.score -= 3
 
 
-def validate_plan(path: Path) -> ValidationReport:
-    report = ValidationReport(path=str(path), doc_type="plan")
+def validate_plan(path: Path, draft: bool = False) -> ValidationReport:
+    threshold = 50 if draft else 85
+    report = ValidationReport(path=str(path), doc_type="plan", threshold=threshold)
 
     if not path.exists():
         report.issues.append(Issue(severity="error", category="io", message=f"File not found: {path}"))
@@ -1128,7 +1129,7 @@ def main() -> int:
     elif doc_type == "prd":
         report = validate_prd(path, draft=args.draft)
     elif doc_type == "plan":
-        report = validate_plan(path)
+        report = validate_plan(path, draft=args.draft)
     else:
         print(f"Unknown document type: {doc_type}", file=sys.stderr)
         return 1
