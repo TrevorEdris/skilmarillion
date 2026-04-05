@@ -9,6 +9,7 @@ allowed-tools:
   - Bash(ls:*)
   - Bash(pwd)
   - AskUserQuestion
+  - Task
   - ToolSearch
 model: haiku
 ---
@@ -23,8 +24,10 @@ Bootstraps `.skilmarillion/projects/{slug}/` at the target project's git root. C
 
 ### 1. Determine the slug
 
-- If `$ARGUMENTS` contains a slug, use it verbatim (after basic sanitization: lowercase, spaces → hyphens, drop anything that isn't `[a-z0-9-]`).
-- Otherwise, load `${CLAUDE_PLUGIN_ROOT}/skills/artifact-paths.md` and follow its slug-derivation algorithm. Ask the user to confirm the derived slug via `AskUserQuestion` before creating any files.
+- If `$ARGUMENTS` contains a slug, pass it through the `slug-namer` agent for normalization (or use verbatim if it already matches `[a-z0-9-]+`).
+- Otherwise, ask the user for a feature description, then delegate to the `slug-namer` agent (see `${CLAUDE_PLUGIN_ROOT}/agents/slug-namer.md`) to generate the slug.
+
+**ALWAYS confirm the slug with the user via `AskUserQuestion` before creating any files or directories.** Show the proposed slug and ask "Proposed slug: `{slug}`. Accept, or provide an alternative?" If the user provides an alternative, re-call `slug-namer` to normalize it and re-confirm. Never create files with an unconfirmed slug.
 
 > **Deferred tool note:** Before calling `AskUserQuestion`, call `ToolSearch` with query `"select:AskUserQuestion"` to load the tool schema.
 

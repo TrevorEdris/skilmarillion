@@ -33,7 +33,7 @@ Parse `$ARGUMENTS` for a leading flag:
 | `--roadmap` | `references/plan-stages/roadmap.md` | Decompose an approved PRD into ordered milestones |
 | `--specify` | `references/plan-stages/specify.md` | Generate SPEC files from a ROADMAP (parallel agents) |
 | `--migrate` | `references/plan-stages/migrate.md` | Prioritized migration plan from legacy → target |
-| `--validate` | `references/plan-stages/validate.md` | Score a PRD / spec / plan (0-100; PASS ≥70) |
+| `--validate` | `references/plan-stages/validate.md` | Score a PRD / spec / plan (0-100; PASS ≥85 for PRD/spec, ≥70 for plan) |
 | `--arch adr` | `references/plan-stages/arch-adr.md` | Architecture Decision Record + C4 diagram |
 | `--arch api` | `references/plan-stages/arch-api.md` | OpenAPI 3.0 spec |
 | `--arch schema` | `references/plan-stages/arch-schema.md` | Database schema DDL |
@@ -67,7 +67,7 @@ Load `${CLAUDE_PLUGIN_ROOT}/skills/artifact-paths.md` and propose a project slug
 
 Run the PRD stage (`references/plan-stages/prd.md`) with the feature description. Save to `.skilmarillion/projects/{slug}/PRD.md`.
 
-At the end of this stage: **checkpoint**. Run `python ${CLAUDE_PLUGIN_ROOT}/scripts/validate.py .skilmarillion/projects/{slug}/PRD.md --type prd`. If score < 70, iterate until PASS. Then ask:
+At the end of this stage: **checkpoint**. Run `python ${CLAUDE_PLUGIN_ROOT}/scripts/validate.py .skilmarillion/projects/{slug}/PRD.md --type prd`. If score < 85, iterate until PASS. Then ask:
 
 > "PRD scored {N}/100. Ready to decompose into a roadmap, or pause here?"
 
@@ -75,7 +75,7 @@ If the user pauses, stop. Resume later via `/fellowship:plan --roadmap .skilmari
 
 ### 4. Stage 2 — ROADMAP
 
-Run the roadmap stage (`references/plan-stages/roadmap.md`) against the PRD. Save to `.skilmarillion/projects/{slug}/ROADMAP.md`. Validate (≥70). Checkpoint:
+Run the roadmap stage (`references/plan-stages/roadmap.md`) against the PRD. Save to `.skilmarillion/projects/{slug}/ROADMAP.md`. Validate (≥85). Checkpoint:
 
 > "Roadmap scored {N}/100 with {M} milestones. Generate specs for all milestones, or stop here?"
 

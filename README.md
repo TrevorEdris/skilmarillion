@@ -17,7 +17,7 @@ init  →  plan  →  build  →  review  →  ship
 | Command | Purpose | Model |
 |---------|---------|-------|
 | `/fellowship:init` | Bootstrap `.skilmarillion/projects/{slug}/` scaffolding | haiku |
-| `/fellowship:plan` | PRD → roadmap → specs; ADR/API/schema/diagram via `--arch` | sonnet |
+| `/fellowship:plan` | PRD → roadmap → specs; `--arch`, `--migrate`, `--validate` | sonnet |
 | `/fellowship:build` | Slice-by-slice TDD; `--debug` and `--refactor` modes | sonnet |
 | `/fellowship:review` | Parallel code-quality / security / a11y; findings only | opus |
 | `/fellowship:ship` | Conventional commit; `--pr` opens a PR | haiku |
@@ -49,6 +49,7 @@ All artifacts land under the target project's git root at `.skilmarillion/projec
   api/{name}-openapi.yaml      # /fellowship:plan --arch api
   schema/{name}-schema.sql     # /fellowship:plan --arch schema
   diagrams/{name}-{type}.md    # /fellowship:plan --arch diagram
+  plans/PLAN-NNN-{slug}.md     # /fellowship:build (paired with SPEC-NNN)
   reviews/review-{target}.md   # /fellowship:review
 ```
 
@@ -65,7 +66,7 @@ Match model to task:
 
 ### Validation Gate
 
-Specs, PRDs, and plans are scored 0–100 by `scripts/validate.py`. PASS threshold: ≥70. Draft threshold: 50.
+Specs, PRDs, and plans are scored 0–100 by `scripts/validate.py`. PASS threshold: ≥85 for PRDs/ROADMAPs/SPECs, ≥70 for plans. Draft threshold: 50.
 
 ## Recommended .gitignore
 
@@ -75,13 +76,23 @@ Specs, PRDs, and plans are scored 0–100 by `scripts/validate.py`. PASS thresho
 .skilmarillion/
 ```
 
-### Strategy B — Track specs, plans, and ADRs, ignore ephemeral
+### Strategy B — Track shared design, ignore working state (recommended for teams)
+
+Commit the design artifacts the team agrees on. Keep per-engineer working state local.
 
 ```gitignore
-.skilmarillion/projects/*/PROJECT-STATE.yaml
-.skilmarillion/projects/*/SESSION.md
+.skilmarillion/projects/*/plans/
 .skilmarillion/projects/*/reviews/
+.skilmarillion/projects/*/PROJECT-STATE.yaml
 ```
+
+| Committed (shared) | Ignored (per-laptop) |
+|--------------------|----------------------|
+| `PRD.md`, `ROADMAP.md` | `PROJECT-STATE.yaml` (resume state) |
+| `specs/SPEC-NNN-*.md` | `plans/PLAN-NNN-*.md` (how *you* will implement it) |
+| `adrs/`, `api/`, `schema/`, `diagrams/` | `reviews/review-*.md` (per-engineer findings) |
+
+Rationale: specs, ADRs, and API/schema contracts are the team's *durable agreement*. Plans get actively rewritten during `/fellowship:build` (debt notes, slice status, attempt counts) — they're the working document for whoever picks up the spec. Reviews are findings-only and feed the PR's review thread, not the repo.
 
 ## Workflow Examples
 
@@ -90,7 +101,7 @@ Specs, PRDs, and plans are scored 0–100 by `scripts/validate.py`. PASS thresho
 /fellowship:plan "order cancellation with refund window"
   → PRD.md → ROADMAP.md → specs/SPEC-001-...md
 /fellowship:build specs/SPEC-001-order-cancellation.md
-  → RED → GREEN → REFACTOR, slice by slice
+  → plans/PLAN-001-order-cancellation.md → RED → GREEN → REFACTOR, slice by slice
 /fellowship:review
   → findings sorted by impact-to-effort
 /fellowship:ship --pr
@@ -111,6 +122,18 @@ Specs, PRDs, and plans are scored 0–100 by `scripts/validate.py`. PASS thresho
 /fellowship:review
 /fellowship:ship
 ```
+
+## Personas & Flows
+
+Who runs which command depends on your role. Full playbook: [HOW_TO_USE.md](HOW_TO_USE.md).
+
+| Persona | Commands | Produces |
+|---------|----------|----------|
+| **Product Manager** | `/fellowship:plan --prd` | `PRD.md` (validated ≥85) |
+| **Lead Engineer** | `/fellowship:plan --prd/--roadmap/--arch/--specify/--validate` | `ROADMAP.md`, `specs/SPEC-NNN-*.md` (each ≥85), ADRs, API, schema, diagrams |
+| **Individual Engineer** | `/fellowship:build` → `/fellowship:review` → `/fellowship:ship --pr` | `plans/PLAN-NNN-*.md` (paired with SPEC), code + tests, PR with AC traceability |
+
+Handoff: PM writes the PRD → Lead decomposes into roadmap + specs → Engineer picks a spec and ships it.
 
 ## Repository Layout
 

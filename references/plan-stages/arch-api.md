@@ -454,7 +454,11 @@ After generating the spec, verify it:
 
 Save the validated spec to:
 
-Resolve the active project context: check for an existing `.skilmarillion/projects/` structure. If found, use the active `{slug}`. If not found, ask the user for the feature slug.
+Resolve the active project slug:
+- Glob `{project_root}/.skilmarillion/projects/*/` directories.
+- **Zero slugs:** delegate to the `slug-namer` agent using the API name, confirm per the `artifact-paths` slug confirmation protocol.
+- **One slug:** confirm with the user: "Save under existing slug `{slug}`? (Yes / Pick different / New slug)".
+- **Multiple slugs:** present the slugs via `AskUserQuestion` (plus a "None — create new slug" option). If the user picks "new slug", delegate to the `slug-namer` agent and confirm.
 
 ```
 {project_root}/.skilmarillion/projects/{slug}/api/{api-name}-openapi.yaml

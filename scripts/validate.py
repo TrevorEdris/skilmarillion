@@ -12,7 +12,7 @@ Exit codes:
     1 — NEEDS WORK (score < threshold)
 
 Thresholds:
-    Default: 70
+    Default: 85 for spec/prd, 70 for plan
     --draft:  50
 """
 
@@ -367,7 +367,7 @@ def spec_check_risk_depth(lines: list[str], report: ValidationReport) -> None:
 
 
 def validate_spec(path: Path, draft: bool = False) -> ValidationReport:
-    threshold = 50 if draft else 70
+    threshold = 50 if draft else 85
     report = ValidationReport(path=str(path), doc_type="spec", threshold=threshold)
 
     if not path.exists():
@@ -682,7 +682,7 @@ def prd_check_implementation_leakage(lines: list[str], report: ValidationReport)
 
 
 def validate_prd(path: Path, draft: bool = False) -> ValidationReport:
-    threshold = 50 if draft else 70
+    threshold = 50 if draft else 85
     report = ValidationReport(path=str(path), doc_type="prd", threshold=threshold)
 
     if not path.exists():

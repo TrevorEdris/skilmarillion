@@ -94,7 +94,7 @@ Read-only roles get read-only tools. No agent holds Write/Edit unless it explici
 
 ### Validation Gate
 
-Specs, PRDs, and plans are scored 0–100 by `scripts/validate.py`. **PASS threshold: ≥70.** Draft threshold: 50. Never present artifacts below the threshold as finished.
+Specs, PRDs, and plans are scored 0–100 by `scripts/validate.py`. **PASS threshold: ≥85 for PRDs/ROADMAPs/SPECs, ≥70 for plans.** Draft threshold: 50. Never present artifacts below the threshold as finished.
 
 ## Build & Test
 

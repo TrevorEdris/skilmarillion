@@ -46,12 +46,23 @@ Parse `$ARGUMENTS` for a leading flag:
 
 ## DEFAULT — TDD Execution (No Flag)
 
-### Input Detection
+### Input Detection & Spec Resolution
 
-1. **No argument:** Look for in-progress state files under `.skilmarillion/projects/*/PROJECT-STATE.yaml` with an `impl:` section. If found, offer to resume. Otherwise look for specs under `.skilmarillion/projects/*/specs/` and offer to pick one.
-2. **Argument is a spec path** (contains `## Acceptance Criteria` AND `## Vertical Slices`): translate to impl details via the `spec-to-impl` agent, then execute.
-3. **Argument is an impl-details path** (contains `## Implementation Steps`): execute steps directly.
-4. **Neither:** error — point at the markers the file is missing.
+**Always confirm the selected spec file with the user before building.** Never silently pick a spec when the input is ambiguous.
+
+1. **Check for in-progress state first.** If `$ARGUMENTS` is empty, glob `.skilmarillion/projects/*/PROJECT-STATE.yaml` for files with an `impl:` section. If any are found, offer to resume (see State Resumption below). Otherwise, proceed to step 2.
+
+2. **Resolve via `artifact-resolver` agent.** Delegate to the agent (see `artifact-paths` skill § "Artifact Resolution") with `artifact_type: "spec"`, the raw `$ARGUMENTS` as `query`, and the resolved `project_root`.
+
+3. **Confirm with the user** per the caller flow in the `artifact-paths` skill. For every `match_type` (`exact_path`, `single`, `multiple`, `none`, `all`), present candidates via `AskUserQuestion` and wait for explicit selection.
+
+4. **Classify the selected file** by content markers:
+   - **Spec file** (contains `## Acceptance Criteria` AND `## Vertical Slices`) → translate via `spec-to-impl` agent, execute.
+   - **Plan file** (contains `## Implementation Steps`) → execute steps directly.
+   - **Neither** → error, point at the missing markers.
+
+5. **Final confirmation gate** — after selection and before reading the file:
+   > "Building from `{slug}/SPEC-{NNN}-{name}.md`. Proceed?"
 
 ### State Resumption
 

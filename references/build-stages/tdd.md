@@ -22,24 +22,60 @@ If found:
 - **Start fresh:** Delete the state file, proceed to Input Detection.
 - **Abort:** Exit.
 
-### 2. Input Detection
+### 2. Input Detection & Spec Resolution
 
-Inspect the argument passed to `/fellowship:build`:
+**Core principle:** Always confirm the resolved spec file with the user before reading it. With multiple `.skilmarillion/projects/*/` slug directories, ambiguous input is the norm — never silently pick one.
 
-- **No argument:** Check for specs in `docs/` — if found, list them and ask the user to pick. If no specs exist, display the precondition guard:
-  > "No spec found. Run `/fellowship:plan [task]` to create one, or provide a spec path."
+#### 2a. Check for In-Progress State (no argument only)
 
-  Use `AskUserQuestion` to offer choices:
-  1. "Run /fellowship:plan now" — hand off to the plan plugin
-  2. "Provide a spec path" — prompt for a file path, then resume
-  3. "Proceed without spec" — continue without a spec (advanced users)
+If `$ARGUMENTS` is empty, search `.skilmarillion/projects/*/PROJECT-STATE.yaml` for files with an `impl:` section. If found, jump to step 1 above (State Resumption). Otherwise, proceed.
 
-  This guard is **informational, not blocking** — the user can always choose option 3 to proceed.
+#### 2b. Delegate to `artifact-resolver` Agent
 
-- **Argument is a file path:** Read the file and classify by content markers:
-  - **Spec file:** Contains `## Acceptance Criteria` AND (`## Vertical Slices` OR `## Slice `)
-  - **Impl details file:** Contains `## Implementation Steps` OR `## Ordered Implementation Steps`
-  - **Neither:** Display error: "This file does not look like a spec or impl-details file. Expected sections: '## Acceptance Criteria' + '## Vertical Slices' (spec) or '## Implementation Steps' (impl details)."
+For any non-empty argument (or empty argument after the in-progress check), delegate spec discovery to the `artifact-resolver` agent. See `artifact-paths` skill § "Artifact Resolution" for the calling contract.
+
+```
+Task: artifact-resolver agent
+Input: {
+  "artifact_type": "spec",
+  "query": "{raw $ARGUMENTS}",
+  "project_root": "{resolved project root}"
+}
+```
+
+The agent returns a structured `{ match_type, candidates, total_count }` response covering all input shapes (exact path, SPEC number reference, slug-scoped query, free text, empty).
+
+#### 2c. Confirm Selection with User
+
+Per the caller flow in the `artifact-paths` skill, present candidates via `AskUserQuestion`:
+
+| `match_type` | Prompt |
+|--------------|--------|
+| `exact_path` | "Using `{path}`. Proceed?" (Proceed / Pick different / Cancel) |
+| `single` | "Found `{slug}/{filename}`. Build this one?" (Yes / Pick different / Cancel) |
+| `multiple` | "Multiple matches. Pick one:" + top 5 candidates + "None — list all" |
+| `none` | Re-call agent with `query: ""`, present `all` result |
+| `all` | Present every spec grouped by slug + "None — cancel" |
+
+If **no specs exist at all** (agent returns empty `all`), display:
+> "No specs found under `.skilmarillion/projects/*/specs/`. Run `/fellowship:plan --specify` to generate them from a ROADMAP, or provide a spec path directly."
+
+#### 2d. Classify Selected File
+
+After the user confirms a candidate, read the file and classify by content markers:
+- **Spec file:** Contains `## Acceptance Criteria` AND (`## Vertical Slices` OR `## Slice `)
+- **Impl details / plan file:** Contains `## Implementation Steps` OR `## Ordered Implementation Steps`
+- **Neither:** Display error: "This file does not look like a spec or plan file. Expected sections: '## Acceptance Criteria' + '## Vertical Slices' (spec) or '## Implementation Steps' (plan)."
+
+#### 2e. Final Confirmation Gate
+
+Before reading the spec for TDD execution, confirm the absolute path:
+
+> "Building from `.skilmarillion/projects/{slug}/specs/SPEC-{NNN}-{name}.md`. Proceed?"
+
+Options: **Proceed** / **Pick a different spec** / **Cancel**.
+
+Never skip this gate. A wrong spec triggers TDD against the wrong ACs and wastes the engineer's time.
 
 > **Deferred tool note:** Before calling `AskUserQuestion` for the first time, call `ToolSearch` with query `"select:AskUserQuestion"` to load the tool schema.
 

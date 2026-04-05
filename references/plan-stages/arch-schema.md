@@ -227,7 +227,11 @@ If any item fails, fix the artifact before saving.
 
 Resolve the target project root (git root of the project being designed for).
 
-Resolve the active project context: check for an existing `.skilmarillion/projects/` structure. If found, use the active `{slug}`. If not found, ask the user for the feature slug.
+Resolve the active project slug:
+- Glob `{project_root}/.skilmarillion/projects/*/` directories.
+- **Zero slugs:** delegate to the `slug-namer` agent using the schema name, confirm per the `artifact-paths` slug confirmation protocol.
+- **One slug:** confirm with the user: "Save under existing slug `{slug}`? (Yes / Pick different / New slug)".
+- **Multiple slugs:** present the slugs via `AskUserQuestion` (plus a "None — create new slug" option). If the user picks "new slug", delegate to the `slug-namer` agent and confirm.
 
 Save the schema DDL to:
 ```

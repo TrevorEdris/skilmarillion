@@ -34,7 +34,7 @@ Derive a migration slug that identifies this migration:
 
 1. Extract the repo names from both paths (last path segment, or git remote origin name if available).
 2. Combine as `{legacy-name}-to-{target-name}` (e.g., `legacy-api-to-platform-v2`).
-3. Apply the canonical slug algorithm from `artifact-paths` skill (lowercase, hyphens, truncate to 40 chars).
+3. Delegate to the `slug-namer` agent to generate the migration slug, then **confirm with the user** via `AskUserQuestion` before proceeding.
 4. Confirm with the user: "Migration slug: `{slug}`. Accept or override?"
 
 ### 3. Codebase Survey

@@ -196,7 +196,11 @@ If validation finds issues, fix them before presenting.
 
 ### 6. Output
 
-Resolve the active project context: check for an existing `.skilmarillion/projects/` structure. If found, use the active `{slug}`. If not found, ask the user for the feature slug.
+Resolve the active project slug:
+- Glob `{project_root}/.skilmarillion/projects/*/` directories.
+- **Zero slugs:** delegate to the `slug-namer` agent using the diagram name, confirm per the `artifact-paths` slug confirmation protocol.
+- **One slug:** confirm with the user: "Save under existing slug `{slug}`? (Yes / Pick different / New slug)".
+- **Multiple slugs:** present the slugs via `AskUserQuestion` (plus a "None — create new slug" option). If the user picks "new slug", delegate to the `slug-namer` agent and confirm.
 
 Write the diagram to `.skilmarillion/projects/{slug}/diagrams/{name}-{type}.md` using this template:
 

@@ -8,16 +8,20 @@ Score a spec, PRD, or plan document for structural completeness. Returns a 0–1
 
 ### 1. Resolve document path
 
-If a path argument is provided, use it directly.
+Determine the artifact type from user input. If the user specifies `--type <spec|prd|plan|roadmap>`, use that. Otherwise, infer from the argument (SPEC-NNN → spec, path containing `/specs/` → spec, path ending in `PRD.md` → prd, path ending in `ROADMAP.md` → roadmap, path containing `/plans/` → plan). If ambiguous, ask the user.
 
-If no path argument is provided:
-1. Search for candidates:
-   - Specs: `docs/*/specs/SPEC-*.md`
-   - PRDs: `docs/*/PRD.md`
-   - Plans: look in the current session directory for `PLAN.md`
-2. If exactly one candidate found, use it.
-3. If multiple candidates found, ask the user which one to validate (using `AskUserQuestion`).
-4. If no candidates found, ask the user for a path.
+Delegate discovery to the `artifact-resolver` agent. See `artifact-paths` skill § "Artifact Resolution" for the calling contract.
+
+```
+Task: artifact-resolver agent
+Input: {
+  "artifact_type": "{inferred type}",
+  "query": "{raw argument or empty string}",
+  "project_root": "{resolved project root}"
+}
+```
+
+Confirm the selected document with the user per the caller flow in the `artifact-paths` skill — present candidates via `AskUserQuestion` for every `match_type` and wait for explicit selection.
 
 > **Deferred tool note:** Before calling `AskUserQuestion`, call `ToolSearch` with query `"select:AskUserQuestion"` to load the tool schema.
 
@@ -33,15 +37,15 @@ If the user passed `--draft`, include `--draft` in the command.
 
 ### 3. Parse and display results
 
-Parse the JSON output from the script.
+Parse the JSON output from the script. The `threshold` field tells you the PASS bar (85 for spec/prd, 70 for plan, 50 with `--draft`).
 
-**If score >= 70 (PASS):**
+**If score >= threshold (PASS):**
 
 Display:
 > **PASS** — Score: {score}/100
 > {summary of any warnings}
 
-**If score < 70 (NEEDS WORK):**
+**If score < threshold (NEEDS WORK):**
 
 Display:
 > **NEEDS WORK** — Score: {score}/100

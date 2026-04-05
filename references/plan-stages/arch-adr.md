@@ -141,7 +141,11 @@ C4Context
 Resolve the artifact path:
 
 1. Determine the project root (git root of the target project).
-2. Resolve the active project context: check for an existing `.skilmarillion/projects/` structure. If found, use the active `{slug}`. If not found, ask the user for the feature slug.
+2. Resolve the active project slug:
+   - Glob `{project_root}/.skilmarillion/projects/*/` directories.
+   - **Zero slugs:** delegate to the `slug-namer` agent with the ADR's system name, then confirm with the user per the `artifact-paths` slug confirmation protocol.
+   - **One slug:** confirm with the user: "Save under existing slug `{slug}`? (Yes / Pick different / New slug)".
+   - **Multiple slugs:** present the slugs via `AskUserQuestion` (plus a "None — create new slug" option). If the user picks "new slug", delegate to the `slug-namer` agent and confirm.
 3. Look for existing ADRs in `{project_root}/.skilmarillion/projects/{slug}/adrs/` to determine the next number.
 4. Auto-increment: if highest existing ADR is `003-*.md`, next is `004`.
 5. If no ADRs exist, start at `001`.

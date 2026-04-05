@@ -171,11 +171,21 @@ If found: fill its sections from the diff + any spec ACs.
 
 ### 5. Find spec for traceability
 
-Look for:
-- `.skilmarillion/projects/*/PROJECT-STATE.yaml` — extract `spec_path` from the `plan:` or `impl:` section
-- `.skilmarillion/projects/*/specs/SPEC-*.md` matching the branch slug
+Look for the spec that backs this branch:
 
-If found, extract ACs for the **AC Traceability** table.
+1. **Check PROJECT-STATE.yaml first** — Glob `.skilmarillion/projects/*/PROJECT-STATE.yaml`. Extract `spec_path` from the `plan:` or `impl:` section if present.
+2. **Fall back to `artifact-resolver` agent** — If no state file points at a spec, delegate discovery:
+   ```
+   Task: artifact-resolver agent
+   Input: {
+     "artifact_type": "spec",
+     "query": "{current branch name}",
+     "project_root": "{repo root}"
+   }
+   ```
+   If `match_type` is `single` or the top candidate's score is high (≥ 0.7), use it. If `multiple` or ambiguous, skip traceability rather than guessing — record "No spec file found" in the PR description.
+
+If a spec is found, extract ACs for the **AC Traceability** table. Do not prompt the user for spec selection during `ship` — traceability is best-effort.
 
 ### 6. Generate PR description
 

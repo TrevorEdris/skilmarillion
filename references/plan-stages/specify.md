@@ -8,13 +8,21 @@ Generate spec documents from a ROADMAP. Reads the roadmap, extracts milestones, 
 
 ### 1. Input Resolution
 
-Resolve the ROADMAP to decompose into specs:
+Delegate ROADMAP discovery to the `artifact-resolver` agent. See `artifact-paths` skill § "Artifact Resolution" for the calling contract.
 
-- **Argument provided** — If the argument is a file path ending in `.md`, use it directly.
-- **No argument, feature directory context** — Search for `.skilmarillion/projects/*/*/ROADMAP.md` in the resolved project root:
-  - If exactly one ROADMAP found, use it.
-  - If multiple found, present a numbered list and ask the user to select one.
-  - If none found, ask the user for a ROADMAP path or suggest running `/fellowship:plan --roadmap` first.
+```
+Task: artifact-resolver agent
+Input: {
+  "artifact_type": "roadmap",
+  "query": "{raw $ARGUMENTS}",
+  "project_root": "{resolved project root}"
+}
+```
+
+Confirm the selected ROADMAP with the user per the caller flow in the `artifact-paths` skill — present candidates via `AskUserQuestion` for every `match_type` and wait for explicit selection.
+
+If no ROADMAPs exist at all (agent returns empty `all`), display:
+> "No ROADMAPs found under `.skilmarillion/projects/*/ROADMAP.md`. Run `/fellowship:plan --roadmap` to create one, or provide a ROADMAP path directly."
 
 > **Deferred tool note:** Before calling `AskUserQuestion` for the first time, call `ToolSearch` with query `"select:AskUserQuestion"` to load the tool schema.
 
@@ -27,7 +35,7 @@ Before proceeding, check for a sibling PRD and validate the roadmap structure:
    ```bash
    python ${CLAUDE_PLUGIN_ROOT}/scripts/validate.py {prd_path} --type prd --json
    ```
-   - If score < 70: warn the user but do not block (the roadmap may have been created independently).
+   - If score < 85: warn the user but do not block (the roadmap may have been created independently).
 
 3. Read the ROADMAP file and verify it contains:
    - At least one phase section (`## Phase N:`)
@@ -160,15 +168,15 @@ For each milestone, the generation pipeline depends on its estimated scope:
 
 For each generated spec:
 
-1. Derive the slug from the milestone name using the `artifact-paths` slug algorithm.
+1. Derive the slug from the milestone name by delegating to the `slug-namer` agent, then **confirm the proposed slug with the user** per the `artifact-paths` confirmation protocol before using it. Never write the spec file with an unconfirmed slug.
 2. Assign the next auto-incrementing SPEC number.
 3. Save the spec to `{project_root}/.skilmarillion/projects/{slug}/specs/SPEC-{NNN}-{slug}.md` using the Write tool.
 4. **Validation gate:** Run the validation script:
    ```bash
    python ${CLAUDE_PLUGIN_ROOT}/scripts/validate.py {spec_path} --type spec --json
    ```
-   - If score >= 70: **PASS** — proceed.
-   - If score < 70: display findings, re-draft failing sections using findings as feedback, re-validate. Repeat until score >= 70.
+   - If score >= 85: **PASS** — proceed.
+   - If score < 85: display findings, re-draft failing sections using findings as feedback, re-validate. Repeat until score >= 85.
 5. Display per-spec status as each completes:
    > `SPEC-{NNN}-{slug}.md` — PASS ({score}/100)
 
@@ -223,7 +231,7 @@ After all specs are generated, display:
 - Do NOT triage milestones — the ROADMAP already provides scope estimates from the PRD decomposition.
 - Do NOT ask design questions per milestone — the PRD and ROADMAP already captured requirements. Use the milestone's `What` and `Checklist` as the task description for agents.
 - Do NOT run milestones sequentially when they have no dependency relationship — use parallel agents.
-- Do NOT skip the validation gate — every spec must score >= 70 before it is considered complete.
+- Do NOT skip the validation gate — every spec must score >= 85 before it is considered complete.
 - Do NOT modify the ROADMAP except for the Spec Index table update.
 - Do NOT hardcode paths — use the `artifact-paths` skill for all path resolution.
 - Do NOT skip the slug confirmation protocol — always confirm the base save path with the user.

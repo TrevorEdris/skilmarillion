@@ -8,13 +8,21 @@ Decompose an approved PRD into a phased, ordered roadmap with shippable mileston
 
 ### 1. Input Resolution
 
-Resolve the PRD to decompose:
+Delegate PRD discovery to the `artifact-resolver` agent. See `artifact-paths` skill § "Artifact Resolution" for the calling contract.
 
-- **Argument provided** — If the argument is a file path ending in `.md`, use it directly.
-- **No argument, feature directory context** — Search for `.skilmarillion/projects/*/*/PRD.md` in the resolved project root:
-  - If exactly one PRD found, use it.
-  - If multiple found, present a numbered list and ask the user to select one.
-  - If none found, ask the user for a PRD path or suggest running `/fellowship:plan --prd` first.
+```
+Task: artifact-resolver agent
+Input: {
+  "artifact_type": "prd",
+  "query": "{raw $ARGUMENTS}",
+  "project_root": "{resolved project root}"
+}
+```
+
+Confirm the selected PRD with the user per the caller flow in the `artifact-paths` skill — present candidates via `AskUserQuestion` for every `match_type` and wait for explicit selection.
+
+If no PRDs exist at all (agent returns empty `all`), display:
+> "No PRDs found under `.skilmarillion/projects/*/PRD.md`. Run `/fellowship:plan --prd` to create one, or provide a PRD path directly."
 
 > **Deferred tool note:** Before calling `AskUserQuestion` for the first time, call `ToolSearch` with query `"select:AskUserQuestion"` to load the tool schema.
 
@@ -26,8 +34,8 @@ Before proceeding, validate the PRD:
 python ${CLAUDE_PLUGIN_ROOT}/scripts/validate.py {prd_path} --type prd --verbose --json
 ```
 
-- If score >= 70: **PASS** — proceed to step 3.
-- If score < 70: **STOP** — display findings and tell the user: "PRD needs work before roadmap generation. Run `/fellowship:plan --validate {prd_path}` to see findings, then update the PRD and re-run `/fellowship:plan --roadmap`."
+- If score >= 85: **PASS** — proceed to step 3.
+- If score < 85: **STOP** — display findings and tell the user: "PRD needs work before roadmap generation. Run `/fellowship:plan --validate {prd_path}` to see findings, then update the PRD and re-run `/fellowship:plan --roadmap`."
 
 Do NOT proceed with roadmap generation on an unvalidated PRD.
 
@@ -95,7 +103,7 @@ Include a `/fellowship:plan --specify` invocation hint for the roadmap as a whol
 Resolve artifact path per `artifact-paths` skill:
 
 1. **Resolve project root** — determine which git repo this roadmap targets (git root of target project, not necessarily CWD). See `artifact-paths` skill for the resolution chain.
-2. **Derive feature slug** from the PRD's feature name using the canonical slug algorithm from `artifact-paths` skill.
+2. **Derive feature slug** from the PRD's feature name by delegating to the `slug-namer` agent, then **confirm the proposed slug with the user** via `AskUserQuestion` before resolving any paths. Re-call the agent if the user supplies an alternative.
 3. **Derive domain** from the feature context (e.g., `auth`, `billing`, `core`). Present for user confirmation.
 4. **Derive roadmap path:** `{project_root}/.skilmarillion/projects/{feature-slug}/ROADMAP.md`
 5. **Confirm path with user** per `artifact-paths` slug confirmation protocol. Show full absolute path on first save. User may accept, override the slug/domain, or correct the project root.
@@ -115,7 +123,7 @@ Suggest next step: "Roadmap saved. Run `/fellowship:plan --specify {roadmap-path
 
 ## WHAT NOT TO DO
 
-- Do NOT generate a roadmap from an unvalidated PRD (score < 70) — refuse and explain why.
+- Do NOT generate a roadmap from an unvalidated PRD (score < 85) — refuse and explain why.
 - Do NOT include implementation details in the roadmap (file paths, code patterns, database schemas) — that belongs in specs.
 - Do NOT produce phases that are purely backend or infrastructure with no user-visible milestone.
 - Do NOT skip the philosophy confirmation — infer it, but always present for user approval.

@@ -69,15 +69,15 @@ Then run full validation:
 python ${CLAUDE_PLUGIN_ROOT}/scripts/validate.py {confirmed_path} --type prd --verbose --json
 ```
 
-- If score >= 70: **PASS** — present the PRD to the user.
-- If score < 70: display findings as warnings, present to user with note: "PRD has gaps — consider addressing before sharing."
+- If score >= 85: **PASS** — present the PRD to the user.
+- If score < 85: display findings as warnings, present to user with note: "PRD has gaps — consider addressing before sharing."
 
 ### 5. Save
 
 Resolve artifact path per `artifact-paths` skill:
 
 1. **Resolve project root** — determine which git repo this PRD targets (git root of target project, not necessarily CWD). See `artifact-paths` skill for the resolution chain.
-2. **Derive feature slug** using the canonical slug algorithm from `artifact-paths` skill (lowercase, replace specials with hyphens, collapse, truncate to 40 chars, strip trailing hyphens).
+2. **Derive feature slug** by delegating to the `slug-namer` agent, then **confirm the proposed slug with the user** via `AskUserQuestion` before resolving the save path. Never save the PRD with an unconfirmed slug.
 3. **Derive PRD path:** `{project_root}/.skilmarillion/projects/{feature-slug}/PRD.md`
 4. **Confirm path with user** per `artifact-paths` slug confirmation protocol. Show full absolute path on first save. User may accept, override the slug, or correct the project root.
 6. **Create directory** if it does not exist: `mkdir -p {project_root}/.skilmarillion/projects/{feature-slug}`

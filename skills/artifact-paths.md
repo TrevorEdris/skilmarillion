@@ -73,19 +73,72 @@ All paths below are relative to the resolved project root.
 
 ---
 
-## Slug Algorithm
+## Slug Generation
 
-Canonical slug generation — used by all commands and the triage agent.
+Slug generation is delegated to the **`slug-namer` agent** (haiku model). Do not apply string-munging rules inline — call the agent with the source text and treat the response as a **proposal that requires user confirmation**.
 
-1. Lowercase the entire string
-2. Replace spaces and special characters (`/`, `_`, `.`, `,`, `'`, `"`, `(`, `)`, etc.) with hyphens
-3. Collapse consecutive hyphens into one
-4. Truncate to **40 characters**
-5. Strip trailing hyphens after truncation
+**Every slug MUST be confirmed with the user before it is used to create directories, save files, or write state.** This is non-negotiable. The agent produces candidates; the user approves them.
 
-**Examples:**
-- "Add OAuth login" → `add-oauth-login`
-- "Fix getUserProfile() null check" → `fix-getuserprofile-null-check`
+**How to call:**
+
+```
+Task: slug-namer agent
+Input: { "text": "{free-text feature description}", "context": "{what the slug represents}" }
+Output: single-line slug string (e.g., "add-oauth-login")
+```
+
+**Required post-call flow:**
+
+1. Receive the slug proposal from the agent.
+2. Ask the user via `AskUserQuestion`: "Proposed slug: `{slug}`. Accept, or provide an alternative?"
+3. If the user supplies an alternative, re-call `slug-namer` to normalize it, then re-confirm.
+4. Only commit the slug to disk or state after explicit user approval.
+
+The agent handles:
+- Case normalization and kebab-casing
+- Semantic trimming (drops filler words like "the", "with", "for")
+- camelCase splitting and acronym handling
+- Punctuation, emoji, and noise stripping
+- Length cap (~40 chars, 2–5 tokens)
+- Empty/unparseable fallback to `unnamed`
+
+See `agents/slug-namer.md` for the full contract and examples.
+
+**When slug-namer is unavailable** (agent delegation not supported in the current context), fall back to this minimum-viable transform and flag it to the user: lowercase → replace non-alphanumeric with hyphens → collapse repeats → truncate to 40 → strip trailing hyphens.
+
+---
+
+## Artifact Resolution
+
+When a command needs to **discover an existing artifact** (spec, PRD, roadmap, plan, ADR, API, schema, diagram, or state file) from user input, delegate to the **`artifact-resolver` agent** (haiku model). Do not glob inline — call the agent, inspect its structured output, confirm with the user.
+
+**How to call:**
+
+```
+Task: artifact-resolver agent
+Input: {
+  "artifact_type": "spec|prd|roadmap|plan|state|adr|api|schema|diagram",
+  "query": "{user input: free text, path, SPEC-N, or empty}",
+  "project_root": "{absolute path to target repo git root}"
+}
+Output: JSON with { match_type, candidates[], total_count }
+```
+
+**Required caller flow** — confirmation is mandatory for every `match_type`:
+
+| `match_type` | Caller Action |
+|--------------|---------------|
+| `exact_path` | Confirm: "Using `{path}`. Proceed?" — **Proceed / Pick different / Cancel** |
+| `single` | Confirm: "Found `{slug}/{filename}`. Use this one?" — **Yes / Pick different / Cancel** |
+| `multiple` | Present top 5 candidates via `AskUserQuestion` with `{slug}/{filename}` labels; include "None of these / list all" option |
+| `none` | Re-call the agent with `query: ""` to get `all` candidates; present via `AskUserQuestion` or abort |
+| `all` | Present via `AskUserQuestion` grouped by slug; include "None — cancel" option |
+
+**Never skip the confirmation gate.** The agent ranks and discovers; the user decides.
+
+**Override handling:** If the user provides a different slug or path than the proposed one, re-call `artifact-resolver` with the new input to validate it exists, then re-confirm.
+
+See `agents/artifact-resolver.md` for the full contract, glob patterns, and ranking algorithm.
 
 ---
 
@@ -111,7 +164,13 @@ If the build input is a loose spec without a `SPEC-NNN` prefix, assign the next 
 
 ## Slug Confirmation Protocol
 
-Before saving any artifact, present the resolved path to the user for confirmation.
+**Two confirmation gates — both are mandatory.** Never skip either.
+
+**Gate 1: Slug proposal** (when a new slug is generated).
+After the `slug-namer` agent returns a candidate, ask the user to approve the slug itself before resolving any path. This catches bad slugs early, before path resolution work.
+
+**Gate 2: Path confirmation** (before writing any file).
+After the slug is approved, present the resolved path to the user for confirmation.
 
 **First save in a session** — show the full absolute path so the user can verify the project root:
 > Save to `/Users/you/src/github.com/org/repo/.skilmarillion/projects/auth/add-oauth/specs/SPEC-001-auth-flow.md`?
@@ -121,7 +180,7 @@ Before saving any artifact, present the resolved path to the user for confirmati
 
 **User options:**
 - Accept as-is
-- Override the slug (free text → re-apply slug algorithm)
+- Override the slug (free text → re-delegate to `slug-namer` agent)
 - Override the feature directory
 - Override the domain
 - Correct the project root (triggers re-resolution and cache update)

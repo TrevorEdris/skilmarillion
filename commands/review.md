@@ -100,6 +100,17 @@ Reports land under the target project's git root:
 
 Where `{target}` is the PR number, branch name, or file/directory name (sanitized for filenames).
 
+### Slug Resolution for Report Path
+
+Before writing the report, resolve which `{slug}` directory owns the review output:
+
+1. **Check PROJECT-STATE.yaml** — Glob `.skilmarillion/projects/*/PROJECT-STATE.yaml`. If exactly one has an active `plan:` or `impl:` section matching the current branch or recently touched files, use that slug.
+2. **Delegate to `artifact-resolver`** — If the step above is ambiguous, call the agent with `artifact_type: "state"` and an empty `query` to discover all project slugs. Present candidates to the user via `AskUserQuestion`.
+3. **Confirm with user** — Before writing any review file, confirm: "Save review to `.skilmarillion/projects/{slug}/reviews/{filename}`?"
+4. **No existing slug** — If no project slugs exist, ask the user: "No `.skilmarillion/projects/` directories found. Provide a slug for this review, or cancel."
+
+Never silently pick a slug when multiple exist.
+
 Every report leads with a **What's Working** section before surfacing findings. Findings are sorted by impact-to-effort ratio (HIGH impact + LOW effort first).
 
 ---
