@@ -2,7 +2,9 @@
 
 **Version:** 1.3
 **Date:** 2026-03-29
-**Status:** Draft — Awaiting Approval
+**Status:** Historical — Superseded 2026-04-05 by `fellowship` consolidation
+
+> **Note (2026-04-05):** This PRD describes a five-plugin architecture that was consolidated into a single `fellowship` plugin on 2026-04-05. It is retained for historical reference. The current command surface is documented in the top-level `README.md` and `CLAUDE.md`. The core goals (spec-driven lifecycle, deterministic artifacts, read-only reviewers, TDD discipline) carry over unchanged.
 
 ---
 
