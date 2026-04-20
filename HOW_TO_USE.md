@@ -7,9 +7,9 @@ init → plan → build → review → ship
                           status | help
 ```
 
-All artifacts land under `{target_project}/.skilmarillion/projects/{slug}/`. Validation gate: score ≥85 PASS for PRDs, ROADMAPs, and SPECs.
+All artifacts land under `{target_project}/.skilmarillion/projects/{slug}/`. Validation gate: score ≥85 PASS for PRDs and SPECs. There is no separate PLAN artifact — the SPEC IS the plan.
 
-**Team convention (recommended gitignore):** commit the shared design (PRD, ROADMAP, specs, ADRs, API, schema, diagrams). Ignore per-engineer working state (`plans/`, `reviews/`, `PROJECT-STATE.yaml`). This means PM → Lead → Engineer handoffs flow through git, while each engineer's PLAN, review findings, and resume state stay on their laptop. See README.md § "Strategy B" for the exact gitignore lines.
+**Team convention (recommended gitignore):** commit the shared design (PRD, ROADMAP, DISCOVERY, SPECs, ADRs, API, schema, diagrams). Ignore per-engineer working state (`reviews/`, `PROJECT-STATE.yaml`). PM → Lead → Engineer handoffs flow through git; each engineer's review findings and resume state stay on their laptop. See README.md § "Strategy B" for the exact gitignore lines.
 
 ---
 
@@ -65,7 +65,7 @@ PM pushes the PRD commit, then signals the lead: "PRD is in `main` under `.skilm
 
 ## Persona 2 — Lead Engineer (PRD collaboration → ROADMAP → SPECS)
 
-**Goal:** Turn the PM's PRD into a phased roadmap and a set of executable specs engineers can pick up.
+**Goal:** Turn the PM's PRD into a wave-based roadmap and a PLAN-grade SPEC per wave-agent.
 
 **Scope:** Plan command, multiple flags, multi-step.
 
@@ -76,16 +76,16 @@ PM pushes the PRD commit, then signals the lead: "PRD is in `main` under `.skilm
 /fellowship:plan --prd                               # reopens interview if PRD exists
 /fellowship:plan --validate .skilmarillion/projects/{slug}/PRD.md
 
-# Phase 2 — decompose into phased milestones
+# Phase 2 — decompose into phased waves (runs DISCOVERY + wave-planner inline)
 /fellowship:plan --roadmap
 
-# Phase 3 — architecture artifacts for risky milestones (optional, per-milestone)
+# Phase 3 — architecture artifacts for risky areas (optional)
 /fellowship:plan --arch adr "use-saga-for-refund-orchestration"
 /fellowship:plan --arch schema "order_cancellations"
 /fellowship:plan --arch api "refund-service"
 /fellowship:plan --arch diagram "cancellation-sequence"
 
-# Phase 4 — generate one spec per roadmap milestone, in parallel
+# Phase 4 — generate one SPEC per wave-agent (wave-batched parallel)
 /fellowship:plan --specify
 ```
 
@@ -94,59 +94,67 @@ PM pushes the PRD commit, then signals the lead: "PRD is in `main` under `.skilm
 | File | Purpose |
 |------|---------|
 | `PRD.md` (refined) | Validated ≥85 after any lead-engineer edits |
-| `ROADMAP.md` | Phased milestones (P0-A, P0-B, P1-A...) with dependencies, risk, checklist, Spec Index |
+| `DISCOVERY.md` | Entry points, layout, conventions, hotspots — written by `context-gatherer` at roadmap scope |
+| `ROADMAP.md` | Phase → Wave → `W{N}{letter}` wave-agent tree with Scope/Touches/Depends on/Acceptance/Spec bullets, Independence Check, Spec Index |
 | `adrs/NNN-{slug}.md` | Architecture decision records for contested choices |
 | `schema/{name}-schema.sql` + `schema/{name}-migration.md` | DDL + expand-contract migration plan |
 | `api/{name}-openapi.yaml` | API contract |
 | `diagrams/{name}-{type}.md` | Mermaid sequence/state/component diagrams |
-| `specs/SPEC-001-{slug}.md` ... `SPEC-NNN-{slug}.md` | One spec per milestone, each scored ≥85 |
+| `specs/SPEC-W1a-{slug}.md`, `SPEC-W1b-{slug}.md`, `SPEC-W2a-{slug}.md`... | One PLAN-grade SPEC per wave-agent, each scored ≥85 |
 
 ### What The Lead Does
 
 1. **Review PRD** from PM. If gaps exist, re-run `--prd` to refine (the command preserves existing content and re-enters the interview).
-2. **Run `--roadmap`** — walks through phase boundaries, milestone decomposition, dependency mapping, risk labeling. Produces a single `ROADMAP.md` with a Spec Index table.
-3. **Identify architecture-heavy milestones.** For each risky area, run the appropriate `--arch` flag:
+2. **Run `--roadmap`** — the stage runs DISCOVERY inline (`context-gatherer` at roadmap scope) and delegates wave decomposition to `wave-planner`. Produces `DISCOVERY.md` + `ROADMAP.md` with Phase/Wave/`W{N}{letter}` leaves. Wave-agents within a wave have disjoint `Touches:` — the planner guarantees this via the collision algorithm.
+3. **Identify architecture-heavy areas.** For each risky area, run the appropriate `--arch` flag:
    - `adr` — contested decisions (framework choice, pattern selection, tradeoff resolution)
    - `schema` — new tables, migrations, data model changes
    - `api` — new endpoints, contract-first design
    - `diagram` — complex flows worth visualizing
-4. **Run `--specify`** — reads ROADMAP, extracts milestones, launches parallel spec generation (context-gatherer → spec-builder → architecture-advisor → tdd-planner). Dependency-aware batching: milestones with no unmet deps run in parallel; dependent ones wait.
-5. **Review specs** — the command presents a table of generated specs with validation scores. Lead reads each, requests re-drafts for weak ones.
-6. **Commit and push** — `git add .skilmarillion/projects/{slug}/` and commit all design artifacts (ROADMAP, specs, ADRs, API, schema, diagrams) so engineers can pull and reference them directly.
+4. **Run `--specify`** — reads ROADMAP, extracts wave-agents, re-runs the collision check, then wave-batches parallel `spec-builder` → `architecture-advisor` → `tdd-planner` chains. Within a wave: all agents parallel. Across waves: hard sync barrier.
+5. **Review SPECs** — the command presents a table of generated SPECs with validation scores. Lead reads each, requests re-drafts for weak ones. Each SPEC is a full implementation plan (ordered RED-GREEN-REFACTOR steps, files to touch, git strategy, traceability).
+6. **Commit and push** — `git add .skilmarillion/projects/{slug}/` and commit all design artifacts (DISCOVERY, ROADMAP, SPECs, ADRs, API, schema, diagrams) so engineers can pull and reference them directly.
 
 ### Verification
 
 | Check | How |
 |-------|-----|
-| ROADMAP has parseable milestones | `### P0-A:` heading + `**What:**` + `**Checklist:**` per milestone |
-| Spec Index table populated | Every milestone has a row mapping to a SPEC-NNN filename |
-| Every spec scored ≥85 | `/fellowship:plan --specify` enforces this before saving |
-| Dependencies form a DAG | ROADMAP's dependency graph is acyclic; lead eyeballs the table |
-| SPEC numbering is sequential | `ls specs/` shows SPEC-001, SPEC-002, ... no gaps |
-| Slug matches milestone name | `SPEC-003-order-refund.md` pairs with milestone `P0-C: Order Refund` |
+| ROADMAP has parseable wave-agents | `#### W{N}{letter}:` heading + `**Scope:**` + `**Touches:**` + `**Depends on:**` + `**Acceptance:**` + `**Spec:**` per wave-agent |
+| Independence Check is green | Every wave's row in the Independence Check table reports `None` — no touches-collision within a wave |
+| Spec Index table populated | Every wave-agent has a row mapping to a `SPEC-W{N}{letter}` filename |
+| Every SPEC scored ≥85 | `/fellowship:plan --specify` enforces this before saving |
+| Dependencies form a DAG | Every `depends_on` points to a wave-agent in an earlier wave (same phase) or any earlier phase |
+| SPEC IDs match ROADMAP | `ls specs/` returns one `SPEC-W{id}-{slug}.md` per wave-agent |
+| SPEC `touches` ⊆ ROADMAP `Touches:` | Validator warns on divergence |
 
 ### What The Lead Does NOT Do
 
-- Does NOT write PLANs — the individual engineer owns implementation-level decomposition.
-- Does NOT invoke `/fellowship:build`, `/fellowship:review`, or `/fellowship:ship` for feature work — those belong to the implementing engineer.
+- Does NOT generate a separate PLAN file — the SPEC is the plan.
+- Does NOT invoke `/fellowship:build`, `/fellowship:review`, or `/fellowship:ship` for feature work — those belong to the implementing engineer(s).
 
 ### Handoff
 
-Lead pushes the design artifacts commit, then signals the team: "ROADMAP and specs are in `main` under `.skilmarillion/projects/{slug}/`. P0-A through P0-C are unblocked — pull and run `/fellowship:build specs/SPEC-NNN-{slug}.md`."
+Lead pushes the design artifacts commit, then signals the team: "ROADMAP and SPECs are in `main` under `.skilmarillion/projects/{slug}/`. Wave 1.1 is unblocked — pull and run `/fellowship:build wave 1` to start all W1* agents in parallel."
 
 ---
 
-## Persona 3 — Individual Engineer (PLAN → implement → review → ship)
+## Persona 3 — Individual Engineer (build → review → ship a wave-agent)
 
-**Goal:** Take one SPEC, build it test-first, review it, ship it.
+**Goal:** Take one SPEC (one wave-agent), build it test-first, review it, ship it. Or take a whole wave and coordinate parallel runs.
 
-**Scope:** Build → review → ship pipeline, scoped to a single spec.
+**Scope:** Build → review → ship pipeline, scoped to a single wave-agent or a full wave.
 
 ### Command Flow
 
 ```
-# Pick a spec (from the Spec Index in ROADMAP.md)
-/fellowship:build .skilmarillion/projects/{slug}/specs/SPEC-003-order-refund.md
+# Pick a wave-agent from the ROADMAP's Spec Index
+/fellowship:build spec W1a                          # single wave-agent
+
+# Or run an entire wave in parallel (all W1* agents at once)
+/fellowship:build wave 1
+
+# Or use Agent Teams instead of Task subagents for the wave
+/fellowship:build wave 1 --team
 
 # Check progress anytime
 /fellowship:status
@@ -154,7 +162,7 @@ Lead pushes the design artifacts commit, then signals the team: "ROADMAP and spe
 # Review the implementation
 /fellowship:review
 
-# Commit + open PR
+# Commit + open PR (one per wave-agent PR-per-branch)
 /fellowship:ship --pr
 ```
 
@@ -162,21 +170,21 @@ Lead pushes the design artifacts commit, then signals the team: "ROADMAP and spe
 
 | File | Purpose |
 |------|---------|
-| `plans/PLAN-003-order-refund.md` | Translation of SPEC into executable slices, paired 1:1 with the spec |
-| Production code + tests | Actual feature, RED → GREEN → REFACTOR per slice |
-| `reviews/review-SPEC-003.md` | Findings from code-quality + security + a11y specialists, deduped |
-| Git commit (conventional format) | `feat(order): add refund workflow per SPEC-003` |
-| PR (if `--pr`) | With AC traceability table linking each acceptance criterion to code |
+| Production code + tests | Actual feature, RED → GREEN → REFACTOR per ordered step in the SPEC |
+| `reviews/review-SPEC-W1a.md` | Findings from code-quality + security + a11y specialists, deduped |
+| Git commit (conventional format) | `feat(order): refund repo per SPEC-W1a` |
+| PR (if `--pr`) | With AC traceability table linking each `AC-W1a.N` to code |
 
 ### What The Engineer Does
 
-1. **Pick a SPEC** — from the Spec Index in `ROADMAP.md`, grab one with no unmet dependencies.
-2. **Run `/fellowship:build`** against the spec path. The command:
-   - Delegates to `spec-to-impl` agent to translate SPEC → `plans/PLAN-NNN-{slug}.md` (paired 1:1 with the spec by number and slug)
-   - Presents the plan — engineer reviews slice boundaries before execution
-   - Runs each slice RED → GREEN → REFACTOR
-   - Stops after 3 failed attempts on any slice → diagnostic → modified approach, sub-slice split, or `ACCEPT_WITH_DEBT` annotation in the plan
-3. **Check `/fellowship:status`** to see which slice is active, which are done, which are blocked.
+1. **Pick a wave-agent** — from the Spec Index in `ROADMAP.md`, grab a `W{id}` whose `Depends on:` is satisfied.
+2. **Run `/fellowship:build`** in one of three forms:
+   - `spec W{N}{letter}` — single wave-agent. TDD loop walks the SPEC's `## Ordered Implementation Steps` with the explicit `RED|GREEN|REFACTOR|non-behavioral` markers. No SPEC-to-PLAN translation; the SPEC is the plan.
+   - `wave N` — spawns one Task per wave-agent in Wave N.M concurrently. The wave merge barrier blocks until every spawned run reports green.
+   - `wave N --team` — same as above but spawns Agent Teams so long-running wave-agents can coordinate via shared tasks and SendMessage (see `teams/rules/team-conventions.md`).
+
+   In all forms, the build stage stops after 3 failed attempts on any step → diagnostic → modified approach, sub-step split, or `ACCEPT_WITH_DEBT` annotation appended to the SPEC.
+3. **Check `/fellowship:status`** to see which wave-agent is active, which are complete, which are blocked.
 4. **Run `/fellowship:review`** — spawns code-quality, security, and accessibility reviewers in parallel. Findings-only, never modifies code. Engineer decides what to fix, loops back to `/fellowship:build` as needed.
 5. **Run `/fellowship:ship --pr`** — stages only source/test files (`.skilmarillion/` excluded), crafts a conventional commit, pushes, opens a PR with AC traceability.
 
@@ -185,17 +193,17 @@ Lead pushes the design artifacts commit, then signals the team: "ROADMAP and spe
 | Check | How |
 |-------|-----|
 | Every acceptance criterion has a failing test first | TDD discipline enforced by `/fellowship:build` — RED before GREEN |
-| All slices reach GREEN | `/fellowship:status` shows all slices marked complete |
-| PLAN pairs 1:1 with SPEC | `plans/PLAN-003-order-refund.md` matches `specs/SPEC-003-order-refund.md` |
+| All steps reach GREEN | `/fellowship:status` shows all steps marked complete for the wave-agent |
 | No high-severity findings | `/fellowship:review` output; security findings >80% confidence threshold |
 | Tests pass locally | Engineer runs project's test suite (pytest/vitest/etc.) |
 | Conventional commit format | `/fellowship:ship` generates it; engineer verifies scope + breaking flag |
 | PR template filled out | `/fellowship:ship --pr` detects `.github/PULL_REQUEST_TEMPLATE.md` and populates it |
-| AC traceability in PR | PR body links each spec AC to its implementing commit/file |
+| AC traceability in PR | PR body links each `AC-W{id}.N` to its implementing commit/file |
+| Wave merge barrier | When running `wave N`, no wave-agent advances to the next wave until every sibling is green |
 
 ### Variants
 
-**Bug fix (no spec):**
+**Bug fix (no SPEC):**
 ```
 /fellowship:build --debug "users can create orders without auth"
   → reproduce → isolate → root cause → proposed fix
@@ -213,6 +221,7 @@ Lead pushes the design artifacts commit, then signals the team: "ROADMAP and spe
 ### What The Engineer Does NOT Do
 
 - Does NOT skip RED — no production code before a failing test (config/docs/generated code exempt).
+- Does NOT touch files outside their SPEC's `touches` list — this guarantee is what makes wave parallelism safe.
 - Does NOT bypass review findings — high-severity items block ship; engineer fixes or documents why they're accepted.
 - Does NOT auto-commit `.skilmarillion/` files — git exclusion is enforced by `/fellowship:ship`.
 
@@ -221,22 +230,27 @@ Lead pushes the design artifacts commit, then signals the team: "ROADMAP and spe
 ## Cross-Persona Handoff Map
 
 ```
-PM                      Lead Engineer              Individual Engineer
-──                      ─────────────              ──────────────────
+PM                      Lead Engineer              Individual Engineer(s)
+──                      ─────────────              ──────────────────────
 /fellowship:plan --prd
   └─► PRD.md ─────────► /fellowship:plan --prd (refine)
                           /fellowship:plan --roadmap
-                            └─► ROADMAP.md
-                          /fellowship:plan --arch (per risky milestone)
+                            └─► DISCOVERY.md (context-gatherer, roadmap scope)
+                            └─► ROADMAP.md  (Phase → Wave → W{N}{letter})
+                          /fellowship:plan --arch (per risky area)
                             └─► adrs/ api/ schema/ diagrams/
-                          /fellowship:plan --specify
-                            └─► specs/SPEC-NNN-{slug}.md ────► /fellowship:build specs/SPEC-NNN...
-                                                                 └─► plans/PLAN-NNN-{slug}.md
-                                                                 └─► code + tests
-                                                               /fellowship:review
-                                                                 └─► reviews/review-*.md
-                                                               /fellowship:ship --pr
-                                                                 └─► commit + PR
+                          /fellowship:plan --specify  (wave-batched parallel)
+                            └─► specs/SPEC-W1a-{slug}.md ──┐
+                            └─► specs/SPEC-W1b-{slug}.md ──┤── /fellowship:build wave 1
+                            └─► specs/SPEC-W2a-{slug}.md ──┘     ├─► W1a: code + tests
+                                                                 ├─► W1b: code + tests
+                                                                 └─► (merge barrier)
+                                                                  /fellowship:build wave 2
+                                                                   └─► W2a: code + tests
+                                                                 /fellowship:review
+                                                                   └─► reviews/review-SPEC-W*.md
+                                                                 /fellowship:ship --pr (one per wave-agent)
+                                                                   └─► commit + PR
 ```
 
 ---
@@ -247,13 +261,13 @@ PM                      Lead Engineer              Individual Engineer
 |---------|-------|-----|
 | `/fellowship:init` | haiku | Deterministic scaffolding |
 | `/fellowship:plan` | sonnet | Judgment, codebase context, design reasoning |
-| `/fellowship:build` | sonnet | TDD loops, spec interpretation |
+| `/fellowship:build` | sonnet | TDD loops, SPEC interpretation, wave dispatch |
 | `/fellowship:review` | opus | Safety-critical, high-confidence findings |
 | `/fellowship:ship` | haiku | Structured commit/PR formatting |
 | `/fellowship:status` | haiku | Read-only dashboard |
 | `/fellowship:help` | haiku | Routing and tour |
 
-Match your persona to the models you'll invoke: PM hits haiku + sonnet; lead hits sonnet heavily; individual engineer hits all three (sonnet for build, opus for review, haiku for ship/status).
+Match your persona to the models you'll invoke: PM hits haiku + sonnet; lead hits sonnet heavily (plus opus indirectly via `wave-planner` / `architecture-advisor`); individual engineer hits all three.
 
 ---
 
@@ -262,5 +276,5 @@ Match your persona to the models you'll invoke: PM hits haiku + sonnet; lead hit
 | Persona | Done When |
 |---------|-----------|
 | PM | `PRD.md` exists, scores ≥85, PM approves content |
-| Lead | `ROADMAP.md` + all `specs/SPEC-NNN-*.md` exist, each scored ≥85, Spec Index populated, dependencies are a DAG |
-| Engineer | All slices GREEN, no high-severity review findings, PR open with AC traceability |
+| Lead | `DISCOVERY.md` + `ROADMAP.md` + all `specs/SPEC-W{id}-*.md` exist, each SPEC scored ≥85, Spec Index populated, Independence Check all green, `collisions_unresolved` empty |
+| Engineer | All SPEC steps GREEN for their wave-agent, wave merge barrier met (all siblings green), no high-severity review findings, PR open with AC traceability |

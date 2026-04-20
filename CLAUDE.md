@@ -54,17 +54,19 @@ All artifacts land under the **target project's** git root at:
 
 ```
 {target_project}/.skilmarillion/projects/{slug}/
-  PRD.md                       # /fellowship:plan --prd
-  ROADMAP.md                   # /fellowship:plan --roadmap
-  PROJECT-STATE.yaml           # workflow state (sections: plan, impl, review)
-  specs/SPEC-NNN-{slug}.md     # /fellowship:plan --specify
-  adrs/NNN-{slug}.md           # /fellowship:plan --arch adr
-  api/{name}-openapi.yaml      # /fellowship:plan --arch api
-  schema/{name}-schema.sql     # /fellowship:plan --arch schema
-  diagrams/{name}-{type}.md    # /fellowship:plan --arch diagram
-  plans/PLAN-NNN-{slug}.md     # /fellowship:build (paired with SPEC-NNN)
-  reviews/review-{target}.md   # /fellowship:review
+  PRD.md                                 # /fellowship:plan --prd
+  ROADMAP.md                             # /fellowship:plan --roadmap (Phase → Wave → W{N}{letter})
+  DISCOVERY.md                           # /fellowship:plan --roadmap (context-gatherer, roadmap scope)
+  PROJECT-STATE.yaml                     # workflow state: current_wave, wave_agents_completed
+  specs/SPEC-W{N}{letter}-{slug}.md      # /fellowship:plan --specify (one per wave-agent)
+  adrs/NNN-{slug}.md                     # /fellowship:plan --arch adr
+  api/{name}-openapi.yaml                # /fellowship:plan --arch api
+  schema/{name}-schema.sql               # /fellowship:plan --arch schema
+  diagrams/{name}-{type}.md              # /fellowship:plan --arch diagram
+  reviews/review-{target}.md             # /fellowship:review
 ```
+
+There is no `plans/` directory — the SPEC absorbed the PLAN schema (ordered RED-GREEN-REFACTOR steps, files to touch, git strategy, traceability).
 
 Slugs are confirmed with the user before first save (see `skills/artifact-paths.md`).
 
@@ -86,7 +88,7 @@ Read-only roles get read-only tools. No agent holds Write/Edit unless it explici
 
 ### TDD Discipline
 
-`/fellowship:build` enforces **RED → GREEN → REFACTOR**. No production code before a failing test for any behavioral step. Config, docs, generated code, and infrastructure are exempt. After 3 failed attempts on a slice: diagnostic step → modified approach, sub-slice split, or ACCEPT_WITH_DEBT.
+`/fellowship:build` enforces **RED → GREEN → REFACTOR**. No production code before a failing test for any behavioral step. Config, docs, generated code, and infrastructure are exempt. After 3 failed attempts on a step: diagnostic step → modified approach, sub-step split, or ACCEPT_WITH_DEBT. Wave dispatch (`/fellowship:build wave N`) spawns parallel Task subagents (or Agent Teams with `--team`), one per wave-agent in the wave, on disjoint file sets guaranteed by `wave-planner`.
 
 ### Review Discipline
 
@@ -94,18 +96,18 @@ Read-only roles get read-only tools. No agent holds Write/Edit unless it explici
 
 ### Validation Gate
 
-Specs, PRDs, and plans are scored 0–100 by `scripts/validate.py`. **PASS threshold: ≥85 for all document types.** Draft threshold: 50. Never present artifacts below the threshold as finished.
+PRDs and SPECs are scored 0–100 by `scripts/validate.py`. **PASS threshold: ≥85 for all document types.** Draft threshold: 50. Never present artifacts below the threshold as finished.
 
 ## Build & Test
 
 Python 3.10+ (stdlib only) required for the validator:
 
 ```bash
-# Validate a spec, PRD, or plan
+# Validate a SPEC or PRD
 python scripts/validate.py <path> --verbose
 
 # Validate with explicit type and JSON output
-python scripts/validate.py <path> --type spec|prd|plan --json
+python scripts/validate.py <path> --type spec|prd --json
 
 # Draft mode (relaxed threshold: 50)
 python scripts/validate.py <path> --draft

@@ -30,10 +30,10 @@ Parse `$ARGUMENTS` for a leading flag:
 | Flag | Stage file | Purpose |
 |------|------------|---------|
 | `--prd` | `references/plan-stages/prd.md` | Client-shareable Product Requirements Document |
-| `--roadmap` | `references/plan-stages/roadmap.md` | Decompose an approved PRD into ordered milestones |
-| `--specify` | `references/plan-stages/specify.md` | Generate SPEC files from a ROADMAP (parallel agents) |
+| `--roadmap` | `references/plan-stages/roadmap.md` | Decompose an approved PRD into phased, wave-based decomposition (runs DISCOVERY + `wave-planner` inline) |
+| `--specify` | `references/plan-stages/specify.md` | Generate one SPEC per wave-agent; wave-batched parallel authoring |
 | `--migrate` | `references/plan-stages/migrate.md` | Prioritized migration plan from legacy → target |
-| `--validate` | `references/plan-stages/validate.md` | Score a PRD / spec / plan (0-100; PASS ≥85 for all types) |
+| `--validate` | `references/plan-stages/validate.md` | Score a PRD or SPEC (0-100; PASS ≥85 for all types) |
 | `--arch adr` | `references/plan-stages/arch-adr.md` | Architecture Decision Record + C4 diagram |
 | `--arch api` | `references/plan-stages/arch-api.md` | OpenAPI 3.0 spec |
 | `--arch schema` | `references/plan-stages/arch-schema.md` | Database schema DDL |
@@ -73,21 +73,21 @@ At the end of this stage: **checkpoint**. Run `python ${CLAUDE_PLUGIN_ROOT}/scri
 
 If the user pauses, stop. Resume later via `/fellowship:plan --roadmap .skilmarillion/projects/{slug}/PRD.md`.
 
-### 4. Stage 2 — ROADMAP
+### 4. Stage 2 — ROADMAP (runs DISCOVERY + wave-planner inline)
 
-Run the roadmap stage (`references/plan-stages/roadmap.md`) against the PRD. Save to `.skilmarillion/projects/{slug}/ROADMAP.md`. Validate (≥85). Checkpoint:
+Run the roadmap stage (`references/plan-stages/roadmap.md`) against the PRD. Save ROADMAP.md + DISCOVERY.md to `.skilmarillion/projects/{slug}/`. Validate (≥85). Checkpoint:
 
-> "Roadmap scored {N}/100 with {M} milestones. Generate specs for all milestones, or stop here?"
+> "Roadmap scored {N}/100. {P} phases, {W} waves, {A} wave-agents, {C} collisions resolved. Generate SPECs for all wave-agents, or stop here?"
 
-### 5. Stage 3 — Specs
+### 5. Stage 3 — SPECs (one per wave-agent, wave-batched)
 
-Run the specify stage (`references/plan-stages/specify.md`) against the ROADMAP. Spawn parallel spec-builder agents (one per milestone). Save each to `.skilmarillion/projects/{slug}/specs/SPEC-NNN-{slug}.md`. Validate each. Summarize:
+Run the specify stage (`references/plan-stages/specify.md`) against the ROADMAP. For each wave (in order), spawn parallel spec-builder → architecture-advisor → tdd-planner chains per wave-agent. Save each to `.skilmarillion/projects/{slug}/specs/SPEC-W{N}{letter}-{slug}.md`. Validate each. Summarize:
 
-> "Specs generated: {N} total, {M} PASS, {K} below threshold. Next: `/fellowship:build .skilmarillion/projects/{slug}/specs/SPEC-001-{slug}.md`"
+> "SPECs generated: {N} total across {W} waves, {M} PASS, {K} below threshold. Next: `/fellowship:build wave 1` (all Wave 1.* agents in parallel) or `/fellowship:build spec W1a` (single wave-agent)."
 
 ### 6. State Tracking
 
-After each stage, update `.skilmarillion/projects/{slug}/PROJECT-STATE.yaml` via `${CLAUDE_PLUGIN_ROOT}/scripts/update-state.sh`. Write the `plan:` section with: `slug`, `feature`, `size`, `risk`, `current_phase`, `spec_path` (if present).
+After each stage, update `.skilmarillion/projects/{slug}/PROJECT-STATE.yaml` via `${CLAUDE_PLUGIN_ROOT}/scripts/update-state.sh`. Write `slug`, `feature`, `size`, `risk`, `current_phase`, `current_wave`, `spec_path` (if present).
 
 ---
 
@@ -109,14 +109,16 @@ All artifacts land under the **target project's** git root:
 {target}/.skilmarillion/projects/{slug}/
   PRD.md
   ROADMAP.md
+  DISCOVERY.md
   PROJECT-STATE.yaml
-  specs/SPEC-NNN-{slug}.md
+  specs/SPEC-W{N}{letter}-{slug}.md
   adrs/NNN-{slug}.md
   api/{name}-openapi.yaml
   schema/{name}-schema.sql
   diagrams/{name}-{type}.md
-  plans/PLAN-NNN-{slug}.md
 ```
+
+There is no `plans/` directory. The SPEC absorbed the PLAN schema — see `skills/spec-format`.
 
 `.skilmarillion/` files are **never auto-staged or auto-committed.** The user decides whether to track them.
 

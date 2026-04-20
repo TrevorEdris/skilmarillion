@@ -101,9 +101,9 @@ Severity guide:
 - **medium:** Functional gap; workaround exists; should be addressed before production
 - **high:** Core behavior missing; no workaround; must be addressed before merge
 
-Downstream notification: Append a note to the plan file (`plans/PLAN-NNN-{slug}.md`):
+Downstream notification: Append the debt record to the SPEC file under a `## Gaps` section (create if absent). The SPEC is the plan — there is no separate plan file.
 ```markdown
-> **Debt note from Slice {N}:** {missing_behavior}. Downstream slices should {workaround or constraint}.
+> **Debt note from step {N} of SPEC-W{id}:** {missing_behavior}. Downstream wave-agents should {workaround or constraint}.
 ```
 
 ---

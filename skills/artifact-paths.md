@@ -50,10 +50,12 @@ All paths below are relative to the resolved project root.
 ```
 {project_root}/.skilmarillion/projects/{feature-slug}/
   PRD.md                           # One per feature (/fellowship:plan --prd output)
-  ROADMAP.md                       # Colocated roadmap (epic decomposition or manual)
-  PROJECT-STATE.yaml               # Unified state file (replaces .plan-state-* and .impl-state-*)
+  ROADMAP.md                       # Phase → Wave → Wave-Agent decomposition (/fellowship:plan --roadmap output)
+  DISCOVERY.md                     # Codebase findings emitted during --roadmap (context-gatherer at scope=roadmap)
+  PROJECT-STATE.yaml               # Unified state file (sections: plan, impl, review, waves)
   specs/
-    SPEC-{NNN}-{slug}.md           # Auto-incrementing (/fellowship:plan --specify output)
+    SPEC-{wave_id}-{slug}.md       # One per wave-agent (/fellowship:plan --specify output)
+                                   # wave_id format: W{N}{letter} — e.g., W1a, W2c
   adrs/
     {NNN}-{slug}.md                # Auto-incrementing (/fellowship:plan --arch adr output)
   api/
@@ -62,14 +64,14 @@ All paths below are relative to the resolved project root.
     {name}-schema.sql              # /fellowship:plan --arch schema output
   diagrams/
     {name}-{type}.md               # /fellowship:plan --arch diagram output
-  plans/
-    PLAN-{NNN}-{slug}.md           # /fellowship:build output (generated from paired SPEC-{NNN})
   reviews/
     review-{target}.md             # /fellowship:review output
     security-{target}.md           # /fellowship:review --security output
     a11y-{target}.md               # /fellowship:review --a11y output
     clean-{target}.md              # /fellowship:review --clean output
 ```
+
+The SPEC is the implementation plan. There is no separate `plans/` directory.
 
 ---
 
@@ -110,15 +112,15 @@ See `agents/slug-namer.md` for the full contract and examples.
 
 ## Artifact Resolution
 
-When a command needs to **discover an existing artifact** (spec, PRD, roadmap, plan, ADR, API, schema, diagram, or state file) from user input, delegate to the **`artifact-resolver` agent** (haiku model). Do not glob inline — call the agent, inspect its structured output, confirm with the user.
+When a command needs to **discover an existing artifact** (spec, PRD, roadmap, ADR, API, schema, diagram, or state file) from user input, delegate to the **`artifact-resolver` agent** (haiku model). Do not glob inline — call the agent, inspect its structured output, confirm with the user.
 
 **How to call:**
 
 ```
 Task: artifact-resolver agent
 Input: {
-  "artifact_type": "spec|prd|roadmap|plan|state|adr|api|schema|diagram",
-  "query": "{user input: free text, path, SPEC-N, or empty}",
+  "artifact_type": "spec|prd|roadmap|state|adr|api|schema|diagram",
+  "query": "{user input: free text, path, SPEC-W{N}{letter}, or empty}",
   "project_root": "{absolute path to target repo git root}"
 }
 Output: JSON with { match_type, candidates[], total_count }
@@ -142,23 +144,20 @@ See `agents/artifact-resolver.md` for the full contract, glob patterns, and rank
 
 ---
 
-## Spec and Plan Numbering
+## Spec Naming
 
-Auto-incrementing, zero-padded to 3 digits. **Plans mirror specs** — a spec and its implementation plan share the same `NNN` and `{slug}`.
+Specs are named after the **wave-agent** they implement, not by auto-incremented integers.
 
-**Spec numbering:**
+**Format:** `SPEC-{wave_id}-{slug}.md`
 
-1. List existing `SPEC-*.md` files in `{project_root}/.skilmarillion/projects/{feature-slug}/specs/`
-2. Next number = count + 1
-3. Format: `SPEC-{NNN}-{slug}.md` (e.g., `SPEC-001-auth-flow.md`, `SPEC-002-token-refresh.md`)
+Where `wave_id` is `W{N}{letter}` — `N` is the wave number (1-indexed, monotonic across phases), `letter` is `a..z` lowercase identifying the agent within that wave. The `wave_id` for each spec is assigned by `wave-planner` during `/fellowship:plan --roadmap` and recorded in `ROADMAP.md`.
 
-If the directory does not exist yet, the next number is `001`.
+Examples:
+- `SPEC-W1a-refund-repo.md`
+- `SPEC-W1b-refund-events.md`
+- `SPEC-W2a-refund-api.md`
 
-**Plan numbering (paired with spec):**
-
-When `/fellowship:build` translates `specs/SPEC-NNN-{slug}.md` into an implementation plan, save it to `plans/PLAN-NNN-{slug}.md` with matching `NNN` and `{slug}`. One spec → one plan, paired by number.
-
-If the build input is a loose spec without a `SPEC-NNN` prefix, assign the next available `NNN` by scanning `plans/` for existing `PLAN-*.md` files.
+There is no separate plan artifact — the SPEC contains the full PLAN-grade implementation detail per `skills/spec-format.md`.
 
 ---
 
@@ -206,7 +205,6 @@ mkdir -p {project_root}/.skilmarillion/projects/{feature-slug}/adrs
 mkdir -p {project_root}/.skilmarillion/projects/{feature-slug}/api
 mkdir -p {project_root}/.skilmarillion/projects/{feature-slug}/schema
 mkdir -p {project_root}/.skilmarillion/projects/{feature-slug}/diagrams
-mkdir -p {project_root}/.skilmarillion/projects/{feature-slug}/plans
 mkdir -p {project_root}/.skilmarillion/projects/{feature-slug}/reviews
 ```
 
@@ -217,13 +215,14 @@ mkdir -p {project_root}/.skilmarillion/projects/{feature-slug}/reviews
 | Command | Artifact | Path |
 |---------|----------|------|
 | `/fellowship:plan --prd` | PRD | `{project_root}/.skilmarillion/projects/{feature-slug}/PRD.md` |
-| `/fellowship:plan --specify` | Specs | `{project_root}/.skilmarillion/projects/{feature-slug}/specs/SPEC-{NNN}-{slug}.md` |
 | `/fellowship:plan --roadmap` | Roadmap | `{project_root}/.skilmarillion/projects/{feature-slug}/ROADMAP.md` |
+| `/fellowship:plan --roadmap` | Discovery | `{project_root}/.skilmarillion/projects/{feature-slug}/DISCOVERY.md` |
+| `/fellowship:plan --specify` | Specs | `{project_root}/.skilmarillion/projects/{feature-slug}/specs/SPEC-{wave_id}-{slug}.md` |
 | `/fellowship:plan --arch adr` | ADRs | `{project_root}/.skilmarillion/projects/{feature-slug}/adrs/{NNN}-{slug}.md` |
 | `/fellowship:plan --arch api` | OpenAPI | `{project_root}/.skilmarillion/projects/{feature-slug}/api/{name}-openapi.yaml` |
 | `/fellowship:plan --arch schema` | Schema | `{project_root}/.skilmarillion/projects/{feature-slug}/schema/{name}-schema.sql` |
 | `/fellowship:plan --arch diagram` | Diagrams | `{project_root}/.skilmarillion/projects/{feature-slug}/diagrams/{name}-{type}.md` |
-| `/fellowship:build` | Implementation plan | `{project_root}/.skilmarillion/projects/{feature-slug}/plans/PLAN-{NNN}-{slug}.md` |
+| `/fellowship:build` | (no new artifact — implements code per SPEC; updates `PROJECT-STATE.yaml.waves`) |
 | `/fellowship:review` | Review | `{project_root}/.skilmarillion/projects/{feature-slug}/reviews/review-{target}.md` |
 | `/fellowship:review --security` | Security | `{project_root}/.skilmarillion/projects/{feature-slug}/reviews/security-{target}.md` |
 | `/fellowship:review --a11y` | Accessibility | `{project_root}/.skilmarillion/projects/{feature-slug}/reviews/a11y-{target}.md` |

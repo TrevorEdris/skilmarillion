@@ -1,6 +1,6 @@
 # ROADMAP.md Template
 
-Unified roadmap document merging feature descriptions (product-readable) with implementation checklists (engineering-readable). Produced from an approved PRD via `/fellowship:plan --roadmap`.
+Unified roadmap document. Top-level sections are PRD delivery phases. Each phase contains waves of independent, parallel wave-agents. Produced from an approved PRD via `/fellowship:plan --roadmap` (which chains `context-gatherer` → `wave-planner`).
 
 ---
 
@@ -12,58 +12,84 @@ Unified roadmap document merging feature descriptions (product-readable) with im
 ## Current Status
 
 **Phase:** [current phase]
+**Wave:** [current wave, e.g. `1.2`]
 **Last Updated:** [date]
 
 ### Completed
 - [x] Phase 0: [name]
 
 ### In Progress
-- [ ] Phase 1: [name]
+- [ ] Phase 1: [name] — Wave 1.1 (W1a, W1b)
 
 ---
 
 ## Philosophy
 
-[1-2 sentences on the build approach — vertical slices, incremental delivery, etc.]
+[1-2 sentences: wave-based parallel decomposition. Each wave-agent owns a disjoint file set; waves are hard sync barriers.]
 
 ---
 
-## Phase 0: [Name]
+## Discovery Summary
 
-**Entry Criteria:** [What must be true before this phase starts]
-**Exit Criteria:** [What must be true for this phase to be complete]
+Auto-populated from `context-gatherer` at `scope: roadmap`.
 
-### P0-A: [Feature Name]
-
-- **What:** [Plain-language description from PRD — product-readable]
-- **Depends on:** [Feature IDs or "Nothing"]
-- **Risk:** [Known risks, optional]
-- **Note:** [Context or constraints, optional]
-- **Checklist:**
-  - [ ] [Implementation sub-task — engineering-readable]
-  - [ ] [Another sub-task]
-  - [ ] [Verification action]
-
-### P0-B: [Feature Name]
-
-- **What:** ...
-- **Depends on:** P0-A
-- **Checklist:**
-  - [ ] ...
-
-**Deliverable:** [What users can do when this phase ships — one sentence in italics]
+- **Entry points:** [files]
+- **Layout:** [top-level directory structure]
+- **Conventions:** [naming, testing, error handling]
+- **Hotspots:** [directories expected to receive heavy edits]
 
 ---
 
 ## Phase 1: [Name]
 
-**Entry Criteria:** Phase 0 complete. [Additional conditions.]
+**Entry Criteria:** [What must be true before this phase starts]
+**Exit Criteria:** [What must be true for this phase to be complete]
+
+### Wave 1.1
+
+> All W1a/W1b/W1c… agents in this wave run in parallel on disjoint file sets. No wave-agent reads or depends on another wave-agent's in-flight output. The wave closes when every agent's PR is green.
+
+#### W1a: [Agent Name]
+
+- **Scope:** [One sentence — the atomic deliverable this agent owns.]
+- **Touches:** `path/to/file_a.go`, `path/to/file_b.go`
+- **Depends on:** [`W{id}` of an agent in an earlier wave/phase, or `Nothing`]
+- **Acceptance:** FR-001, FR-002
+- **Spec:** `specs/SPEC-W1a-{slug}.md`
+
+#### W1b: [Agent Name]
+
+- **Scope:** ...
+- **Touches:** ...
+- **Depends on:** Nothing
+- **Acceptance:** FR-003
+- **Spec:** `specs/SPEC-W1b-{slug}.md`
+
+### Wave 1.2
+
+#### W1c: [Agent Name]
+
+- **Scope:** ...
+- **Touches:** ...
+- **Depends on:** W1a, W1b
+- **Acceptance:** FR-004
+- **Spec:** `specs/SPEC-W1c-{slug}.md`
+
+**Deliverable:** *[One-sentence milestone statement — what ships when the phase closes.]*
+
+---
+
+## Phase 2: [Name]
+
+**Entry Criteria:** Phase 1 complete.
 **Exit Criteria:** [Measurable outcome.]
 
-### P1-A: [Feature Name]
+### Wave 2.1
+
+#### W2a: [Agent Name]
 ...
 
-**Deliverable:** *[Prose milestone statement]*
+**Deliverable:** *...*
 
 ---
 
@@ -82,26 +108,52 @@ performance budgets, compliance requirements. Reference NFRs from the PRD.]
 
 ---
 
+## Independence Check
+
+Collision audit from `wave-planner`. A green check means no two agents in the same wave touch the same file.
+
+| Wave | Collision? | Notes |
+|------|-----------|-------|
+| 1.1 | None | W1a ∩ W1b = ∅ |
+| 1.2 | None | solo |
+| 2.1 | None | — |
+
+`collisions_resolved`: 0 (re-buckets performed by wave-planner)
+
+---
+
 ## Spec Index
 
-| ID | Name | Status | Phase | Roadmap Ref |
-|----|------|--------|-------|-------------|
-| [Category-001] | [Spec name] | PENDING | 1 | P1-A |
-| [Category-002] | [Spec name] | DRAFT | 2 | P2-B |
+| ID | Wave | Scope | Status |
+|----|------|-------|--------|
+| SPEC-W1a | 1.1 | [scope] | PENDING |
+| SPEC-W1b | 1.1 | [scope] | PENDING |
+| SPEC-W1c | 1.2 | [scope] | PENDING |
+| SPEC-W2a | 2.1 | [scope] | PENDING |
 
 Status values: **PENDING** | **DRAFT** | **REVIEW** | **FINAL**
 ```
 
 ---
 
-## Feature ID Convention
+## Wave-Agent ID Convention
 
-Features use the format `P{phase}-{letter}`:
-- `P0-A` — first feature of Phase 0
-- `P1-C` — third feature of Phase 1
-- `P3-A` — first feature of Phase 3
+Wave-agents use the format `W{N}{letter}`:
+- `W1a` — first agent in Phase 1, Wave 1.1
+- `W1b` — second agent in the same or next wave of Phase 1
+- `W2a` — first agent of Phase 2
 
-This maps cleanly to PRD requirement IDs: the roadmap translates FR-001 through FR-NNN into phased features.
+Letters are monotonic across waves within a phase. `W1a` and `W1b` may live in the same wave (parallel) or different waves (sequential) — the `### Wave N.M` header groups them.
+
+The wave-agent ID maps 1:1 to a SPEC filename: `specs/SPEC-{wave_id}-{slug}.md`.
+
+---
+
+## Independence Rule
+
+Within a single wave, no two agents' `Touches:` lists may share a file. Read-only file sharing is allowed — two agents may read the same file. Writes must be disjoint.
+
+If two candidate agents collide on a file, `wave-planner` moves the smaller-scope agent to the next wave. Up to `max_wave_attempts` (default 3) re-buckets are allowed before the planner fails loud.
 
 ---
 
@@ -111,10 +163,13 @@ This maps cleanly to PRD requirement IDs: the roadmap translates FR-001 through 
 |---------|---------------|-------------------|
 | Current Status | Yes | Yes |
 | Philosophy | Yes | Yes |
-| Phase overview (entry/exit criteria) | Yes | Yes |
-| Feature — What / Depends on / Risk | Yes | Yes |
-| Feature — Checklist | No (implementation detail) | Yes |
+| Discovery Summary | Sometimes | Yes |
+| Phase entry/exit criteria | Yes | Yes |
+| Wave block (parallelism note) | Sometimes | Yes |
+| Wave-agent — Scope / Depends on / Acceptance | Yes | Yes |
+| Wave-agent — Touches | No (implementation detail) | Yes |
 | Deliverable statement | Yes | Yes |
 | Cross-Cutting Concerns | Sometimes | Yes |
 | Dependency Summary | Yes | Yes |
+| Independence Check | No | Yes |
 | Spec Index | Sometimes | Yes |

@@ -12,14 +12,15 @@ Evaluate the spec against the codebase and recommend the appropriate architectur
 
 ## Inputs
 
-- `spec_content` — full spec markdown
+- `spec_content` — full spec markdown (or, at `roadmap` invocation, the PRD + DISCOVERY excerpt)
 - `context` — context-gatherer JSON (`{ entry_points, relevant_files, patterns, conventions }`); may be absent
+- `invocation_level` — `"roadmap" | "spec"` (default `spec`). At `roadmap` level the advisor sweeps broader to seed pattern guidance for every wave-agent. At `spec` level the advisor scopes its read to a single wave-agent's deliverable.
 
 ---
 
 ## Process
 
-1. **Identify the dominant architectural pattern** — Read up to 5 files from `relevant_files` in `context`. If `context` is absent or `relevant_files` is empty, use Glob/Grep to find up to 5 entry point files and read those. Determine which architectural pattern the codebase already uses.
+1. **Identify the dominant architectural pattern** — Read files from `relevant_files` in `context`. File-read cap depends on `invocation_level`: up to 10 files at `roadmap` level, up to 5 at `spec` level. If `context` is absent or `relevant_files` is empty, use Glob/Grep to find entry point files within the same cap and read those. Determine which architectural pattern the codebase already uses.
 
 2. **Identify the key structural decision** — From the spec, determine what kind of change is being made: a new layer, a new service, an extension of an existing component, a new endpoint, or a new module.
 

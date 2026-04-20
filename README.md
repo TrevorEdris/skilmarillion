@@ -27,17 +27,19 @@ All artifacts land under the target project's git root at `.skilmarillion/projec
 
 ```
 {target}/.skilmarillion/projects/{slug}/
-  PRD.md                       # /fellowship:plan --prd
-  ROADMAP.md                   # /fellowship:plan --roadmap
-  PROJECT-STATE.yaml           # workflow state (plan | impl | review sections)
-  specs/SPEC-NNN-{slug}.md     # /fellowship:plan --specify
-  adrs/NNN-{slug}.md           # /fellowship:plan --arch adr
-  api/{name}-openapi.yaml      # /fellowship:plan --arch api
-  schema/{name}-schema.sql     # /fellowship:plan --arch schema
-  diagrams/{name}-{type}.md    # /fellowship:plan --arch diagram
-  plans/PLAN-NNN-{slug}.md     # /fellowship:build (paired with SPEC-NNN)
-  reviews/review-{target}.md   # /fellowship:review
+  PRD.md                                 # /fellowship:plan --prd
+  ROADMAP.md                             # /fellowship:plan --roadmap (Phase → Wave → W{N}{letter})
+  DISCOVERY.md                           # /fellowship:plan --roadmap (inline context-gatherer, roadmap scope)
+  PROJECT-STATE.yaml                     # workflow state (current_wave, wave_agents_completed, …)
+  specs/SPEC-W{N}{letter}-{slug}.md      # /fellowship:plan --specify (one per wave-agent)
+  adrs/NNN-{slug}.md                     # /fellowship:plan --arch adr
+  api/{name}-openapi.yaml                # /fellowship:plan --arch api
+  schema/{name}-schema.sql               # /fellowship:plan --arch schema
+  diagrams/{name}-{type}.md              # /fellowship:plan --arch diagram
+  reviews/review-{target}.md             # /fellowship:review
 ```
+
+There is no `plans/` directory — the SPEC absorbed the PLAN schema (ordered RED-GREEN-REFACTOR steps, files to touch, git strategy, traceability all live inside each SPEC).
 
 ### Git Exclusion
 
@@ -52,7 +54,7 @@ Match model to task:
 
 ### Validation Gate
 
-Specs, PRDs, and plans are scored 0–100 by `scripts/validate.py`. PASS threshold: ≥85 for all document types. Draft threshold: 50.
+PRDs and SPECs are scored 0–100 by `scripts/validate.py`. PASS threshold: ≥85 for all document types. Draft threshold: 50.
 
 ## Recommended .gitignore
 
@@ -67,18 +69,17 @@ Specs, PRDs, and plans are scored 0–100 by `scripts/validate.py`. PASS thresho
 Commit the design artifacts the team agrees on. Keep per-engineer working state local.
 
 ```gitignore
-.skilmarillion/projects/*/plans/
 .skilmarillion/projects/*/reviews/
 .skilmarillion/projects/*/PROJECT-STATE.yaml
 ```
 
 | Committed (shared) | Ignored (per-laptop) |
 |--------------------|----------------------|
-| `PRD.md`, `ROADMAP.md` | `PROJECT-STATE.yaml` (resume state) |
-| `specs/SPEC-NNN-*.md` | `plans/PLAN-NNN-*.md` (how *you* will implement it) |
-| `adrs/`, `api/`, `schema/`, `diagrams/` | `reviews/review-*.md` (per-engineer findings) |
+| `PRD.md`, `ROADMAP.md`, `DISCOVERY.md` | `PROJECT-STATE.yaml` (resume state, `current_wave`, `wave_agents_completed`) |
+| `specs/SPEC-W{id}-*.md` | `reviews/review-*.md` (per-engineer findings) |
+| `adrs/`, `api/`, `schema/`, `diagrams/` | |
 
-Rationale: specs, ADRs, and API/schema contracts are the team's *durable agreement*. Plans get actively rewritten during `/fellowship:build` (debt notes, slice status, attempt counts) — they're the working document for whoever picks up the spec. Reviews are findings-only and feed the PR's review thread, not the repo.
+Rationale: SPECs, ADRs, and API/schema contracts are the team's *durable agreement*. SPECs may accumulate `ACCEPT_WITH_DEBT` annotations during `/fellowship:build` — that's part of the shared record, so they stay committed. Reviews are findings-only and feed the PR's review thread, not the repo.
 
 ## Usage By Role
 
@@ -87,10 +88,10 @@ Who runs which command depends on your role. Full playbook: [HOW_TO_USE.md](HOW_
 | Persona | Commands | Produces |
 |---------|----------|----------|
 | **Product Manager** | `/fellowship:plan --prd` | `PRD.md` (validated ≥85) |
-| **Lead Engineer** | `/fellowship:plan --prd/--roadmap/--arch/--specify/--validate` | `ROADMAP.md`, `specs/SPEC-NNN-*.md` (each ≥85), ADRs, API, schema, diagrams |
-| **Individual Engineer** | `/fellowship:build` → `/fellowship:review` → `/fellowship:ship --pr` | `plans/PLAN-NNN-*.md` (paired with SPEC), code + tests, PR with AC traceability |
+| **Lead Engineer** | `/fellowship:plan --prd/--roadmap/--arch/--specify/--validate` | `DISCOVERY.md`, `ROADMAP.md` (Phase → Wave → `W{N}{letter}`), `specs/SPEC-W{id}-*.md` (each ≥85), ADRs, API, schema, diagrams |
+| **Individual Engineer** | `/fellowship:build wave N` or `/fellowship:build spec W{id}` → `/fellowship:review` → `/fellowship:ship --pr` | code + tests (one SPEC per wave-agent), PR with AC traceability |
 
-Handoff: PM writes the PRD → Lead decomposes into roadmap + specs → Engineer picks a spec and ships it.
+Handoff: PM writes the PRD → Lead decomposes into a wave-based roadmap and PLAN-grade SPECs → engineers pick a wave (parallel) or a single SPEC and ship it.
 
 ## License
 

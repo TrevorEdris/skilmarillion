@@ -1,6 +1,6 @@
 ---
-description: TDD execution. Slice-by-slice RED/GREEN/REFACTOR from a spec, with debug and refactor modes.
-argument-hint: "[--debug <issue> | --refactor <target>] [spec-or-impl-details]"
+description: TDD execution. Slice-by-slice RED/GREEN/REFACTOR from a spec, with wave-parallel, debug, and refactor modes.
+argument-hint: "[wave N | spec W{N}{letter} | --debug <issue> | --refactor <target>] [--team]"
 allowed-tools:
   - Read
   - Write
@@ -17,38 +17,101 @@ model: sonnet
 
 # /fellowship:build
 
-Turns a spec into committed, tested code — one slice at a time. Enforces RED → GREEN → REFACTOR. Resumes from `.skilmarillion/projects/{slug}/PROJECT-STATE.yaml` when state is found.
+Turns a SPEC (or a wave of SPECs) into committed, tested code. Enforces RED → GREEN → REFACTOR per SPEC. Resumes from `.skilmarillion/projects/{slug}/PROJECT-STATE.yaml` when state is found.
 
 > **The rule:** RED before GREEN. No production code without a failing test first.
 >
-> **Personality:** direct, brief, action-oriented. "We" framing: "Let's get this green." When tests fail: state the failure clearly, propose the fix. Celebrate slice completions: "Slice 1 green. Moving to slice 2."
+> **Personality:** direct, brief, action-oriented. "We" framing: "Let's get this green." When tests fail: state the failure clearly, propose the fix. Celebrate slice completions: "W1a green. Moving to W1b."
 
 ---
 
 ## DISPATCH — Pick the Mode
 
-Parse `$ARGUMENTS` for a leading flag:
+Parse `$ARGUMENTS` for a leading keyword or flag:
 
-| Flag | Stage file | Purpose |
-|------|------------|---------|
-| *(no flag)* | `references/build-stages/tdd.md` | Slice-by-slice TDD execution (primary mode) |
+| Invocation | Stage file | Purpose |
+|------------|------------|---------|
+| `wave {N}` | `references/build-stages/tdd.md` | Spawn parallel agents, one per wave-agent in Wave N.M (all W{N}* specs) |
+| `spec W{N}{letter}` | `references/build-stages/tdd.md` | Single wave-agent TDD run (one SPEC) |
+| *(no keyword — plain spec path)* | `references/build-stages/tdd.md` | Single SPEC TDD run (legacy / ad-hoc path) |
 | `--debug` | `references/build-stages/debug.md` | Structured debugging: reproduce → isolate → root cause → fix |
 | `--refactor` | `references/build-stages/refactor.md` | Phase-gated refactoring with test verification between steps |
+
+The `--team` flag is orthogonal — it applies to `wave N` and forces Agent Teams spawning instead of the default Task subagents. See "Wave Concurrency" below.
 
 **How to run a stage:**
 1. `Read` the stage file from `${CLAUDE_PLUGIN_ROOT}/references/build-stages/{stage}.md`.
 2. Follow its instructions exactly. Stage files are self-contained playbooks.
-3. Pass through the remaining `$ARGUMENTS` (after the flag) as the stage input.
+3. Pass through the remaining `$ARGUMENTS` (after the keyword/flag) as the stage input.
 
-> **Deferred tool note:** Before calling `AskUserQuestion` for the first time, call `ToolSearch` with query `"select:AskUserQuestion"` to load the tool schema.
+> **Deferred tool note:** Before calling `AskUserQuestion` or `TeamCreate` for the first time, call `ToolSearch` with query `"select:AskUserQuestion,TeamCreate"` to load the tool schemas.
 
 ---
 
-## DEFAULT — TDD Execution (No Flag)
+## WAVE DISPATCH — `wave N`
 
-### Input Detection & Spec Resolution
+Parse `N` as a wave identifier. Accepted forms: `1`, `1.2`, or `Wave 1.2`.
 
-**Always confirm the selected spec file with the user before building.** Never silently pick a spec when the input is ambiguous.
+> **Resolution rule — always parse the ROADMAP, never the agent ID prefix.**
+> Wave-agent IDs use a global wave-sequence number (see `skills/wave-format § Wave-Agent ID Convention`). The ID prefix is NOT a reliable wave selector — `W2a` can live inside Phase 1 Wave 1.2 or Phase 2 Wave 2.1 depending on how the planner bucketed it. The ROADMAP's `### Wave X.Y` blocks are the authority.
+
+1. **Resolve ROADMAP** via `artifact-resolver` (`artifact_type: roadmap`). Confirm with the user per `artifact-paths`.
+2. **Parse the ROADMAP to enumerate target wave-agents** by heading, not by ID:
+   - `wave 1.2` → read every `#### W{id}` block under the `### Wave 1.2` heading in the ROADMAP.
+   - `wave 1` (no sub-wave) → read every `#### W{id}` block under every `### Wave 1.M` heading in Phase 1.
+   - Record the `{id}` list from that enumeration as the target set. Ignore ID prefix matching entirely.
+3. **Collision revalidation** — assert each target SPEC's frontmatter `touches` is disjoint from every other target SPEC's `touches`. If any collision, STOP and report which SPECs conflict.
+4. **Load each target SPEC** by resolving `specs/SPEC-{id}-*.md` for every enumerated `{id}`. Require every SPEC to exist and to have passed validator PASS (score >= 85). If any SPEC is missing or below threshold, list the offending IDs and abort.
+5. **Spawn concurrency** — see "Wave Concurrency" below.
+6. **Merge barrier** — the wave closes when every spawned run reports green (tests pass + SPEC validator PASS + no unresolved `ACCEPT_WITH_DEBT` above the user's tolerance). Update `PROJECT-STATE.yaml` `impl.wave_agents_completed[]`.
+
+### Wave Concurrency
+
+| Mode | Trigger | Mechanism |
+|------|---------|-----------|
+| Task subagents (default) | `wave N` with no `--team` | Spawn one Task per wave-agent in a single message (parallel). Each Task follows `references/build-stages/tdd.md` against its assigned SPEC. |
+| Agent Teams | `wave N --team` | Call `TeamCreate` with one teammate per wave-agent. Teammates coordinate via shared tasks and SendMessage per `teams/rules/team-conventions.md`. |
+
+Within a wave-agent, TDD execution is sequential (per-step RED → GREEN → REFACTOR). Across wave-agents within the same wave, execution is fully parallel — wave-planner guarantees disjoint `touches` so two agents cannot step on each other's files.
+
+### Wave Failure Recovery
+
+When one wave-agent fails non-recoverably while others in the same wave have already completed GREEN:
+
+- The merge barrier does NOT auto-roll back completed agents' code — their files are already on disk and their tests are green.
+- `wave_agents_completed` keeps the completed agents listed. Only the failed agent blocks the barrier from closing.
+- Present the user three explicit options (do not pick silently):
+  1. **Retry** — re-invoke `/fellowship:build spec W{failed_id}` in isolation after the user addresses the root cause. Keeps the wave open.
+  2. **Split** — ask the wave-planner to decompose the failed SPEC into sub-agents and re-bucket them into the same or the next wave. Keeps the wave open.
+  3. **Ship completed, defer failed** — explicitly mark the failed agent `ACCEPT_WITH_DEBT` (above the user's tolerance threshold requires user approval). The wave closes green; the gap is recorded in the SPEC's `## Gaps` section and downstream waves are notified per `skills/slice-runner § ACCEPT_WITH_DEBT`.
+- Never advance to Wave N+1 with a failed wave-agent still open under options 1 or 2. Option 3 is the only path that advances while leaving behavior gaps.
+
+### Orphaned Wave-Agent Detection
+
+Before spawning, compare the ROADMAP's current wave-agent roster against `wave_agents_completed` from a prior run of the same wave:
+
+- If any ID is in `wave_agents_completed` but NOT in the current roster: the ROADMAP was edited after the prior run. Warn the user: "Agent {id} was completed previously but no longer appears in the ROADMAP. Prune from state before re-dispatch?"
+- If any ID is in the current roster but NOT in `wave_agents_completed`: business as usual — dispatch that agent.
+- Do NOT re-run completed agents unless the user explicitly requests it.
+
+---
+
+## SPEC DISPATCH — `spec W{N}{letter}`
+
+Single wave-agent path. Equivalent to the pre-wave behavior but keyed on the `W{N}{letter}` identifier.
+
+1. **Resolve ROADMAP** (to find which project the SPEC belongs to) OR accept a direct SPEC path in `$ARGUMENTS`.
+2. **Resolve SPEC** via `artifact-resolver` (`artifact_type: spec`, `query: W{N}{letter}`). The resolver's spec rule matches `W{id}` patterns (see `agents/artifact-resolver.md`).
+3. **Confirm selection** with the user per `artifact-paths` flow.
+4. **Final confirmation gate:**
+   > "Building from `{slug}/SPEC-W{N}{letter}-{name}.md`. Proceed?"
+5. Follow `references/build-stages/tdd.md` against the single SPEC.
+
+---
+
+## LEGACY / AD-HOC SPEC PATH
+
+If `$ARGUMENTS` is a bare path (no `wave` or `spec W{id}` keyword):
 
 1. **Check for in-progress state first.** If `$ARGUMENTS` is empty, glob `.skilmarillion/projects/*/PROJECT-STATE.yaml` for files with an `impl:` section. If any are found, offer to resume (see State Resumption below). Otherwise, proceed to step 2.
 
@@ -56,19 +119,16 @@ Parse `$ARGUMENTS` for a leading flag:
 
 3. **Confirm with the user** per the caller flow in the `artifact-paths` skill. For every `match_type` (`exact_path`, `single`, `multiple`, `none`, `all`), present candidates via `AskUserQuestion` and wait for explicit selection.
 
-4. **Classify the selected file** by content markers:
-   - **Spec file** (contains `## Acceptance Criteria` AND `## Vertical Slices`) → translate via `spec-to-impl` agent, execute.
-   - **Plan file** (contains `## Implementation Steps`) → execute steps directly.
-   - **Neither** → error, point at the missing markers.
+4. **Verify the selected file is a SPEC** — it must contain `## Acceptance Criteria` AND `## Ordered Implementation Steps`. If it does not, error with a pointer at the missing markers. (There is no separate PLAN artifact under the current model — the SPEC is the plan.)
 
 5. **Final confirmation gate** — after selection and before reading the file:
-   > "Building from `{slug}/SPEC-{NNN}-{name}.md`. Proceed?"
+   > "Building from `{slug}/SPEC-W{N}{letter}-{name}.md`. Proceed?"
 
 ### State Resumption
 
 If `.skilmarillion/projects/{slug}/PROJECT-STATE.yaml` contains an `impl:` section, ask:
 
-> "Found in-progress TDD state for '{slug}' (slice {current_slice}/{total_slices}, phase: {phase}). Resume or start fresh?"
+> "Found in-progress TDD state for '{slug}' (wave {current_wave}, agent {current_wave_agent}, step {current_step}/{total_steps}, phase: {phase}). Resume or start fresh?"
 >
 > Options: **Resume** / **Start fresh** / **Abort**
 
@@ -76,12 +136,12 @@ Then follow the full playbook in `references/build-stages/tdd.md`.
 
 ---
 
-## SLICE FAILURE ESCALATION
+## STEP FAILURE ESCALATION
 
 After **3 failed RED-GREEN attempts** on the same step, invoke the diagnostic step (detailed in `references/build-stages/tdd.md`). Output one of:
 
 - **Modified Approach** — reset attempts, apply the modified approach, continue
-- **Sub-Slice Decomposition** — split the step into smaller sub-steps, continue
+- **Sub-Step Decomposition** — split the step into smaller sub-steps, continue
 - **ACCEPT_WITH_DEBT** — record a structured gap, advance to the next step
 
 Never loop indefinitely. ACCEPT_WITH_DEBT is a valid exit.
@@ -90,7 +150,7 @@ Never loop indefinitely. ACCEPT_WITH_DEBT is a valid exit.
 
 ## STATE TRACKING
 
-Write state to `.skilmarillion/projects/{slug}/PROJECT-STATE.yaml` under the `impl:` key as the TDD loop progresses. Required fields: `slug`, `current_slice`, `total_slices`, `phase` (red|green|refactor), `step`, `attempts`, `gaps`.
+Write state to `.skilmarillion/projects/{slug}/PROJECT-STATE.yaml` under the `impl:` key as the TDD loop progresses. Required fields: `slug`, `current_wave` (e.g., `1.1`), `current_wave_agent` (e.g., `W1a`), `wave_agents_completed` (list), `current_step`, `total_steps`, `phase` (red|green|refactor), `attempts`, `gaps`.
 
 Use `${CLAUDE_PLUGIN_ROOT}/scripts/update-state.sh` to modify the state file idempotently.
 
@@ -98,13 +158,13 @@ Use `${CLAUDE_PLUGIN_ROOT}/scripts/update-state.sh` to modify the state file ide
 
 ## POST-EXECUTION
 
-After all slices complete (or are accepted with debt):
+After all targeted wave-agents complete (or are accepted with debt):
 
 1. Run the full test suite as a final confirmation (distinct from per-step GREEN checks).
 2. If any ACCEPT_WITH_DEBT gaps exist, display the gap summary.
 3. Clean up the `impl:` section from `PROJECT-STATE.yaml` (delete the file if no other sections remain).
 4. Breadcrumb:
-   > "All slices green. Next: `/fellowship:review` to run quality checks, then `/fellowship:ship` to commit."
+   > "Wave {N.M} green ({count} wave-agents complete). Next: `/fellowship:review` to run quality checks, then `/fellowship:ship` to commit. When Wave {N.M} PRs are all green, run `/fellowship:build wave {next}`."
 
 ---
 
@@ -122,6 +182,7 @@ After all slices complete (or are accepted with debt):
 - Do NOT add behavior during REFACTOR phase.
 - Do NOT retry the same failing approach more than 3 times — invoke the diagnostic step.
 - Do NOT loop indefinitely on a failing step — ACCEPT_WITH_DEBT is a valid exit.
-- Do NOT re-read arch artifacts per slice — cache them at session start.
-- Do NOT generate impl details if the input is already an impl-details file.
+- Do NOT re-read arch artifacts per wave-agent — cache them at session start.
+- Do NOT start Wave N.M+1 before every wave-agent in Wave N.M reports green.
+- Do NOT spawn a wave-agent whose SPEC has `touches` colliding with another in-flight wave-agent's SPEC.
 - Do NOT auto-commit `.skilmarillion/` files.
