@@ -8,8 +8,8 @@ shift || true
 
 usage() {
   echo "Usage:"
-  echo "  $0 init --slug SLUG --feature FEATURE [--size SIZE] [--risk RISK] [--routing ROUTING] [--current-phase PHASE] [--project-root ROOT]"
-  echo "  $0 set --slug SLUG [--feature FEATURE] [--size SIZE] [--risk RISK] [--routing ROUTING] [--current-phase PHASE] [--spec-path PATH] [--project-root ROOT]"
+  echo "  $0 init --slug SLUG --feature FEATURE [--size SIZE] [--risk RISK] [--routing ROUTING] [--current-phase PHASE] [--current-wave WAVE] [--project-root ROOT]"
+  echo "  $0 set --slug SLUG [--feature FEATURE] [--size SIZE] [--risk RISK] [--routing ROUTING] [--current-phase PHASE] [--current-wave WAVE] [--wave-agent-completed ID] [--spec-path PATH] [--project-root ROOT]"
   echo "  $0 get --slug SLUG [--field FIELD]"
   echo "  $0 list"
   echo "  $0 clear --slug SLUG"
@@ -30,6 +30,8 @@ parse_flags() {
   RISK=""
   ROUTING=""
   CURRENT_PHASE=""
+  CURRENT_WAVE=""
+  WAVE_AGENT_COMPLETED=""
   SPEC_PATH=""
   PROJECT_ROOT=""
   FIELD=""
@@ -43,6 +45,8 @@ parse_flags() {
       --risk)       RISK="$2";         shift 2 ;;
       --routing)    ROUTING="$2";      shift 2 ;;
       --current-phase) CURRENT_PHASE="$2"; shift 2 ;;
+      --current-wave)  CURRENT_WAVE="$2";  shift 2 ;;
+      --wave-agent-completed) WAVE_AGENT_COMPLETED="$2"; shift 2 ;;
       --spec-path)  SPEC_PATH="$2";    shift 2 ;;
       --project-root) PROJECT_ROOT="$2"; shift 2 ;;
       --field)      FIELD="$2";        shift 2 ;;
@@ -58,38 +62,84 @@ read_field() {
   awk -v key="$key" '$0 ~ "^"key":" { sub(/^[^:]+: ?/, ""); print; exit }' "$file"
 }
 
+read_wave_agents_completed() {
+  # Extract the YAML list under `wave_agents_completed:` as space-separated IDs.
+  local file="$1"
+  awk '
+    /^wave_agents_completed:/ { in_list=1; next }
+    in_list && /^  - / { sub(/^  - /, ""); printf "%s ", $0; next }
+    in_list && !/^  - / { in_list=0 }
+  ' "$file"
+}
+
+render_wave_agents_completed() {
+  # Render a space-separated list of IDs as YAML list items.
+  local ids="$1"
+  if [[ -z "$ids" ]]; then
+    echo "wave_agents_completed: []"
+    return
+  fi
+  echo "wave_agents_completed:"
+  for id in $ids; do
+    echo "  - ${id}"
+  done
+}
+
 write_state() {
   local file="$1"
-  cat > "$file" <<EOF
+  {
+    cat <<EOF
 feature: ${FEATURE}
 size: ${SIZE}
 risk: ${RISK}
 routing_decision: ${ROUTING}
 current_phase: ${CURRENT_PHASE}
+current_wave: ${CURRENT_WAVE}
 spec_path: ${SPEC_PATH}
 project_root: ${PROJECT_ROOT}
 EOF
+    render_wave_agents_completed "${WAVE_AGENTS_COMPLETED_LIST}"
+  } > "$file"
 }
 
 merge_and_write_state() {
   local file="$1"
   # Load existing values as defaults
-  local cur_feature cur_size cur_risk cur_routing cur_phase cur_spec cur_project_root
+  local cur_feature cur_size cur_risk cur_routing cur_phase cur_wave cur_spec cur_project_root cur_wave_agents
   cur_feature=$(read_field "$file" "feature")
   cur_size=$(read_field "$file" "size")
   cur_risk=$(read_field "$file" "risk")
   cur_routing=$(read_field "$file" "routing_decision")
   cur_phase=$(read_field "$file" "current_phase")
+  cur_wave=$(read_field "$file" "current_wave")
   cur_spec=$(read_field "$file" "spec_path")
   cur_project_root=$(read_field "$file" "project_root")
+  cur_wave_agents=$(read_wave_agents_completed "$file")
 
   FEATURE="${FEATURE:-$cur_feature}"
   SIZE="${SIZE:-$cur_size}"
   RISK="${RISK:-$cur_risk}"
   ROUTING="${ROUTING:-$cur_routing}"
   CURRENT_PHASE="${CURRENT_PHASE:-$cur_phase}"
+  CURRENT_WAVE="${CURRENT_WAVE:-$cur_wave}"
   SPEC_PATH="${SPEC_PATH:-$cur_spec}"
   PROJECT_ROOT="${PROJECT_ROOT:-$cur_project_root}"
+
+  # Append newly-completed wave-agent id (deduped).
+  WAVE_AGENTS_COMPLETED_LIST="$(echo "$cur_wave_agents" | tr -s ' ')"
+  if [[ -n "$WAVE_AGENT_COMPLETED" ]]; then
+    local already_present=false
+    for id in $WAVE_AGENTS_COMPLETED_LIST; do
+      if [[ "$id" == "$WAVE_AGENT_COMPLETED" ]]; then
+        already_present=true
+        break
+      fi
+    done
+    if [[ "$already_present" == false ]]; then
+      WAVE_AGENTS_COMPLETED_LIST="${WAVE_AGENTS_COMPLETED_LIST} ${WAVE_AGENT_COMPLETED}"
+    fi
+  fi
+  WAVE_AGENTS_COMPLETED_LIST="$(echo "$WAVE_AGENTS_COMPLETED_LIST" | xargs || true)"
 
   write_state "$file"
 }
@@ -117,6 +167,7 @@ case "$COMMAND" in
     FILE=$(state_file "$SLUG")
     mkdir -p "$(dirname "$FILE")"
     CURRENT_PHASE="${CURRENT_PHASE:-initialized}"
+    WAVE_AGENTS_COMPLETED_LIST=""
     write_state "$FILE"
     ;;
 
