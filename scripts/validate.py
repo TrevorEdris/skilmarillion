@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-validate.py — Unified validation for spec, PRD, and plan documents.
+validate.py — Unified validation for spec and PRD documents.
 
 Usage:
-    python validate.py <path> [--type spec|prd|plan] [--verbose] [--json] [--draft]
+    python validate.py <path> [--type spec|prd] [--verbose] [--json] [--draft]
 
 Doc type is auto-detected when --type is not provided.
 
@@ -12,8 +12,11 @@ Exit codes:
     1 — NEEDS WORK (score < threshold)
 
 Thresholds:
-    Default: 85 for spec/prd/plan
+    Default: 85 for spec/prd
     --draft:  50
+
+Note: SPEC absorbs the former PLAN schema (PLAN-grade implementation detail
+inside the SPEC). The standalone `plan` doc-type was removed in v0.2.0.
 """
 
 import argparse
@@ -296,58 +299,6 @@ def spec_check_ac_no_and(lines: list[str], report: ValidationReport) -> None:
         report.score -= min(hits * 3, 9)
 
 
-def spec_check_vertical_slices(lines: list[str], report: ValidationReport) -> None:
-    """Warn if no vertical slices found (FEATURE-size specs should have them)."""
-    content = "\n".join(lines)
-    has_slices = bool(re.search(r"(?:slice|vertical\s+slice)\s+\d", content, re.IGNORECASE))
-    if not has_slices:
-        # Also check for "## Slice" headings
-        has_slices = bool(re.search(r"^#{1,3}\s+slice\s+\d", content, re.IGNORECASE | re.MULTILINE))
-    if not has_slices:
-        report.issues.append(
-            Issue(
-                severity="warning",
-                category="structure",
-                message="No Vertical Slices detected. FEATURE-size specs should organize ACs into vertical slices.",
-            )
-        )
-        report.score -= 5
-
-
-def spec_check_architecture_placeholder(lines: list[str], report: ValidationReport) -> None:
-    s, e = find_section(lines, r"^#{1,3}\s+architecture\s+recommendation")
-    if s == 0:
-        return  # Section absent is fine for SMALL specs
-    body = section_content(lines, s, e).strip()
-    if "_To be filled by architecture-advisor_" in body or len(body) < 10:
-        report.issues.append(
-            Issue(
-                severity="warning",
-                category="completeness",
-                message="Architecture Recommendation is a placeholder. Run architecture-advisor to fill it.",
-                line=s,
-            )
-        )
-        report.score -= 3
-
-
-def spec_check_tdd_placeholder(lines: list[str], report: ValidationReport) -> None:
-    s, e = find_section(lines, r"^#{1,3}\s+tdd\s+plan")
-    if s == 0:
-        return
-    body = section_content(lines, s, e).strip()
-    if "_To be filled by tdd-planner_" in body or len(body) < 10:
-        report.issues.append(
-            Issue(
-                severity="warning",
-                category="completeness",
-                message="TDD Plan is a placeholder. Run tdd-planner to fill it.",
-                line=s,
-            )
-        )
-        report.score -= 3
-
-
 def spec_check_risk_depth(lines: list[str], report: ValidationReport) -> None:
     content_lower = "\n".join(lines).lower()
     # Only flag if the spec mentions HIGH risk
@@ -364,6 +315,236 @@ def spec_check_risk_depth(lines: list[str], report: ValidationReport) -> None:
             )
         )
         report.score -= 5
+
+
+def spec_check_target_repo(lines: list[str], report: ValidationReport) -> None:
+    s, e = find_section(lines, r"^#{1,3}\s+(?:target\s+repo|repos|repository|directories)")
+    if s == 0:
+        header = "\n".join(lines[:30])
+        if not re.search(r"(?:repo|repository|~/|src/)", header, re.IGNORECASE):
+            report.issues.append(
+                Issue(severity="error", category="structure", message="No Target Repo section or header reference found.")
+            )
+            report.score -= 10
+    else:
+        body = section_content(lines, s, e)
+        if len(body.strip()) < 5:
+            report.issues.append(
+                Issue(severity="error", category="structure", message="Target Repo section is empty.", line=s)
+            )
+            report.score -= 10
+
+
+def spec_check_files_to_touch(lines: list[str], report: ValidationReport) -> None:
+    s, e = find_section(lines, r"^#{1,3}\s+files?\s+to\s+(?:touch|modify|change|edit)")
+    if s == 0:
+        report.issues.append(
+            Issue(severity="error", category="structure", message="No Files to Touch section found.")
+        )
+        report.score -= 10
+        return
+    body = section_content(lines, s, e)
+    file_refs = FILE_PATH_PATTERN.findall(body)
+    if len(file_refs) < 2:
+        report.issues.append(
+            Issue(
+                severity="error",
+                category="specificity",
+                message=f"Files to Touch section lists only {len(file_refs)} file(s). SPECs must enumerate all touched files.",
+                line=s,
+            )
+        )
+        report.score -= 10
+
+
+def spec_check_ordered_steps(lines: list[str], report: ValidationReport) -> None:
+    step_pattern = re.compile(r"^#{1,4}\s+step\s+\d", re.IGNORECASE)
+    numbered_pattern = re.compile(r"^\s*\d+\.\s+")
+    has_steps = any(step_pattern.match(line.strip()) or numbered_pattern.match(line) for line in lines)
+    if not has_steps:
+        report.issues.append(
+            Issue(severity="error", category="structure", message="No ordered Implementation Steps found.")
+        )
+        report.score -= 15
+
+
+def spec_check_steps_reference_files(lines: list[str], report: ValidationReport) -> None:
+    step_pattern = re.compile(r"^#{1,4}\s+step\s+([\d.]+)", re.IGNORECASE)
+    current_step = None
+    step_start = 0
+    steps_without_files: list[str] = []
+
+    for i, line in enumerate(lines):
+        match = step_pattern.match(line.strip())
+        if match:
+            if current_step is not None:
+                step_body = "\n".join(lines[step_start:i])
+                if not FILE_PATH_PATTERN.search(step_body):
+                    steps_without_files.append(current_step)
+            current_step = match.group(1)
+            step_start = i
+
+    if current_step is not None:
+        step_body = "\n".join(lines[step_start:])
+        if not FILE_PATH_PATTERN.search(step_body):
+            steps_without_files.append(current_step)
+
+    for step_id in steps_without_files:
+        report.issues.append(
+            Issue(severity="warning", category="specificity", message=f"Step {step_id} does not reference any file paths.")
+        )
+        report.score -= 3
+
+
+def spec_check_per_step_verification(lines: list[str], report: ValidationReport) -> None:
+    step_sections: list[tuple[str, int, int]] = []
+    step_pattern = re.compile(r"^#{1,4}\s+step\s+([\d.]+)", re.IGNORECASE)
+    current_step = None
+    step_start = 0
+
+    for i, line in enumerate(lines):
+        m = step_pattern.match(line.strip())
+        if m:
+            if current_step is not None:
+                step_sections.append((current_step, step_start, i))
+            current_step = m.group(1)
+            step_start = i
+
+    if current_step is not None:
+        step_sections.append((current_step, step_start, len(lines)))
+
+    if not step_sections:
+        return
+
+    steps_missing = [
+        sid for sid, start, end in step_sections
+        if not VERIFICATION_KEYWORDS.search("\n".join(lines[start:end]))
+    ]
+
+    if len(steps_missing) > len(step_sections) // 2:
+        report.issues.append(
+            Issue(
+                severity="warning",
+                category="verification",
+                message=f"Steps {', '.join(steps_missing[:5])} lack per-step verification.",
+            )
+        )
+        report.score -= 5
+
+
+def spec_check_risks_section(lines: list[str], report: ValidationReport) -> None:
+    rs, re_ = find_section(lines, r"^#{1,3}\s+(?:risks?|assumptions?|risks?\s+(?:and|&)\s+assumptions?)")
+    if rs == 0:
+        report.issues.append(Issue(severity="warning", category="structure", message="No Risks or Assumptions section found."))
+        report.score -= 5
+    else:
+        body = section_content(lines, rs, re_)
+        if len(body.strip()) < 10:
+            report.issues.append(
+                Issue(severity="warning", category="structure", message="Risks section is nearly empty.", line=rs)
+            )
+            report.score -= 5
+
+
+def spec_check_verification_section(lines: list[str], report: ValidationReport) -> None:
+    vs, ve = find_section(lines, r"^#{1,3}\s+(?:verification(?:\s+plan)?|verify|testing|test\s+plan)")
+    if vs == 0:
+        content = "\n".join(lines)
+        if not VERIFICATION_KEYWORDS.search(content):
+            report.issues.append(
+                Issue(severity="warning", category="structure", message="No verification steps found.")
+            )
+            report.score -= 5
+    else:
+        body = section_content(lines, vs, ve)
+        if len(body.strip()) < 10:
+            report.issues.append(
+                Issue(severity="warning", category="structure", message="Verification section is nearly empty.", line=vs)
+            )
+            report.score -= 5
+
+
+def spec_check_scope_boundary(lines: list[str], report: ValidationReport) -> None:
+    content_lower = "\n".join(lines).lower()
+    scope_phrases = ["out of scope", "not included", "excluded", "will not", "does not include"]
+    if not any(phrase in content_lower for phrase in scope_phrases):
+        report.issues.append(
+            Issue(severity="warning", category="scope", message="No explicit Out of Scope exclusions found.")
+        )
+        report.score -= 3
+
+
+def spec_check_traceability_table(lines: list[str], report: ValidationReport) -> None:
+    content = "\n".join(lines)
+    has_traceability = bool(
+        re.search(r"^#{1,3}\s+traceability", content, re.IGNORECASE | re.MULTILINE)
+        or re.search(r"\bFR-\d{3}\b.*\bstep\b", content, re.IGNORECASE)
+    )
+    if not has_traceability:
+        report.issues.append(
+            Issue(severity="warning", category="traceability", message="No Traceability section/table found.")
+        )
+        report.score -= 5
+
+
+def spec_check_git_branch(lines: list[str], report: ValidationReport) -> None:
+    content = "\n".join(lines)
+    has_branch = bool(
+        re.search(r"\b(?:feat|feature|fix|refactor|chore|docs|hotfix|release)/[\w\-/]+", content)
+        or re.search(r"branch[:\s]+`?[\w/\-]+`?", content, re.IGNORECASE)
+        or re.search(r"^#{1,3}\s+git\s+(?:strategy|branch|workflow)", content, re.IGNORECASE | re.MULTILINE)
+    )
+    if not has_branch:
+        report.issues.append(
+            Issue(severity="warning", category="git", message="No Git Strategy branch name found.")
+        )
+        report.score -= 5
+
+
+def spec_check_git_commit_plan(lines: list[str], report: ValidationReport) -> None:
+    content = "\n".join(lines)
+    has_commits = bool(
+        re.search(r"\b(?:feat|fix|refactor|chore|docs|test|perf|ci)\(", content)
+        or re.search(r"commit\s+message", content, re.IGNORECASE)
+    )
+    has_pr = bool(
+        re.search(r"\bpr\s+(?:title|description|body)\b", content, re.IGNORECASE)
+        or re.search(r"pull\s+request", content, re.IGNORECASE)
+        or re.search(r"^#{1,4}\s+pr\b", content, re.IGNORECASE | re.MULTILINE)
+    )
+    if not has_commits:
+        report.issues.append(
+            Issue(severity="warning", category="git", message="No commit-message plan found.")
+        )
+        report.score -= 5
+    if not has_pr:
+        report.issues.append(
+            Issue(severity="warning", category="git", message="No PR title or description outline found.")
+        )
+        report.score -= 3
+
+
+def spec_check_step_file_specificity(lines: list[str], report: ValidationReport) -> None:
+    numbered_step = re.compile(r"^\s*(\d+)\.\s+(.+)$")
+    vague_step_phrases = re.compile(
+        r"\b(?:update the (?:config|code|file|database|model|service)|"
+        r"modify (?:the )?(?:config|settings|code)|"
+        r"change (?:the )?(?:config|code|logic))\b",
+        re.IGNORECASE,
+    )
+    vague_steps = []
+    for i, line in enumerate(lines, 1):
+        m = numbered_step.match(line)
+        if m:
+            step_text = m.group(2)
+            if vague_step_phrases.search(step_text) and not FILE_PATH_PATTERN.search(step_text):
+                vague_steps.append((i, m.group(1), step_text[:80]))
+
+    for lineno, step_num, text in vague_steps[:3]:
+        report.issues.append(
+            Issue(severity="warning", category="specificity", message=f'Step {step_num} uses vague language: "{text}..."', line=lineno)
+        )
+        report.score -= 3
 
 
 def validate_spec(path: Path, draft: bool = False) -> ValidationReport:
@@ -384,16 +565,30 @@ def validate_spec(path: Path, draft: bool = False) -> ValidationReport:
 
     lines = content.splitlines()
 
+    # Behavior contract
     spec_check_problem_statement(lines, report)
     spec_check_acceptance_criteria(lines, report)
     spec_check_given_when_then(lines, report)
     spec_check_ac_no_and(lines, report)
-    spec_check_vertical_slices(lines, report)
-    spec_check_architecture_placeholder(lines, report)
-    spec_check_tdd_placeholder(lines, report)
     spec_check_risk_depth(lines, report)
+
+    # Implementation contract (absorbed from former PLAN rubric)
+    spec_check_target_repo(lines, report)
+    spec_check_files_to_touch(lines, report)
+    spec_check_ordered_steps(lines, report)
+    spec_check_steps_reference_files(lines, report)
+    spec_check_per_step_verification(lines, report)
+    spec_check_step_file_specificity(lines, report)
+    spec_check_risks_section(lines, report)
+    spec_check_verification_section(lines, report)
+    spec_check_scope_boundary(lines, report)
+    spec_check_traceability_table(lines, report)
+    spec_check_git_branch(lines, report)
+    spec_check_git_commit_plan(lines, report)
+
+    # Cross-cutting (note: oversized-code-block intentionally NOT applied to SPEC —
+    # SPECs are PLAN-grade and may include representative code blocks)
     check_vague_language(lines, report)
-    check_oversized_code_blocks(lines, report, "Specs")
 
     report.score = max(0, report.score)
     return report
@@ -662,19 +857,19 @@ def prd_check_implementation_leakage(lines: list[str], report: ValidationReport)
         if files_heading_re.match(stripped):
             if hits < 5:
                 report.issues.append(
-                    Issue(severity="warning", category="abstraction", message='"Files to change" section belongs in PLAN.md, not the PRD.', line=i)
+                    Issue(severity="warning", category="abstraction", message='"Files to change" section belongs in the SPEC, not the PRD.', line=i)
                 )
             hits += 1
         elif source_path_re.search(line):
             if hits < 5:
                 report.issues.append(
-                    Issue(severity="warning", category="abstraction", message="Source code file path detected. Belongs in PLAN.md.", line=i)
+                    Issue(severity="warning", category="abstraction", message="Source code file path detected. Belongs in the SPEC.", line=i)
                 )
             hits += 1
         elif line_ref_re.search(line):
             if hits < 5:
                 report.issues.append(
-                    Issue(severity="warning", category="abstraction", message="Line number reference detected. Belongs in PLAN.md.", line=i)
+                    Issue(severity="warning", category="abstraction", message="Line number reference detected. Belongs in the SPEC.", line=i)
                 )
             hits += 1
     if hits > 0:
@@ -722,295 +917,6 @@ def validate_prd(path: Path, draft: bool = False) -> ValidationReport:
 
 
 # ===========================================================================
-# PLAN VALIDATION
-# ===========================================================================
-
-
-def plan_check_target_repos(lines: list[str], report: ValidationReport) -> None:
-    s, e = find_section(lines, r"^#{1,3}\s+(?:target\s+repo|repos|repository|directories)")
-    if s == 0:
-        header = "\n".join(lines[:30])
-        if not re.search(r"(?:repo|repository|~/|src/)", header, re.IGNORECASE):
-            report.issues.append(
-                Issue(severity="error", category="structure", message="No target repo or directory identified.")
-            )
-            report.score -= 15
-    else:
-        body = section_content(lines, s, e)
-        if len(body.strip()) < 5:
-            report.issues.append(
-                Issue(severity="error", category="structure", message="Target repo section is empty.", line=s)
-            )
-            report.score -= 15
-
-
-def plan_check_files_to_modify(lines: list[str], report: ValidationReport) -> None:
-    content = "\n".join(lines)
-    file_refs = FILE_PATH_PATTERN.findall(content)
-    if len(file_refs) < 2:
-        report.issues.append(
-            Issue(
-                severity="error",
-                category="specificity",
-                message=f"Only {len(file_refs)} file path(s) found. Plans must list specific files.",
-            )
-        )
-        report.score -= 15
-
-
-def plan_check_ordered_steps(lines: list[str], report: ValidationReport) -> None:
-    step_pattern = re.compile(r"^#{1,4}\s+step\s+\d", re.IGNORECASE)
-    numbered_pattern = re.compile(r"^\s*\d+\.\s+")
-    has_steps = any(step_pattern.match(line.strip()) or numbered_pattern.match(line) for line in lines)
-    if not has_steps:
-        report.issues.append(
-            Issue(severity="error", category="structure", message="No ordered implementation steps found.")
-        )
-        report.score -= 15
-
-
-def plan_check_steps_reference_files(lines: list[str], report: ValidationReport) -> None:
-    step_pattern = re.compile(r"^#{1,4}\s+step\s+(\d+)", re.IGNORECASE)
-    current_step = None
-    step_start = 0
-    steps_without_files = []
-
-    for i, line in enumerate(lines):
-        match = step_pattern.match(line.strip())
-        if match:
-            if current_step is not None:
-                step_body = "\n".join(lines[step_start:i])
-                if not FILE_PATH_PATTERN.search(step_body):
-                    steps_without_files.append(current_step)
-            current_step = match.group(1)
-            step_start = i
-
-    if current_step is not None:
-        step_body = "\n".join(lines[step_start:])
-        if not FILE_PATH_PATTERN.search(step_body):
-            steps_without_files.append(current_step)
-
-    for step_num in steps_without_files:
-        report.issues.append(
-            Issue(severity="warning", category="specificity", message=f"Step {step_num} does not reference any file paths.")
-        )
-        report.score -= 3
-
-
-def plan_check_risks_section(lines: list[str], report: ValidationReport) -> None:
-    rs, re_ = find_section(lines, r"^#{1,3}\s+(?:risks?|assumptions?|risks?\s+and\s+assumptions?)")
-    if rs == 0:
-        report.issues.append(Issue(severity="warning", category="structure", message="No risks or assumptions section found."))
-        report.score -= 5
-    else:
-        body = section_content(lines, rs, re_)
-        if len(body.strip()) < 10:
-            report.issues.append(
-                Issue(severity="warning", category="structure", message="Risks section is nearly empty.", line=rs)
-            )
-            report.score -= 5
-
-
-def plan_check_verification_section(lines: list[str], report: ValidationReport) -> None:
-    vs, ve = find_section(lines, r"^#{1,3}\s+(?:verification|verify|testing|test\s+plan)")
-    if vs == 0:
-        content = "\n".join(lines)
-        if not VERIFICATION_KEYWORDS.search(content):
-            report.issues.append(
-                Issue(severity="warning", category="structure", message="No verification steps found.")
-            )
-            report.score -= 5
-    else:
-        body = section_content(lines, vs, ve)
-        if len(body.strip()) < 10:
-            report.issues.append(
-                Issue(severity="warning", category="structure", message="Verification section is nearly empty.", line=vs)
-            )
-            report.score -= 5
-
-
-def plan_check_scope_boundary(lines: list[str], report: ValidationReport) -> None:
-    content_lower = "\n".join(lines).lower()
-    scope_phrases = ["out of scope", "not included", "excluded", "will not", "does not include"]
-    if not any(phrase in content_lower for phrase in scope_phrases):
-        report.issues.append(
-            Issue(severity="info", category="scope", message="No explicit scope exclusions found.")
-        )
-
-
-def plan_check_traceability_table(lines: list[str], report: ValidationReport) -> None:
-    content = "\n".join(lines)
-    has_traceability = (
-        re.search(r"^#{1,3}\s+traceability", content, re.IGNORECASE | re.MULTILINE)
-        or re.search(r"discovery\s+finding\s*\|\s*plan\s+step", content, re.IGNORECASE)
-    )
-    if not has_traceability:
-        report.issues.append(
-            Issue(severity="warning", category="traceability", message="No traceability table found.")
-        )
-        report.score -= 5
-
-
-def plan_check_testable_outcomes(lines: list[str], report: ValidationReport) -> None:
-    content = "\n".join(lines)
-    if not VERIFICATION_KEYWORDS.search(content):
-        report.issues.append(
-            Issue(severity="warning", category="verification", message="No test, build, or verification commands found.")
-        )
-        report.score -= 5
-
-
-def plan_check_step_file_specificity(lines: list[str], report: ValidationReport) -> None:
-    numbered_step = re.compile(r"^\s*(\d+)\.\s+(.+)$")
-    vague_step_phrases = re.compile(
-        r"\b(?:update the (?:config|code|file|database|model|service)|"
-        r"modify (?:the )?(?:config|settings|code)|"
-        r"change (?:the )?(?:config|code|logic))\b",
-        re.IGNORECASE,
-    )
-    vague_steps = []
-    for i, line in enumerate(lines, 1):
-        m = numbered_step.match(line)
-        if m:
-            step_text = m.group(2)
-            if vague_step_phrases.search(step_text) and not FILE_PATH_PATTERN.search(step_text):
-                vague_steps.append((i, m.group(1), step_text[:80]))
-
-    for lineno, step_num, text in vague_steps[:3]:
-        report.issues.append(
-            Issue(severity="warning", category="specificity", message=f'Step {step_num} uses vague language: "{text}..."', line=lineno)
-        )
-        report.score -= 3
-
-
-def plan_check_per_step_verification(lines: list[str], report: ValidationReport) -> None:
-    step_sections = []
-    step_pattern = re.compile(r"^#{1,4}\s+step\s+(\d+)", re.IGNORECASE)
-    current_step = None
-    step_start = 0
-
-    for i, line in enumerate(lines):
-        m = step_pattern.match(line.strip())
-        if m:
-            if current_step is not None:
-                step_sections.append((current_step, step_start, i))
-            current_step = m.group(1)
-            step_start = i
-
-    if current_step is not None:
-        step_sections.append((current_step, step_start, len(lines)))
-
-    if not step_sections:
-        return
-
-    steps_missing = []
-    for step_num, start, end in step_sections:
-        body = "\n".join(lines[start:end])
-        if not VERIFICATION_KEYWORDS.search(body):
-            steps_missing.append(step_num)
-
-    if len(steps_missing) > len(step_sections) // 2:
-        report.issues.append(
-            Issue(
-                severity="warning",
-                category="verification",
-                message=f"Steps {', '.join(steps_missing[:5])} lack per-step verification.",
-            )
-        )
-        report.score -= 5
-
-
-def plan_check_structure_section(lines: list[str], report: ValidationReport) -> None:
-    content = "\n".join(lines)
-    has_structure = bool(
-        re.search(r"^#{1,3}\s+(?:structure|phases?|phase\s+breakdown|phase\s+ordering|dependency)", content, re.IGNORECASE | re.MULTILINE)
-        or re.search(r"\bphase\s+\d+\b|\bP\d+\b", content)
-        or re.search(r"depends?\s+on\s+(?:phase|step|P\d)", content, re.IGNORECASE)
-    )
-    if not has_structure:
-        report.issues.append(
-            Issue(severity="warning", category="structure", message="No structure section found (phase breakdown or dependency ordering).")
-        )
-        report.score -= 5
-
-
-def plan_check_git_branch(lines: list[str], report: ValidationReport) -> None:
-    content = "\n".join(lines)
-    has_branch = bool(
-        re.search(r"\b(?:feature|fix|refactor|chore|docs|hotfix|release)/[\w\-/]+", content)
-        or re.search(r"branch[:\s]+`?[\w/\-]+`?", content, re.IGNORECASE)
-        or re.search(r"^#{1,3}\s+git\s+(?:strategy|branch|workflow)", content, re.IGNORECASE | re.MULTILINE)
-    )
-    if not has_branch:
-        report.issues.append(
-            Issue(severity="warning", category="git", message="No branch name found.")
-        )
-        report.score -= 5
-
-
-def plan_check_git_commit_plan(lines: list[str], report: ValidationReport) -> None:
-    content = "\n".join(lines)
-    has_commits = bool(
-        re.search(r"\b(?:feat|fix|refactor|chore|docs|test|perf|ci)\(", content)
-        or re.search(r"commit\s+message", content, re.IGNORECASE)
-    )
-    has_pr = bool(
-        re.search(r"\bpr\s+(?:title|description|body)\b", content, re.IGNORECASE)
-        or re.search(r"pull\s+request", content, re.IGNORECASE)
-        or re.search(r"^#{1,4}\s+pr\b", content, re.IGNORECASE | re.MULTILINE)
-    )
-    if not has_commits:
-        report.issues.append(
-            Issue(severity="warning", category="git", message="No commit messages found.")
-        )
-        report.score -= 5
-    if not has_pr:
-        report.issues.append(
-            Issue(severity="warning", category="git", message="No PR title or description found.")
-        )
-        report.score -= 3
-
-
-def validate_plan(path: Path, draft: bool = False) -> ValidationReport:
-    threshold = 50 if draft else 85
-    report = ValidationReport(path=str(path), doc_type="plan", threshold=threshold)
-
-    if not path.exists():
-        report.issues.append(Issue(severity="error", category="io", message=f"File not found: {path}"))
-        report.score = 0
-        return report
-
-    try:
-        content = path.read_text(encoding="utf-8")
-    except Exception as exc:
-        report.issues.append(Issue(severity="error", category="io", message=f"Cannot read file: {exc}"))
-        report.score = 0
-        return report
-
-    lines = content.splitlines()
-
-    plan_check_target_repos(lines, report)
-    plan_check_files_to_modify(lines, report)
-    plan_check_ordered_steps(lines, report)
-    plan_check_steps_reference_files(lines, report)
-    plan_check_risks_section(lines, report)
-    plan_check_verification_section(lines, report)
-    check_vague_language(lines, report)
-    check_oversized_code_blocks(lines, report, "Plans")
-    plan_check_scope_boundary(lines, report)
-    plan_check_traceability_table(lines, report)
-    plan_check_testable_outcomes(lines, report)
-    plan_check_step_file_specificity(lines, report)
-    plan_check_per_step_verification(lines, report)
-    plan_check_structure_section(lines, report)
-    plan_check_git_branch(lines, report)
-    plan_check_git_commit_plan(lines, report)
-
-    report.score = max(0, report.score)
-    return report
-
-
-# ===========================================================================
 # Doc type auto-detection
 # ===========================================================================
 
@@ -1019,8 +925,6 @@ def detect_doc_type(path: Path) -> str:
     name = path.name.lower()
     if "prd" in name:
         return "prd"
-    if "plan" in name:
-        return "plan"
     if "spec" in name:
         return "spec"
 
@@ -1029,12 +933,16 @@ def detect_doc_type(path: Path) -> str:
     except Exception:
         return "spec"  # default
 
-    # Heuristic: count signature phrases
+    # Heuristic: count signature phrases. SPEC absorbs former PLAN signals.
     prd_signals = sum(1 for p in ["user persona", "functional requirement", "success metric", "fr-"] if p in content)
-    plan_signals = sum(1 for p in ["target repo", "implementation step", "git strategy", "traceability"] if p in content)
-    spec_signals = sum(1 for p in ["acceptance criteria", "given", "when", "then", "vertical slice"] if p in content)
+    spec_signals = sum(
+        1 for p in [
+            "acceptance criteria", "given", "when", "then",
+            "target repo", "files to touch", "implementation step", "git strategy", "traceability",
+        ] if p in content
+    )
 
-    scores = {"prd": prd_signals, "plan": plan_signals, "spec": spec_signals}
+    scores = {"prd": prd_signals, "spec": spec_signals}
     return max(scores, key=scores.get)  # type: ignore[arg-type]
 
 
@@ -1107,13 +1015,13 @@ def render_json(report: ValidationReport) -> str:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Validate a spec, PRD, or plan document for structural completeness.",
+        description="Validate a SPEC or PRD document for structural completeness.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__,
     )
     parser.add_argument("path", help="Path to the document to validate")
     parser.add_argument(
-        "--type", choices=["spec", "prd", "plan"], default=None,
+        "--type", choices=["spec", "prd"], default=None,
         help="Document type (auto-detected if omitted)",
     )
     parser.add_argument("--verbose", "-v", action="store_true", help="Show info-level findings")
@@ -1128,8 +1036,6 @@ def main() -> int:
         report = validate_spec(path, draft=args.draft)
     elif doc_type == "prd":
         report = validate_prd(path, draft=args.draft)
-    elif doc_type == "plan":
-        report = validate_plan(path, draft=args.draft)
     else:
         print(f"Unknown document type: {doc_type}", file=sys.stderr)
         return 1

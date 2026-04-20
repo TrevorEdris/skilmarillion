@@ -36,7 +36,7 @@ Bootstraps `.skilmarillion/projects/{slug}/` at the target project's git root. C
 Run (idempotent — `mkdir -p` won't error if dirs exist):
 
 ```bash
-mkdir -p .skilmarillion/projects/{slug}/{specs,plans,adrs,reviews,diagrams,api,schema}
+mkdir -p .skilmarillion/projects/{slug}/{specs,adrs,reviews,diagrams,api,schema}
 ```
 
 ### 3. Create PROJECT-STATE.yaml (only if missing)
@@ -55,7 +55,7 @@ created: {YYYY-MM-DD}
 
 ```
 Scaffolded .skilmarillion/projects/{slug}/
-  specs/  plans/  adrs/  reviews/  diagrams/  api/  schema/
+  specs/  adrs/  reviews/  diagrams/  api/  schema/
   PROJECT-STATE.yaml
 
 Next: /fellowship:plan to create a PRD, or /fellowship:plan --prd "[feature]" to skip straight to spec.
