@@ -12,8 +12,8 @@ Resolve a user's free-text / path / number input into a concrete artifact file (
 
 ## Inputs
 
-- `artifact_type` — one of: `spec`, `prd`, `roadmap`, `plan`, `state`, `adr`, `api`, `schema`, `diagram`
-- `query` — free text, a file path, a SPEC/PLAN/ADR number reference, or an empty string
+- `artifact_type` — one of: `spec`, `prd`, `roadmap`, `state`, `adr`, `api`, `schema`, `diagram`
+- `query` — free text, a file path, a SPEC wave-id (`W1a`), an ADR number, or an empty string
 - `project_root` — absolute path to the target repo's git root
 
 ---
@@ -22,10 +22,9 @@ Resolve a user's free-text / path / number input into a concrete artifact file (
 
 | Type | Pattern (relative to `project_root`) |
 |------|--------------------------------------|
-| `spec` | `.skilmarillion/projects/*/specs/SPEC-*.md` |
+| `spec` | `.skilmarillion/projects/*/specs/SPEC-W*.md` |
 | `prd` | `.skilmarillion/projects/*/PRD.md` |
 | `roadmap` | `.skilmarillion/projects/*/ROADMAP.md` |
-| `plan` | `.skilmarillion/projects/*/plans/PLAN-*.md` |
 | `state` | `.skilmarillion/projects/*/PROJECT-STATE.yaml` |
 | `adr` | `.skilmarillion/projects/*/adrs/*.md` |
 | `api` | `.skilmarillion/projects/*/api/*.yaml` |
@@ -44,12 +43,11 @@ If `query` is a non-empty path that exists on disk (absolute, or relative to `pr
 - Return `match_type: "exact_path"` with the single candidate.
 - No globbing or ranking needed.
 
-### 2. Numbered Artifact (spec, plan, adr only)
+### 2. Identified Artifact (spec or adr)
 
-If `query` matches `(?i)(spec|plan|adr)[-\s#]*0*(\d+)` or a bare `#(\d+)`:
-- Extract `NNN`, zero-pad to 3 digits.
-- Glob the artifact_type pattern with `NNN` filter (e.g., `SPEC-007-*.md`).
-- Return all matches with `match_type` set by count (see Output Contract).
+For `spec`: if `query` matches `(?i)(spec[-\s#]*)?(W\d+[a-z])`, extract the `W{N}{letter}` wave-id and glob `SPEC-{wave_id}-*.md`. Return matches with `match_type` set by count.
+
+For `adr`: if `query` matches `(?i)adr[-\s#]*0*(\d+)` or a bare `#(\d+)`, extract `NNN`, zero-pad to 3 digits, glob `adrs/{NNN}-*.md`, return matches.
 
 ### 3. Slug-Scoped Query
 
