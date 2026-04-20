@@ -6,6 +6,27 @@ set -euo pipefail
 COMMAND="${1:-}"
 shift || true
 
+# Globals with safe defaults so `set -u` never crashes a caller that omits a
+# field. Every subcommand re-assigns these inside parse_flags.
+SLUG=""
+FEATURE=""
+SIZE=""
+RISK=""
+ROUTING=""
+CURRENT_PHASE=""
+CURRENT_WAVE=""
+WAVE_AGENT_COMPLETED=""
+SPEC_PATH=""
+PROJECT_ROOT=""
+FIELD=""
+ALL=false
+WAVE_AGENTS_COMPLETED_LIST=""
+UNKNOWN_BLOCKS=""
+
+# Slug shape: lowercase kebab, starts alphanumeric, up to 64 chars.
+# Rejects path traversal (/, ..), uppercase, underscores, whitespace.
+SLUG_REGEX='^[a-z0-9][a-z0-9-]{0,63}$'
+
 usage() {
   echo "Usage:"
   echo "  $0 init --slug SLUG --feature FEATURE [--size SIZE] [--risk RISK] [--routing ROUTING] [--current-phase PHASE] [--current-wave WAVE] [--project-root ROOT]"
@@ -17,12 +38,39 @@ usage() {
   exit 1
 }
 
+validate_slug() {
+  local slug="$1"
+  if [[ ! "$slug" =~ $SLUG_REGEX ]]; then
+    echo "Error: invalid slug '$slug' — expected lowercase kebab-case matching ${SLUG_REGEX}" >&2
+    exit 1
+  fi
+}
+
 state_file() {
   local slug="$1"
+  validate_slug "$slug"
   echo ".skilmarillion/projects/${slug}/PROJECT-STATE.yaml"
 }
 
-# Parse key=value args into named vars
+# Acquire an exclusive lock on a file using mkdir (portable atomic primitive).
+# Blocks up to ~3 s; exits non-zero on timeout. Releases via EXIT trap.
+acquire_lock() {
+  local target="$1"
+  local lockdir="${target}.lock"
+  local waited=0
+  local max_wait=30
+  while ! mkdir "$lockdir" 2>/dev/null; do
+    if (( waited >= max_wait )); then
+      echo "Error: lock timeout on $lockdir — another state writer is holding it" >&2
+      exit 1
+    fi
+    sleep 0.1
+    waited=$((waited + 1))
+  done
+  # shellcheck disable=SC2064
+  trap "rmdir '$lockdir' 2>/dev/null || true" EXIT
+}
+
 parse_flags() {
   SLUG=""
   FEATURE=""
@@ -59,7 +107,7 @@ parse_flags() {
 read_field() {
   local file="$1"
   local key="$2"
-  awk -v key="$key" '$0 ~ "^"key":" { sub(/^[^:]+: ?/, ""); print; exit }' "$file"
+  awk -v key="$key" '$0 ~ "^"key":[[:space:]]*" { sub(/^[^:]+:[[:space:]]*/, ""); print; exit }' "$file"
 }
 
 read_wave_agents_completed() {
@@ -68,8 +116,44 @@ read_wave_agents_completed() {
   awk '
     /^wave_agents_completed:/ { in_list=1; next }
     in_list && /^  - / { sub(/^  - /, ""); printf "%s ", $0; next }
-    in_list && !/^  - / { in_list=0 }
+    in_list && !/^  - / && !/^$/ { in_list=0 }
   ' "$file"
+}
+
+# Capture every top-level block in the state file that update-state.sh does NOT
+# own. Preserves arbitrary extensions (for example `impl:` blocks written by
+# /fellowship:build) across merge writes — without this, every set() would
+# silently drop them.
+KNOWN_SCALARS=(feature size risk routing_decision current_phase current_wave spec_path project_root)
+KNOWN_LISTS=(wave_agents_completed)
+
+capture_unknown_blocks() {
+  local file="$1"
+  UNKNOWN_BLOCKS=""
+  [[ -f "$file" ]] || return 0
+
+  local known_pattern
+  known_pattern="$(printf "%s|" "${KNOWN_SCALARS[@]}" "${KNOWN_LISTS[@]}")"
+  known_pattern="${known_pattern%|}"
+
+  UNKNOWN_BLOCKS="$(awk -v known="$known_pattern" '
+    function is_key(line) { return line ~ /^[A-Za-z_][A-Za-z_0-9]*:/ }
+    function key_name(line,    k) {
+      k = line; sub(/:.*/, "", k); return k
+    }
+    function is_known(k,    n, i, parts) {
+      n = split(known, parts, "|")
+      for (i = 1; i <= n; i++) if (parts[i] == k) return 1
+      return 0
+    }
+    BEGIN { capturing = 0 }
+    {
+      if (is_key($0)) {
+        capturing = !is_known(key_name($0))
+      }
+      if (capturing) print
+    }
+  ' "$file")"
 }
 
 render_wave_agents_completed() {
@@ -87,6 +171,7 @@ render_wave_agents_completed() {
 
 write_state() {
   local file="$1"
+  local tmp="${file}.tmp.$$"
   {
     cat <<EOF
 feature: ${FEATURE}
@@ -99,12 +184,19 @@ spec_path: ${SPEC_PATH}
 project_root: ${PROJECT_ROOT}
 EOF
     render_wave_agents_completed "${WAVE_AGENTS_COMPLETED_LIST}"
-  } > "$file"
+    if [[ -n "$UNKNOWN_BLOCKS" ]]; then
+      printf '%s\n' "$UNKNOWN_BLOCKS"
+    fi
+  } > "$tmp"
+  mv "$tmp" "$file"
 }
 
 merge_and_write_state() {
   local file="$1"
-  # Load existing values as defaults
+  acquire_lock "$file"
+
+  capture_unknown_blocks "$file"
+
   local cur_feature cur_size cur_risk cur_routing cur_phase cur_wave cur_spec cur_project_root cur_wave_agents
   cur_feature=$(read_field "$file" "feature")
   cur_size=$(read_field "$file" "size")
@@ -125,7 +217,6 @@ merge_and_write_state() {
   SPEC_PATH="${SPEC_PATH:-$cur_spec}"
   PROJECT_ROOT="${PROJECT_ROOT:-$cur_project_root}"
 
-  # Append newly-completed wave-agent id (deduped).
   WAVE_AGENTS_COMPLETED_LIST="$(echo "$cur_wave_agents" | tr -s ' ')"
   if [[ -n "$WAVE_AGENT_COMPLETED" ]]; then
     local already_present=false
@@ -150,13 +241,14 @@ file_age_days() {
   now=$(date +%s)
   local mtime
   if stat -f %m "$file" &>/dev/null; then
-    # macOS
     mtime=$(stat -f %m "$file")
   else
-    # Linux
     mtime=$(stat -c %Y "$file")
   fi
-  echo $(( (now - mtime) / 86400 ))
+  local age=$(( (now - mtime) / 86400 ))
+  # Clock skew can produce a future mtime; clamp to 0.
+  if (( age < 0 )); then age=0; fi
+  echo "$age"
 }
 
 case "$COMMAND" in
@@ -166,8 +258,10 @@ case "$COMMAND" in
     [[ -z "$SLUG"    ]] && { echo "Error: --slug is required"    >&2; exit 1; }
     FILE=$(state_file "$SLUG")
     mkdir -p "$(dirname "$FILE")"
+    acquire_lock "$FILE"
     CURRENT_PHASE="${CURRENT_PHASE:-initialized}"
     WAVE_AGENTS_COMPLETED_LIST=""
+    UNKNOWN_BLOCKS=""
     write_state "$FILE"
     ;;
 
@@ -198,14 +292,14 @@ case "$COMMAND" in
 
   list)
     shopt -s nullglob
-    FILES=(.skilmarillion/projects/*/PROJECT-STATE.yaml)
+    root_dir="${PROJECT_ROOT:-.}"
+    FILES=("$root_dir"/.skilmarillion/projects/*/PROJECT-STATE.yaml)
     if [[ ${#FILES[@]} -eq 0 ]]; then
       echo "No plan state files found."
       exit 0
     fi
     for f in "${FILES[@]}"; do
-      # Extract slug from path: .skilmarillion/projects/{slug}/PROJECT-STATE.yaml
-      rel="${f#.skilmarillion/projects/}"
+      rel="${f#*.skilmarillion/projects/}"
       slug="${rel%/PROJECT-STATE.yaml}"
       phase=$(read_field "$f" "current_phase")
       age=$(file_age_days "$f")
@@ -217,7 +311,8 @@ case "$COMMAND" in
     parse_flags "$@"
     if [[ "$ALL" == true ]]; then
       shopt -s nullglob
-      FILES=(.skilmarillion/projects/*/PROJECT-STATE.yaml)
+      root_dir="${PROJECT_ROOT:-.}"
+      FILES=("$root_dir"/.skilmarillion/projects/*/PROJECT-STATE.yaml)
       for f in "${FILES[@]}"; do
         rm -f "$f"
       done

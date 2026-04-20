@@ -44,7 +44,7 @@ class Issue:
 class ValidationReport:
     path: str
     doc_type: str = "unknown"
-    threshold: int = 70
+    threshold: int = 85
     issues: list[Issue] = field(default_factory=list)
     score: int = 100
 
@@ -59,6 +59,35 @@ class ValidationReport:
     @property
     def passed(self) -> bool:
         return len(self.errors) == 0 and self.score >= self.threshold
+
+
+MAX_DOC_BYTES = 2 * 1024 * 1024  # 2 MiB cap; a SPEC/PRD above this is always pathological
+
+
+def read_doc(path: Path, report: ValidationReport) -> str | None:
+    """Read a document with size and symlink-loop protection. Returns None on error."""
+    try:
+        size = path.stat().st_size
+    except OSError as exc:
+        report.issues.append(Issue(severity="error", category="io", message=f"Cannot stat file: {exc}"))
+        report.score = 0
+        return None
+    if size > MAX_DOC_BYTES:
+        report.issues.append(
+            Issue(
+                severity="error",
+                category="io",
+                message=f"File exceeds {MAX_DOC_BYTES // 1024} KiB cap ({size} bytes).",
+            )
+        )
+        report.score = 0
+        return None
+    try:
+        return path.read_text(encoding="utf-8")
+    except Exception as exc:
+        report.issues.append(Issue(severity="error", category="io", message=f"Cannot read file: {exc}"))
+        report.score = 0
+        return None
 
 
 # ---------------------------------------------------------------------------
@@ -239,6 +268,20 @@ def spec_check_acceptance_criteria(lines: list[str], report: ValidationReport) -
         )
         report.score -= 15
         return
+    # A present-but-empty AC section still lets a SPEC pass at 85+ from the
+    # other checks. Treat it the same as a missing section.
+    body = section_content(lines, s, e)
+    bullet_count = len(re.findall(r"^\s*(?:[-*]|\d+\.)\s+\S", body, re.MULTILINE))
+    if bullet_count == 0 or len(body.strip()) < 40:
+        report.issues.append(
+            Issue(
+                severity="error",
+                category="structure",
+                message="Acceptance Criteria section is empty or missing bullet items.",
+                line=s,
+            )
+        )
+        report.score -= 15
 
 
 def spec_check_given_when_then(lines: list[str], report: ValidationReport) -> None:
@@ -358,12 +401,30 @@ def spec_check_files_to_touch(lines: list[str], report: ValidationReport) -> Non
 
 
 def spec_check_ordered_steps(lines: list[str], report: ValidationReport) -> None:
+    # Scope the check to the body of the "Ordered Implementation Steps" section.
+    # A stray numbered list elsewhere must not satisfy the requirement.
+    s, e = find_section(lines, r"^#{2,3}\s+Ordered\s+Implementation\s+Steps")
+    if s == 0:
+        report.issues.append(
+            Issue(severity="error", category="structure", message="No 'Ordered Implementation Steps' section found.")
+        )
+        report.score -= 15
+        return
     step_pattern = re.compile(r"^#{1,4}\s+step\s+\d", re.IGNORECASE)
     numbered_pattern = re.compile(r"^\s*\d+\.\s+")
-    has_steps = any(step_pattern.match(line.strip()) or numbered_pattern.match(line) for line in lines)
+    section_lines = lines[s:e]
+    has_steps = any(
+        step_pattern.match(line.strip()) or numbered_pattern.match(line)
+        for line in section_lines
+    )
     if not has_steps:
         report.issues.append(
-            Issue(severity="error", category="structure", message="No ordered Implementation Steps found.")
+            Issue(
+                severity="error",
+                category="structure",
+                message="'Ordered Implementation Steps' section contains no step entries.",
+                line=s,
+            )
         )
         report.score -= 15
 
@@ -556,11 +617,8 @@ def validate_spec(path: Path, draft: bool = False) -> ValidationReport:
         report.score = 0
         return report
 
-    try:
-        content = path.read_text(encoding="utf-8")
-    except Exception as exc:
-        report.issues.append(Issue(severity="error", category="io", message=f"Cannot read file: {exc}"))
-        report.score = 0
+    content = read_doc(path, report)
+    if content is None:
         return report
 
     lines = content.splitlines()
@@ -885,11 +943,8 @@ def validate_prd(path: Path, draft: bool = False) -> ValidationReport:
         report.score = 0
         return report
 
-    try:
-        content = path.read_text(encoding="utf-8")
-    except Exception as exc:
-        report.issues.append(Issue(severity="error", category="io", message=f"Cannot read file: {exc}"))
-        report.score = 0
+    content = read_doc(path, report)
+    if content is None:
         return report
 
     lines = content.splitlines()
