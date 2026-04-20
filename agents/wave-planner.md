@@ -39,12 +39,14 @@ Before calling `AskUserQuestion`, call `ToolSearch` with query `"select:AskUserQ
 5. **Bucket units into waves within each phase**, maximizing parallelism subject to the disjoint-touches rule from `wave-format`.
 6. **Run the collision + re-bucket algorithm** from `wave-format` (move smaller-scope colliding unit to next wave; cap iterations at `max_wave_attempts`).
 7. **Validate `depends_on`** — every entry must reference a wave-agent in an earlier wave of the same phase or any earlier phase. A back/same-wave reference is a collision; re-bucket and retry.
-8. **Assign IDs** — `W{N}{letter}` globally monotonic across phases. Reuse the next free letter when re-bucketing.
+8. **Assign IDs** — `W{N}{letter}` where N is the **global wave sequence number** (1-indexed, monotonic across phases). Re-bucketing to a new wave **advances N** to that new wave's global sequence; letters restart at `a` in the new wave. Letters are never reused inside the same wave. See `skills/wave-format § Wave-Agent ID Convention` for the canonical rule and examples.
 9. **If unresolved collisions remain after `max_wave_attempts` iterations**: stop and emit a structured error in the JSON. Do not produce SPECs from a partial result.
 
 ---
 
-## Heuristics
+## Heuristics (applied silently before emitting JSON)
+
+These shape the decomposition decisions but do not appear in the output — the final JSON contains only the resolved plan, never advisory flags.
 
 - 2-5 wave-agents per wave. Solo waves are valid but defeat parallelism.
 - ≤4 waves per phase suggests well-scoped phases. >4 suggests the phase should split.

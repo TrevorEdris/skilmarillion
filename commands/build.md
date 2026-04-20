@@ -50,14 +50,18 @@ The `--team` flag is orthogonal — it applies to `wave N` and forces Agent Team
 
 ## WAVE DISPATCH — `wave N`
 
-Parse `N` as a wave identifier (supports `1`, `1.2`, or `Wave 1.2`).
+Parse `N` as a wave identifier. Accepted forms: `1`, `1.2`, or `Wave 1.2`.
+
+> **Resolution rule — always parse the ROADMAP, never the agent ID prefix.**
+> Wave-agent IDs use a global wave-sequence number (see `skills/wave-format § Wave-Agent ID Convention`). The ID prefix is NOT a reliable wave selector — `W2a` can live inside Phase 1 Wave 1.2 or Phase 2 Wave 2.1 depending on how the planner bucketed it. The ROADMAP's `### Wave X.Y` blocks are the authority.
 
 1. **Resolve ROADMAP** via `artifact-resolver` (`artifact_type: roadmap`). Confirm with the user per `artifact-paths`.
-2. **Parse the ROADMAP** to find the target wave:
-   - `wave 1` → every `#### W1{letter}` block under Phase 1 (union of Wave 1.1, 1.2, …).
-   - `wave 1.2` → only `### Wave 1.2`.
-3. **Collision revalidation** — assert each SPEC's frontmatter `touches` is disjoint from every other targeted SPEC's `touches`. If any collision, STOP and report which SPECs conflict.
-4. **Load each wave-agent's SPEC** from `specs/SPEC-W{N}{letter}-{slug}.md`. Require every SPEC to exist and to have passed validator PASS (score >= 85). If any SPEC is missing or below threshold, list the offending IDs and abort.
+2. **Parse the ROADMAP to enumerate target wave-agents** by heading, not by ID:
+   - `wave 1.2` → read every `#### W{id}` block under the `### Wave 1.2` heading in the ROADMAP.
+   - `wave 1` (no sub-wave) → read every `#### W{id}` block under every `### Wave 1.M` heading in Phase 1.
+   - Record the `{id}` list from that enumeration as the target set. Ignore ID prefix matching entirely.
+3. **Collision revalidation** — assert each target SPEC's frontmatter `touches` is disjoint from every other target SPEC's `touches`. If any collision, STOP and report which SPECs conflict.
+4. **Load each target SPEC** by resolving `specs/SPEC-{id}-*.md` for every enumerated `{id}`. Require every SPEC to exist and to have passed validator PASS (score >= 85). If any SPEC is missing or below threshold, list the offending IDs and abort.
 5. **Spawn concurrency** — see "Wave Concurrency" below.
 6. **Merge barrier** — the wave closes when every spawned run reports green (tests pass + SPEC validator PASS + no unresolved `ACCEPT_WITH_DEBT` above the user's tolerance). Update `PROJECT-STATE.yaml` `impl.wave_agents_completed[]`.
 
@@ -69,6 +73,26 @@ Parse `N` as a wave identifier (supports `1`, `1.2`, or `Wave 1.2`).
 | Agent Teams | `wave N --team` | Call `TeamCreate` with one teammate per wave-agent. Teammates coordinate via shared tasks and SendMessage per `teams/rules/team-conventions.md`. |
 
 Within a wave-agent, TDD execution is sequential (per-step RED → GREEN → REFACTOR). Across wave-agents within the same wave, execution is fully parallel — wave-planner guarantees disjoint `touches` so two agents cannot step on each other's files.
+
+### Wave Failure Recovery
+
+When one wave-agent fails non-recoverably while others in the same wave have already completed GREEN:
+
+- The merge barrier does NOT auto-roll back completed agents' code — their files are already on disk and their tests are green.
+- `wave_agents_completed` keeps the completed agents listed. Only the failed agent blocks the barrier from closing.
+- Present the user three explicit options (do not pick silently):
+  1. **Retry** — re-invoke `/fellowship:build spec W{failed_id}` in isolation after the user addresses the root cause. Keeps the wave open.
+  2. **Split** — ask the wave-planner to decompose the failed SPEC into sub-agents and re-bucket them into the same or the next wave. Keeps the wave open.
+  3. **Ship completed, defer failed** — explicitly mark the failed agent `ACCEPT_WITH_DEBT` (above the user's tolerance threshold requires user approval). The wave closes green; the gap is recorded in the SPEC's `## Gaps` section and downstream waves are notified per `skills/slice-runner § ACCEPT_WITH_DEBT`.
+- Never advance to Wave N+1 with a failed wave-agent still open under options 1 or 2. Option 3 is the only path that advances while leaving behavior gaps.
+
+### Orphaned Wave-Agent Detection
+
+Before spawning, compare the ROADMAP's current wave-agent roster against `wave_agents_completed` from a prior run of the same wave:
+
+- If any ID is in `wave_agents_completed` but NOT in the current roster: the ROADMAP was edited after the prior run. Warn the user: "Agent {id} was completed previously but no longer appears in the ROADMAP. Prune from state before re-dispatch?"
+- If any ID is in the current roster but NOT in `wave_agents_completed`: business as usual — dispatch that agent.
+- Do NOT re-run completed agents unless the user explicitly requests it.
 
 ---
 

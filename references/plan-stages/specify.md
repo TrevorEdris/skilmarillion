@@ -75,19 +75,32 @@ Present the extracted wave-agents to the user:
 > 2. Select a single wave (e.g., `Wave 1.1`)
 > 3. Select specific IDs (comma-separated, e.g., `W1a, W2a`)
 
-### 3b. Collision Revalidation Gate
+### 3b. Collision + Dependency Revalidation Gate
 
-Before spawning any spec-builder, re-run the touches-intersection check against each wave. For every pair `(A, B)` within the same wave, assert `A.touches ∩ B.touches == ∅`.
+Before spawning any spec-builder, re-run two checks against the extracted wave-agent set. ROADMAP is a markdown file and users may have hand-edited it since `wave-planner` ran.
 
-If any collision is found, STOP and report:
+**Check 1 — Touches collision.** For every pair `(A, B)` within the same wave, assert `A.touches ∩ B.touches == ∅`.
 
-> "Roadmap drift detected: W{id} and W{id} in Wave N.M both touch `{file}`. Re-plan waves before generating SPECs:
+**Check 2 — `depends_on` acyclicity and ordering.** Build the directed graph where each edge `A → B` means "B depends on A." Assert:
+
+- the graph is a DAG (no cycles; run Kahn's algorithm or equivalent);
+- every dependency target exists in the wave-agent set;
+- every dependency points to an **earlier** wave (same-wave or later-wave references are illegal per `skills/wave-format § Dependency Rule`).
+
+If any check fails, STOP and report:
+
+> "Roadmap drift detected:
+> - Collisions: W{id} and W{id} in Wave N.M both touch `{file}`
+> - Dependency violations: W{id} depends_on W{id} but the target is in the same or a later wave (or forms a cycle)
+>
+> Re-plan waves before generating SPECs:
 >
 > ```
 > /fellowship:plan --roadmap {roadmap-path}
 > ```
+> "
 
-This gate prevents SPECs that would write-conflict at build time.
+This gate prevents SPECs that would write-conflict at build time or deadlock the wave barrier.
 
 ### 4. Resolve Artifact Paths
 

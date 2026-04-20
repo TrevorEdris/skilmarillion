@@ -26,9 +26,22 @@ Defines the canonical Phase → Wave → Wave-Agent decomposition used by `wave-
 ## Wave-Agent ID Convention
 
 - Format: `W{N}{letter}` — examples: `W1a`, `W1b`, `W2a`, `W3c`
-- N is a positive integer, monotonic across phases (W1, W2, W3 may span multiple phases)
-- letter is `a` through `z` (lowercase, no punctuation)
+- N is the **global wave sequence number** (1-indexed, monotonic across phases). N advances each time a new wave opens, whether that wave is the first of a new phase or a later sub-wave within the same phase.
+- letter is `a` through `z` (lowercase, no punctuation), unique within a single wave
 - IDs are globally unique across the project, not per-phase
+- **Re-bucket rule (canonical):** when `wave-planner` re-buckets an agent because of a collision, the agent moves to the **next wave**, its N advances to that new wave's global sequence number, and the letter restarts at `a` within the new wave. Letters are never reused inside the same wave.
+
+### Example
+
+Given Phase 1 with two waves and Phase 2 with one wave:
+
+| Wave | Phase.Seq | Agents |
+|------|-----------|--------|
+| Global wave 1 | Phase 1, wave 1.1 | `W1a`, `W1b` |
+| Global wave 2 | Phase 1, wave 1.2 | `W2a`, `W2b` |
+| Global wave 3 | Phase 2, wave 2.1 | `W3a` |
+
+Note: the "1" in the wave-agent ID `W1a` is the global wave sequence number (matches the "1" in "wave 1.1"). When Phase 1 opens a second wave (`wave 1.2`), its agents start at `W2a`, not `W1c`.
 
 ---
 
