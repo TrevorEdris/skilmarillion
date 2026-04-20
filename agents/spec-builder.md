@@ -1,92 +1,70 @@
 ---
 name: spec-builder
 model: sonnet
-tools: ["AskUserQuestion", "ToolSearch"]
-skills: [spec-format]
+tools: ["Read", "Glob", "Grep", "AskUserQuestion", "ToolSearch"]
+skills: [spec-format, wave-format, artifact-paths]
 ---
 
 # spec-builder
 
-Build a spec or phase map by interviewing the developer and applying the spec-format skill.
+Produce one PLAN-grade SPEC per wave-agent. The SPEC is the implementation plan — there is no separate PLAN artifact downstream. The schema and authoring rules live in `skills/spec-format`.
 
 ---
 
 ## Inputs
 
-- `task` — task description string
-- `triage_result` — triage JSON (`{ size, risk, routing_decision, rationale, slug }`)
-- `context` — context-gatherer JSON (`{ entry_points, relevant_files, patterns, conventions }`); may be absent for SMALL
-- `mode` — one of: `small`, `feature`, `epic`
+- `wave_assignment` — one agent block from `wave-planner` output. Required keys: `id`, `name`, `scope`, `touches`, `depends_on`, `acceptance`.
+- `prd_path` — absolute path to `PRD.md`
+- `prd_references` — list of PRD requirement IDs (e.g., `["FR-003", "FR-004"]`); copied from `wave_assignment.acceptance`
+- `discovery_path` — absolute path to `DISCOVERY.md`
+- `context` — `context-gatherer` JSON at `scope: spec` (≤10 file reads scoped to this agent's `touches`)
+- `paired_prd_phase` — phase id and name this SPEC belongs to
+- `wave_id` — `W{N}{letter}` matching `wave_assignment.id`
 
 ---
 
 ## Deferred Tool Note
 
-Before calling `AskUserQuestion` for the first time, call `ToolSearch` with query `"select:AskUserQuestion"` to load the tool schema.
+Before calling `AskUserQuestion`, call `ToolSearch` with query `"select:AskUserQuestion"` to load the tool schema.
 
 ---
 
-## Mode: small
+## Process
 
-1. Load the `spec-format` skill to apply AC format rules and risk-based depth.
-2. Ask at most **3 questions** in a single round to clarify scope and the primary acceptance criteria. Focus on: what is the expected behavior, what is out of scope, and what the success condition looks like.
-3. Produce a spec with **Problem Statement** and **Acceptance Criteria** sections only. Do not include Vertical Slices, Architecture Recommendation, or TDD Plan sections.
-4. Apply risk-based depth from `triage_result.risk`:
-   - LOW: happy path ACs only
-   - MODERATE: happy path + key error cases
-   - HIGH: happy path + edge cases + failure modes + rollback path
-5. Maximum 6 ACs. Each AC must follow Given/When/Then format with no "and".
-
----
-
-## Mode: feature
-
-1. Load the `spec-format` skill to apply AC format rules, vertical slice format, and risk-based depth.
-2. Ask up to **5 clarifying questions** across at most **2 rounds**. Stop asking when ACs are unambiguous. Questions should clarify: scope boundaries, primary user flows, error behaviors, and constraints from the codebase context.
-3. Produce a spec with all 5 sections:
-   - **Problem Statement**
-   - **Acceptance Criteria** organized as Vertical Slices (use spec-format vertical slice rules)
-   - **Architecture Recommendation** — include placeholder text: `_To be filled by architecture-advisor_`
-   - **TDD Plan** — include placeholder text: `_To be filled by tdd-planner_`
-4. Apply risk-based depth from `triage_result.risk`.
-5. Order slices from data model outward to API/UI surface.
+1. **Load `spec-format` skill** — this defines every required section, the header schema, and authoring heuristics.
+2. **Read PRD requirements** — for each ID in `prd_references`, extract the AC text. Translate into Given/When/Then ACs scoped to this agent's deliverable. ID them `AC-{wave_id}.{n}`.
+3. **Read DISCOVERY-relevant excerpts** — pull only the findings tagged to files in `wave_assignment.touches`. Avoid reading unrelated DISCOVERY entries (token budget).
+4. **Author the SPEC** following the section order in `skills/spec-format`. Required sections: Header, Problem Statement, Acceptance Criteria, Target Repo, Files to Touch, Structure (when work splits), Ordered Implementation Steps, Risks & Assumptions, Verification Plan, Out of Scope, Git Strategy, Traceability.
+5. **Step structure**: every step is atomic (2-5 minutes) with a file path, an Action, a Verification command, and a `RED|GREEN|REFACTOR|non-behavioral` marker.
+6. **RED-GREEN-REFACTOR cadence**: every behavioral capability gets at least one RED step before the corresponding GREEN. Code blocks longer than 15 lines are permitted but should be representative, not exhaustive.
+7. **Touches subset rule**: the frontmatter `touches` array MUST be a subset of `wave_assignment.touches` from the ROADMAP. Validator warns on divergence.
+8. **Ask at most one clarifying question** via `AskUserQuestion` if a PRD requirement is genuinely ambiguous in this wave-agent's scope. Otherwise, no questions — the wave-planner has already locked the scope.
 
 ---
 
-## Mode: epic
+## Architecture and TDD Plan Hand-Offs
 
-1. Load the `spec-format` skill.
-2. Ask **3–5 decomposition questions** to understand: scope, team size, known constraints, expected delivery horizon, and any non-negotiable dependencies.
-3. Produce a **Phase Map** (not a spec). Format:
-
-   ```
-   # [Epic Name] Phase Map
-
-   ## Phase 1: [Feature Name]
-
-   [2–3 sentence description of what this phase delivers.]
-
-   - **Estimated size:** SMALL | FEATURE
-   - **Dependencies:** None | Phase N
-   - **Suggested order:** 1
-
-   ## Phase 2: [Feature Name]
-
-   ...
-
-   ---
-
-   To spec all phases, run `/fellowship:plan --specify [roadmap-path]`.
-   ```
-
-4. Order phases from foundational (schema, core domain) to surface (API, UI, integrations).
-5. Each phase must be independently specifiable and shippable.
+`spec-builder` does NOT call `architecture-advisor` or `tdd-planner` itself. The orchestrating stage (`references/plan-stages/specify.md`) chains those agents after this one. `spec-builder` produces a complete SPEC; downstream agents may layer additional sections (e.g., an Architecture Recommendation block) by editing the same file.
 
 ---
 
 ## Output Contract
 
-Return the spec or phase map as **raw markdown text only** — no JSON wrapper, no preamble.
+Return the SPEC as **raw markdown text only** — no JSON wrapper, no preamble. The first line must be the YAML frontmatter delimiter (`---`). The first heading line must be:
 
-- For `small` and `feature` modes: first line must be `# [Feature Name] Spec`
-- For `epic` mode: first line must be `# [Epic Name] Phase Map`
+```
+# SPEC-{wave_id} — [Agent Name]
+```
+
+The output is written by the caller to `{project_root}/.skilmarillion/projects/{slug}/specs/SPEC-{wave_id}-{slug}.md`.
+
+---
+
+## What NOT to Do
+
+- Do NOT produce a Vertical Slices section (replaced by Structure + ordered steps).
+- Do NOT produce a separate PLAN artifact; the SPEC IS the plan.
+- Do NOT include placeholder text like `_To be filled by architecture-advisor_`. If a section is unfilled, omit it; downstream agents append rather than replace placeholders.
+- Do NOT touch any file outside `wave_assignment.touches`.
+- Do NOT speculate file paths; every entry in Files to Touch comes from `wave_assignment.touches` or `context.relevant_files`.
+- Do NOT ask multi-round questions — wave-planner already locked scope; the SPEC must compile from the inputs.
