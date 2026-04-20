@@ -1,6 +1,6 @@
 # /fellowship:plan --validate
 
-Score a spec, PRD, or plan document for structural completeness. Returns a 0–100 score with actionable findings.
+Score a spec or PRD document for structural completeness. Returns a 0–100 score with actionable findings.
 
 ---
 
@@ -8,7 +8,7 @@ Score a spec, PRD, or plan document for structural completeness. Returns a 0–1
 
 ### 1. Resolve document path
 
-Determine the artifact type from user input. If the user specifies `--type <spec|prd|plan|roadmap>`, use that. Otherwise, infer from the argument (SPEC-NNN → spec, path containing `/specs/` → spec, path ending in `PRD.md` → prd, path ending in `ROADMAP.md` → roadmap, path containing `/plans/` → plan). If ambiguous, ask the user.
+Determine the artifact type from user input. If the user specifies `--type <spec|prd|roadmap>`, use that. Otherwise, infer from the argument (SPEC-W{N}{letter} → spec, path containing `/specs/` → spec, path ending in `PRD.md` → prd, path ending in `ROADMAP.md` → roadmap). If ambiguous, ask the user.
 
 Delegate discovery to the `artifact-resolver` agent. See `artifact-paths` skill § "Artifact Resolution" for the calling contract.
 
@@ -79,7 +79,7 @@ Return the result as structured data for programmatic consumption by other comma
 
 - Do NOT modify the document being validated — this command is read-only.
 - Do NOT skip the structural validation script — always run it first.
-- Do NOT run semantic checks on PRD or plan documents — only specs get the AC quality layer.
+- Do NOT run semantic checks on PRD documents — only specs get the AC quality layer.
 
 ---
 
@@ -87,7 +87,6 @@ Return the result as structured data for programmatic consumption by other comma
 
 After displaying validation results, suggest the logical next command based on document type:
 
-- **Spec (PASS):** "Ready for implementation. Run `/fellowship:build {spec-path}` to begin the TDD cycle."
-- **PRD (PASS):** "PRD is valid. Run `/fellowship:plan --roadmap {prd-path}` to decompose into milestones."
-- **Plan (PASS):** "Plan is valid. Proceed with implementation."
+- **Spec (PASS):** "Ready for implementation. Run `/fellowship:build spec W{N}{letter}` (or pass the spec path) to begin the TDD cycle."
+- **PRD (PASS):** "PRD is valid. Run `/fellowship:plan --roadmap {prd-path}` to decompose into phases and waves."
 - **Any (NEEDS WORK):** "Fix the findings above, then re-run `/fellowship:plan --validate {path}` to confirm."
