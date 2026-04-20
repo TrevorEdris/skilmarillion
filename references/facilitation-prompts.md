@@ -39,7 +39,7 @@ Use these prompts to guide users through each section of a PRD. Written in plain
 >
 > Don't worry about technical details. "Users can search by name and see results within 2 seconds" is better than "implement Elasticsearch with fuzzy matching."
 >
-> Do NOT include file paths, line numbers, code patterns, or implementation instructions. Those belong in PLAN.md. The PRD describes behavior the user sees, not code the engineer writes.
+> Do NOT include file paths, line numbers, code patterns, or implementation instructions. Those belong in the SPEC (the SPEC absorbs the PLAN schema — see `skills/spec-format`). The PRD describes behavior the user sees, not code the engineer writes.
 
 ---
 

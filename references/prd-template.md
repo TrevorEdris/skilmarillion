@@ -46,8 +46,8 @@ List each thing the product must do. Use FR-001 format for traceability.
 > **Abstraction boundary:** PRDs describe *what* the product must do, not *how* to build it.
 >
 > Do NOT include in requirements:
-> - File paths (`src/components/foo.tsx` belongs in PLAN.md)
-> - Line numbers (belongs in PLAN.md)
+> - File paths (`src/components/foo.tsx` belongs in the SPEC's Files to Touch + Ordered Implementation Steps)
+> - Line numbers (belongs in the SPEC)
 > - Code patterns (hook names, event handlers, state management, type definitions)
 > - Implementation instructions ("call X before Y", "use stopPropagation()")
 >
