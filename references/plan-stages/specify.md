@@ -1,6 +1,8 @@
 # /fellowship:plan --specify
 
-Generate spec documents from a ROADMAP. Reads the roadmap, extracts milestones, and produces a SPEC file for each one using parallel agents. Run after `/fellowship:plan --roadmap` and before `/fellowship:build`.
+Generate one SPEC per wave-agent from a wave-based ROADMAP. Reads the roadmap, extracts `W{N}{letter}` wave-agents, re-validates wave independence, then authors SPECs in wave-batched parallel passes.
+
+Run after `/fellowship:plan --roadmap` (which produced both ROADMAP.md and DISCOVERY.md) and before `/fellowship:build`.
 
 ---
 
@@ -28,197 +30,190 @@ If no ROADMAPs exist at all (agent returns empty `all`), display:
 
 ### 2. ROADMAP Validation Gate
 
-Before proceeding, check for a sibling PRD and validate the roadmap structure:
-
 1. Derive the feature directory from the roadmap path (parent directory).
-2. Check for `{feature-dir}/PRD.md` — if present, validate it:
+2. Require `{feature-dir}/DISCOVERY.md`. If absent, stop and instruct the user to re-run `/fellowship:plan --roadmap` — specify cannot author SPECs without discovery context.
+3. Check for `{feature-dir}/PRD.md` — if present, validate it:
    ```bash
    python ${CLAUDE_PLUGIN_ROOT}/scripts/validate.py {prd_path} --type prd --json
    ```
    - If score < 85: warn the user but do not block (the roadmap may have been created independently).
 
-3. Read the ROADMAP file and verify it contains:
+4. Read the ROADMAP file and verify it contains:
    - At least one phase section (`## Phase N:`)
-   - At least one milestone (`### P{N}-{letter}:`)
+   - At least one wave section (`### Wave N.M`)
+   - At least one wave-agent block (`#### W{N}{letter}:`)
    - A Spec Index section
 
-If the roadmap has no parseable milestones, stop and report: "Could not find milestones in the roadmap. Expected format: `### P0-A: [Feature Name]` with `**What:**` and `**Checklist:**` fields."
+If the roadmap has no parseable wave-agents, stop and report: "Could not find wave-agents in the roadmap. Expected format: `#### W1a: [Agent Name]` with `**Scope:**`, `**Touches:**`, `**Depends on:**`, `**Acceptance:**`, `**Spec:**` fields."
 
-### 3. Extract Milestones
+### 3. Extract Wave Agents
 
-Parse the ROADMAP to extract each milestone. For each milestone, capture:
+Parse the ROADMAP. For each wave-agent, capture:
 
-- **Feature ID** — e.g., `P0-A`, `P1-B`
-- **Name** — the milestone heading text after the ID
-- **What** — the plain-language description from the `**What:**` field
-- **Depends on** — dependency references from `**Depends on:**` field
-- **Risk** — from the `**Risk:**` field (default to MODERATE if absent)
-- **Checklist** — implementation sub-tasks from the `**Checklist:**` field
-- **Estimated scope** — from the roadmap if present; infer from checklist length if absent:
-  - 1-2 checklist items → TRIVIAL
-  - 3-5 checklist items → SMALL
-  - 6+ checklist items → FEATURE
+- **Wave-agent ID** — e.g., `W1a`, `W1b`, `W2a`
+- **Phase + Wave** — the containing `## Phase N:` and `### Wave N.M` headers
+- **Name** — heading text after the ID
+- **Scope** — one-sentence `**Scope:**` value
+- **Touches** — file paths from `**Touches:**` (comma or line-separated)
+- **Depends on** — IDs from `**Depends on:**` (or `Nothing`)
+- **Acceptance** — PRD requirement IDs from `**Acceptance:**` (e.g., `FR-001, FR-002`)
+- **Spec slug** — from `**Spec:**` value (or derive via `slug-namer`)
 
-Present the extracted milestones to the user:
+Present the extracted wave-agents to the user:
 
-> "Found {N} milestones in the roadmap:"
+> "Found {N} wave-agents across {P} phases / {W} waves:"
 >
-> | # | ID | Name | Scope | Depends on |
-> |---|-----|------|-------|------------|
-> | 1 | P0-A | [name] | SMALL | Nothing |
-> | 2 | P0-B | [name] | FEATURE | P0-A |
-> | ... |
+> | ID | Phase.Wave | Name | Touches | Depends on |
+> |----|-----------|------|---------|------------|
+> | W1a | 1.1 | [name] | `repo.go` | Nothing |
+> | W1b | 1.1 | [name] | `events.go` | Nothing |
+> | W2a | 2.1 | [name] | `api.go` | W1a |
 >
-> "Generate specs for all milestones, or select specific ones?"
+> "Generate SPECs for all wave-agents, or select specific ones?"
 >
-> 1. All milestones
-> 2. Select milestones (comma-separated numbers)
+> 1. All wave-agents
+> 2. Select a single wave (e.g., `Wave 1.1`)
+> 3. Select specific IDs (comma-separated, e.g., `W1a, W2a`)
+
+### 3b. Collision Revalidation Gate
+
+Before spawning any spec-builder, re-run the touches-intersection check against each wave. For every pair `(A, B)` within the same wave, assert `A.touches ∩ B.touches == ∅`.
+
+If any collision is found, STOP and report:
+
+> "Roadmap drift detected: W{id} and W{id} in Wave N.M both touch `{file}`. Re-plan waves before generating SPECs:
+>
+> ```
+> /fellowship:plan --roadmap {roadmap-path}
+> ```
+
+This gate prevents SPECs that would write-conflict at build time.
 
 ### 4. Resolve Artifact Paths
 
-Before generating specs, resolve the output paths:
-
 1. **Resolve project root** per `artifact-paths` skill.
-2. **Derive feature directory** from the roadmap's parent: `{project_root}/.skilmarillion/projects/{slug}/specs/`
-3. **Count existing specs** to determine the starting SPEC number.
-4. **Confirm base path with user** per `artifact-paths` slug confirmation protocol:
-   > "Specs will be saved to `{project_root}/.skilmarillion/projects/{slug}/specs/SPEC-{NNN}-{slug}.md`. Confirm?"
-5. **Create directory** if it does not exist:
+2. **Derive specs directory** from the roadmap's parent: `{project_root}/.skilmarillion/projects/{slug}/specs/`
+3. **Confirm base path with user** per `artifact-paths` slug confirmation protocol:
+   > "SPECs will be saved to `{project_root}/.skilmarillion/projects/{slug}/specs/SPEC-{wave_id}-{slug}.md`. Confirm?"
+4. **Create directory** if it does not exist:
    ```bash
    mkdir -p {project_root}/.skilmarillion/projects/{slug}/specs
    ```
 
-### 5. Generate Specs in Parallel
+### 5. Generate SPECs — Wave-Batched Parallel
 
-Launch spec generation for multiple milestones concurrently using the `Task` tool. Group milestones into batches by dependency order — milestones with no unresolved dependencies can run in parallel.
+Waves are hard sync barriers. Within a single wave, spawn all wave-agents' SPEC pipelines concurrently via the Task tool. Do not start Wave N.M+1 until every SPEC in Wave N.M has been authored and validated.
 
-#### Dependency-Aware Batching
+Across phases, the same rule applies: Wave 2.1 starts only after every SPEC in Wave 1.N has passed.
 
-1. **Batch 0** — All milestones with `Depends on: Nothing` (or no dependencies).
-2. **Batch 1** — Milestones whose dependencies are all in Batch 0.
-3. **Batch N** — Milestones whose dependencies are all in Batch 0..N-1.
+#### Per-Wave-Agent SPEC Pipeline
 
-Within each batch, launch all milestones in parallel.
+For each wave-agent in the current wave, run this chain (all agents within a wave run in parallel with each other; each agent's own chain is sequential):
 
-#### Per-Milestone Spec Generation
-
-For each milestone, the generation pipeline depends on its estimated scope:
-
-##### TRIVIAL
-
-1. Draft a lightweight spec directly with:
-   - **Problem Statement** — derived from the milestone's `What` field
-   - **Acceptance Criteria** — happy path only, Given/When/Then format, derived from the milestone's checklist
-2. **TDD planning:** Delegate to `tdd-planner` agent via Task:
-   ```
-   Task: tdd-planner agent
-   Input: { "spec_content": "{spec_draft}", "arch_recommendation": "" }
-   ```
-3. Append the TDD plan to the spec draft.
-
-##### SMALL
-
-1. **Context gathering:** Delegate to `context-gatherer` agent via Task:
+1. **Context gathering (spec scope):**
    ```
    Task: context-gatherer agent
-   Input: { "task": "{milestone What}", "triage_result": { "size": "SMALL", "risk": "{milestone risk}", "routing_decision": "lightweight_spec", "slug": "{milestone slug}" } }
+   Input: {
+     "task": "{wave_agent.scope}",
+     "scope": "spec",
+     "touches": {wave_agent.touches},
+     "triage_result": null
+   }
    ```
-2. **Spec building:** Delegate to `spec-builder` agent via Task:
+   Returns JSON with `entry_points`, `relevant_files`, `patterns`, `conventions`.
+
+2. **Spec building:**
    ```
    Task: spec-builder agent
-   Input: { "task": "{milestone What}", "triage_result": { "size": "SMALL", "risk": "{milestone risk}", "routing_decision": "lightweight_spec", "slug": "{milestone slug}" }, "context": {context JSON}, "mode": "small" }
+   Input: {
+     "wave_assignment": {
+       "id": "{wave_agent.id}",
+       "name": "{wave_agent.name}",
+       "scope": "{wave_agent.scope}",
+       "touches": {wave_agent.touches},
+       "depends_on": {wave_agent.depends_on},
+       "acceptance": "{wave_agent.acceptance}"
+     },
+     "prd_path": "{absolute path to PRD.md}",
+     "prd_references": {list of FR-IDs from acceptance},
+     "discovery_path": "{absolute path to DISCOVERY.md}",
+     "context": {context JSON},
+     "paired_prd_phase": { "id": "{phase id}", "name": "{phase name}" },
+     "wave_id": "{wave_agent.id}"
+   }
    ```
-3. **Architecture advising:** Delegate to `architecture-advisor` agent via Task:
+   Returns raw SPEC markdown. Save to `specs/SPEC-{wave_id}-{slug}.md`.
+
+3. **Architecture advising (spec level):**
    ```
    Task: architecture-advisor agent
-   Input: { "spec_content": "{spec_draft}", "context": {context JSON} }
+   Input: {
+     "spec_content": "{spec markdown}",
+     "context": {context JSON},
+     "invocation_level": "spec"
+   }
    ```
-4. **TDD planning:** Delegate to `tdd-planner` agent via Task:
+   Append the returned `## Architecture Recommendation` section to the SPEC.
+
+4. **TDD planning:**
    ```
    Task: tdd-planner agent
-   Input: { "spec_content": "{spec_draft}\n\n{arch_section}", "arch_recommendation": "{arch_section}" }
+   Input: {
+     "spec_content": "{spec markdown with arch}",
+     "arch_recommendation": "{arch section}"
+   }
    ```
-5. **Assemble spec:** Replace placeholders with agent outputs.
-
-##### FEATURE
-
-1. **Context gathering:** Delegate to `context-gatherer` agent via Task:
-   ```
-   Task: context-gatherer agent
-   Input: { "task": "{milestone What}", "triage_result": { "size": "FEATURE", "risk": "{milestone risk}", "routing_decision": "full_workflow", "slug": "{milestone slug}" } }
-   ```
-2. **Spec building:** Delegate to `spec-builder` agent via Task:
-   ```
-   Task: spec-builder agent
-   Input: { "task": "{milestone What}", "triage_result": { "size": "FEATURE", "risk": "{milestone risk}", "routing_decision": "full_workflow", "slug": "{milestone slug}" }, "context": {context JSON}, "mode": "feature" }
-   ```
-3. **Architecture advising:** Delegate to `architecture-advisor` agent via Task:
-   ```
-   Task: architecture-advisor agent
-   Input: { "spec_content": "{spec_draft}", "context": {context JSON} }
-   ```
-4. **TDD planning:** Delegate to `tdd-planner` agent via Task:
-   ```
-   Task: tdd-planner agent
-   Input: { "spec_content": "{spec_draft}\n\n{arch_section}", "arch_recommendation": "{arch_section}" }
-   ```
-5. **Assemble spec:** Replace placeholders with agent outputs.
+   Merge the returned TDD plan into the SPEC's Ordered Implementation Steps (spec-builder emits a draft; tdd-planner refines RED-GREEN cadence).
 
 ### 6. Validate and Save
 
-For each generated spec:
+For each generated SPEC:
 
-1. Derive the slug from the milestone name by delegating to the `slug-namer` agent, then **confirm the proposed slug with the user** per the `artifact-paths` confirmation protocol before using it. Never write the spec file with an unconfirmed slug.
-2. Assign the next auto-incrementing SPEC number.
-3. Save the spec to `{project_root}/.skilmarillion/projects/{slug}/specs/SPEC-{NNN}-{slug}.md` using the Write tool.
-4. **Validation gate:** Run the validation script:
+1. Assert `frontmatter.touches ⊆ wave_assignment.touches`. If divergence, warn the user and re-run spec-builder on the offending wave-agent (validator also catches this).
+2. Run the validator:
    ```bash
    python ${CLAUDE_PLUGIN_ROOT}/scripts/validate.py {spec_path} --type spec --json
    ```
-   - If score >= 85: **PASS** — proceed.
+   - If score >= 85: **PASS** — mark complete.
    - If score < 85: display findings, re-draft failing sections using findings as feedback, re-validate. Repeat until score >= 85.
-5. Display per-spec status as each completes:
-   > `SPEC-{NNN}-{slug}.md` — PASS ({score}/100)
+3. Display per-SPEC status as each completes:
+   > `SPEC-{wave_id}-{slug}.md` — PASS ({score}/100)
 
 ### 7. Update Roadmap Spec Index
 
-After all specs are generated and validated, update the Spec Index table in the ROADMAP:
+After all SPECs in the requested wave(s) pass, update the Spec Index table in the ROADMAP:
 
 1. Read the ROADMAP file.
 2. Locate the `## Spec Index` section.
-3. For each generated spec, add or update a row:
-   ```
-   | SPEC-{NNN} | {milestone name} | DRAFT | {phase} | {feature ID} |
-   ```
+3. For each generated SPEC, update the matching `SPEC-{wave_id}` row's Status from `PENDING` to `DRAFT`.
 4. Save the updated ROADMAP using the Edit tool.
 
 ### 8. Summary and Next Steps
 
 Present the generation summary:
 
-> **Specs generated:** {N} of {total milestones}
+> **SPECs generated:** {N} of {total wave-agents in selected scope}
 >
-> | Spec | Milestone | Score | Status |
-> |------|-----------|-------|--------|
-> | SPEC-001-{slug} | P0-A: {name} | 85 | PASS |
-> | SPEC-002-{slug} | P0-B: {name} | 78 | PASS |
-> | ... |
+> | SPEC | Wave | Score | Status |
+> |------|------|-------|--------|
+> | SPEC-W1a-{slug} | 1.1 | 92 | PASS |
+> | SPEC-W1b-{slug} | 1.1 | 88 | PASS |
+> | SPEC-W2a-{slug} | 2.1 | 90 | PASS |
 
-If any specs failed validation after retries, list them with their findings.
+If any SPECs failed validation after retries, list them with their findings.
 
 ---
 
 ## NEXT STEP BREADCRUMB
 
-After all specs are generated, display:
+After SPECs are generated, display:
 
-> **All specs generated.** Next step: run `/fellowship:build` on each spec to begin implementation.
+> **SPECs ready.** Next step: run `/fellowship:build` by wave or by individual spec.
 >
-> Suggested commands (in dependency order):
 > ```
-> /fellowship:build .skilmarillion/projects/{slug}/specs/SPEC-001-{slug}.md
-> /fellowship:build .skilmarillion/projects/{slug}/specs/SPEC-002-{slug}.md
-> ...
+> /fellowship:build wave 1               # run all W1* wave-agents in parallel
+> /fellowship:build spec W1a             # run a single wave-agent
+> /fellowship:build wave 1 --team        # spawn Agent Teams instead of Task subagents
 > ```
 
 > `/fellowship:build` is part of this plugin — no additional install needed.
@@ -227,11 +222,13 @@ After all specs are generated, display:
 
 ## WHAT NOT TO DO
 
-- Do NOT generate specs without a validated ROADMAP as input — refuse and suggest `/fellowship:plan --roadmap` first.
-- Do NOT triage milestones — the ROADMAP already provides scope estimates from the PRD decomposition.
-- Do NOT ask design questions per milestone — the PRD and ROADMAP already captured requirements. Use the milestone's `What` and `Checklist` as the task description for agents.
-- Do NOT run milestones sequentially when they have no dependency relationship — use parallel agents.
-- Do NOT skip the validation gate — every spec must score >= 85 before it is considered complete.
+- Do NOT generate SPECs from a roadmap that is missing DISCOVERY.md — re-run `/fellowship:plan --roadmap` first.
+- Do NOT skip the collision revalidation gate — a drifted roadmap is the most common source of wave-merge conflicts.
+- Do NOT triage wave-agents — the ROADMAP (via `wave-planner`) already locked scope and touches.
+- Do NOT ask design questions per wave-agent — the SPEC compiles from PRD + DISCOVERY + wave assignment.
+- Do NOT run wave-agents sequentially within a wave — always parallel.
+- Do NOT start Wave N.M+1 until every SPEC in Wave N.M has passed validation.
+- Do NOT skip the validation gate — every SPEC must score >= 85 before it is considered complete.
 - Do NOT modify the ROADMAP except for the Spec Index table update.
 - Do NOT hardcode paths — use the `artifact-paths` skill for all path resolution.
 - Do NOT skip the slug confirmation protocol — always confirm the base save path with the user.
