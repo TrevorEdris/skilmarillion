@@ -11,6 +11,8 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+from session_helpers import is_real_interactive_session
+
 
 def _find_existing_pending(month_dir: Path) -> Path | None:
     """Find an existing _pending_ dir in the month subdir."""
@@ -52,6 +54,9 @@ def handle_session_start(
     """Handle a SessionStart event. Returns JSON-serializable dict for stdout."""
     root = _resolve_sessions_dir(project_dir)
     if root is None:
+        return {}
+
+    if not is_real_interactive_session(project_dir=project_dir):
         return {}
 
     now = datetime.now()
