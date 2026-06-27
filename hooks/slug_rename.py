@@ -10,23 +10,21 @@ Slow path: scans the current month's subdir for pending dirs via $CLAUDE_PROJECT
 
 import json
 import re
-import shutil
-import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
 
+from session_helpers import is_non_prompt_text, is_real_interactive_session
+
 TICKET_RE = re.compile(r"([A-Z][A-Za-z]+-\d+)")
 
-SLUG_PROMPT = (
-    "Generate a concise 3-4 word title for a coding session based on the user's "
-    "first message. Output ONLY the title in Title-Case separated by hyphens. "
-    "No explanation, no quotes, no punctuation. Examples: Build-Auth-Flow, "
-    "Fix-Login-Bug, Refactor-Error-Handling, Add-Dashboard-UI\n\n"
-    "User message: {prompt}"
+# Harness-injected wrapper blocks stripped before slugifying a real prompt.
+WRAPPER_BLOCK_RE = re.compile(
+    r"<(system-reminder|task-notification|command-message|command-name|command-args)>"
+    r".*?</\1>",
+    re.DOTALL,
 )
 
-# Deterministic fallback
 STOP_WORDS = {
     "a", "an", "the", "and", "or", "but", "in", "on", "at", "to", "for",
     "of", "with", "by", "from", "is", "it", "be", "as", "do", "im", "its",
@@ -36,46 +34,15 @@ STOP_WORDS = {
 MAX_SLUG_WORDS = 4
 
 
-def _generate_slug_haiku(prompt: str) -> str | None:
-    """Call claude CLI with Haiku to generate a slug. Returns None on failure."""
-    claude_bin = shutil.which("claude")
-    if not claude_bin:
-        return None
-
-    try:
-        result = subprocess.run(
-            [claude_bin, "-p", SLUG_PROMPT.format(prompt=prompt), "--model", "haiku"],
-            capture_output=True,
-            text=True,
-            timeout=15,
-        )
-        if result.returncode != 0:
-            return None
-
-        slug = result.stdout.strip()
-        # Sanitize: keep only alphanumeric and hyphens
-        slug = re.sub(r"[^a-zA-Z0-9\-]", "", slug)
-        return slug if slug else None
-    except (subprocess.TimeoutExpired, OSError):
-        return None
-
-
-def _make_slug_deterministic(text: str) -> str:
-    """Fallback: extract 3-4 meaningful words as a Title-Case slug."""
-    cleaned = TICKET_RE.sub("", text).strip()
+def _make_slug(text: str) -> str:
+    """Extract 3-4 meaningful words as a Title-Case slug, deterministically."""
+    cleaned = WRAPPER_BLOCK_RE.sub("", text)
+    cleaned = TICKET_RE.sub("", cleaned).strip()
     cleaned = re.sub(r"[^a-zA-Z0-9\s]", "", cleaned)
     words = [w for w in cleaned.split() if w.lower() not in STOP_WORDS]
     words = words[:MAX_SLUG_WORDS]
     slug = "-".join(w.capitalize() for w in words if w)
     return slug if slug else "Session"
-
-
-def _make_slug(text: str) -> str:
-    """Generate a slug: try Haiku first, fall back to deterministic."""
-    slug = _generate_slug_haiku(text)
-    if slug:
-        return slug
-    return _make_slug_deterministic(text)
 
 
 def _extract_ticket(text: str) -> str | None:
@@ -109,6 +76,12 @@ def handle_slug_rename(
     env_file_path: str | None = None,
 ) -> dict:
     """Handle a UserPromptSubmit event. Returns JSON-serializable dict for stdout."""
+    # Defense in depth: never rename for non-interactive (headless / sub-agent /
+    # scheduled) sessions. session_start gates dir creation on the same predicate,
+    # so the two hooks' notion of "real session" cannot drift.
+    if not is_real_interactive_session(project_dir=project_dir):
+        return {}
+
     # Fast path: env var set and dir name has no pending marker
     if session_dir and "_pending_" not in Path(session_dir).name:
         return {}
@@ -132,7 +105,9 @@ def handle_slug_rename(
 
     # Extract prompt and build new name
     user_prompt = payload.get("prompt", "") or payload.get("user_prompt", "")
-    if not user_prompt:
+    # Skip harness-injected non-prompts (slug-gen sentinel, task/system reminders,
+    # scheduled-task payloads, empty) so they never name a session dir.
+    if is_non_prompt_text(user_prompt):
         return {}
 
     ticket = _extract_ticket(user_prompt)
